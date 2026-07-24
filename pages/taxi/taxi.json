@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "打车服务",
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar",
+    "float-island": "/components/float-island/float-island"
+  }
+}

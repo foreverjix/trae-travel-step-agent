@@ -1,0 +1,540 @@
+.status-bar {
+  padding: 48rpx 40rpx;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 140, 66, 0.25);
+}
+
+.status-icon-ring {
+  width: 120rpx;
+  height: 120rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+.status-icon {
+  font-size: 64rpx;
+}
+
+.status-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.status-time {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+}
+
+/* 车票大卡片 */
+.ticket-big-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 36rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  border: 2rpx solid #FFE9D6;
+}
+
+.ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.ticket-type {
+  font-size: 28rpx;
+  color: #FF8C42;
+  font-weight: bold;
+  background: rgba(255, 140, 66, 0.1);
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+}
+
+.ticket-number {
+  font-size: 40rpx;
+  color: #2D3142;
+  font-weight: bold;
+}
+
+.ticket-stations {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+}
+
+.ticket-station {
+  text-align: center;
+  flex: 1;
+}
+
+.station-name {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.station-time {
+  font-size: 30rpx;
+  color: #FF8C42;
+  display: block;
+  font-weight: bold;
+}
+
+.ticket-arrow {
+  text-align: center;
+  padding: 0 20rpx;
+  flex-shrink: 0;
+}
+
+.arrow-line {
+  font-size: 48rpx;
+  color: #FFB627;
+  display: block;
+}
+
+.arrow-duration {
+  font-size: 24rpx;
+  color: #6B7280;
+  display: block;
+}
+
+.ticket-seat {
+  display: flex;
+  justify-content: center;
+  gap: 24rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx dashed #FFE9D6;
+}
+
+.seat-box, .platform-box, .carriage-box {
+  background: #FFF9F2;
+  border-radius: 16rpx;
+  padding: 16rpx 28rpx;
+  text-align: center;
+  min-width: 120rpx;
+}
+
+.seat-box {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+}
+
+.seat-label, .platform-label, .carriage-label {
+  font-size: 22rpx;
+  color: #9A5B2E;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.seat-box .seat-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.seat-value, .platform-value, .carriage-value {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+}
+
+.seat-box .seat-value {
+  color: #ffffff;
+}
+
+/* 网约车大卡片 */
+.taxi-big-card {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  border-radius: 28rpx;
+  padding: 36rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 12rpx 32rpx rgba(255, 140, 66, 0.25);
+  text-align: center;
+}
+
+.taxi-status {
+  margin-bottom: 16rpx;
+}
+
+.taxi-status-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  display: inline-block;
+}
+
+.taxi-plate {
+  margin-bottom: 16rpx;
+}
+
+.taxi-plate .plate-label {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.taxi-plate .plate-value {
+  font-size: 56rpx;
+  font-weight: bold;
+  color: #ffffff;
+  display: block;
+  letter-spacing: 6rpx;
+}
+
+.taxi-route-text {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.driver-plate {
+  font-size: 30rpx;
+  color: #FF8C42;
+  font-weight: bold;
+  display: block;
+  margin-top: 8rpx;
+}
+
+.order-info-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.order-id-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #F9FAFB;
+}
+
+.order-id-label {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.order-id-value {
+  font-size: 28rpx;
+  color: #2D3142;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.order-type-row {
+  display: flex;
+  align-items: center;
+}
+
+.order-icon-box {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+}
+
+.order-icon-box.train-bg {
+  background: #FFF2E6;
+}
+
+.order-icon-box.bus-bg {
+  background: #E6FAF4;
+}
+
+.order-icon-box.taxi-bg {
+  background: #FFF4E0;
+}
+
+.order-type-icon {
+  font-size: 40rpx;
+}
+
+.order-type-text {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.route-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.route-header {
+  margin-bottom: 24rpx;
+}
+
+.route-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.route-content {
+  position: relative;
+  padding-left: 44rpx;
+}
+
+.route-point {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.route-point:last-child {
+  margin-bottom: 0;
+}
+
+.point-dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.point-dot.start {
+  background: #FF8C42;
+  box-shadow: 0 0 0 8rpx rgba(255, 140, 66, 0.2);
+}
+
+.point-dot.end {
+  background: #06D6A0;
+  box-shadow: 0 0 0 8rpx rgba(6, 214, 160, 0.2);
+}
+
+.point-info {
+  flex: 1;
+}
+
+.point-station {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.point-time {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.route-line {
+  position: absolute;
+  left: 34rpx;
+  top: 44rpx;
+  width: 4rpx;
+  height: calc(100% - 88rpx);
+  background: linear-gradient(180deg, #FF8C42 0%, #FFB627 100%);
+}
+
+.route-meta {
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #F3E5D8;
+}
+
+.route-meta .meta-item {
+  font-size: 28rpx;
+  color: #6B7280;
+  background: #FFF9F2;
+  padding: 12rpx 24rpx;
+  border-radius: 20rpx;
+}
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.detail-header {
+  margin-bottom: 20rpx;
+}
+
+.detail-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #F9FAFB;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row.total {
+  padding-top: 20rpx;
+  border-top: 2rpx solid #F3E5D8;
+}
+
+.detail-label {
+  font-size: 30rpx;
+  color: #6B7280;
+}
+
+.detail-value {
+  font-size: 30rpx;
+  color: #2D3142;
+  font-weight: bold;
+}
+
+.detail-value.price {
+  color: #FF8C42;
+  font-size: 40rpx;
+}
+
+.driver-info {
+  display: flex;
+  align-items: center;
+}
+
+.driver-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  background: #FFF2E6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.avatar-icon {
+  font-size: 52rpx;
+}
+
+.driver-details {
+  flex: 1;
+}
+
+.driver-name {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.driver-phone {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.driver-call {
+  width: 80rpx;
+  height: 80rpx;
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+}
+
+.footer-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 24rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24rpx);
+  box-shadow: 0 -8rpx 24rpx rgba(255, 140, 66, 0.1);
+  display: flex;
+  gap: 20rpx;
+  z-index: 100;
+}
+
+.footer-actions .btn-secondary,
+.footer-actions .btn-primary {
+  flex: 1;
+}
+
+/* 保存行程卡片 */
+.save-card-section {
+  padding: 0 32rpx 32rpx;
+  margin-bottom: 160rpx;
+}
+
+.save-card-btn {
+  background: linear-gradient(135deg, #06D6A0 0%, #0EAD7A 100%);
+  border-radius: 28rpx;
+  padding: 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 12rpx 32rpx rgba(6, 214, 160, 0.25);
+}
+
+.save-card-btn:active {
+  transform: scale(0.98);
+}
+
+.save-card-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.save-card-text {
+  font-size: 34rpx;
+  color: #ffffff;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.save-card-hint {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.85);
+  display: block;
+}
+
+.trip-card-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  width: 750px;
+  height: 1000px;
+}

@@ -1,0 +1,74 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">帮父母规划行程</text>
+    <text class="page-subtitle text-white">为 {{parentName}} 规划出行路线</text>
+  </view>
+
+  <view class="input-section">
+    <view class="input-card">
+      <text class="input-label">出发地</text>
+      <input class="input-field" placeholder="请输入出发地" value="{{from}}" bindinput="onFromInput" />
+    </view>
+    <view class="input-card">
+      <text class="input-label">目的地</text>
+      <input class="input-field" placeholder="请输入目的地" value="{{to}}" bindinput="onToInput" />
+    </view>
+    <view class="input-card">
+      <text class="input-label">出发日期</text>
+      <picker mode="date" value="{{date}}" bindchange="onDateInput">
+        <view class="input-field date-picker">
+          <text>{{date || '请选择日期'}}</text>
+          <text class="picker-arrow">›</text>
+        </view>
+      </picker>
+    </view>
+    <view class="btn-primary plan-btn" bindtap="generatePlans">生成行程方案</view>
+  </view>
+
+  <view class="plans-section" wx:if="{{plans.length > 0}}">
+    <text class="section-title">推荐方案</text>
+    
+    <view class="plan-card {{selectedPlanIndex === index ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="id" wx:for-index="index" bindtap="selectPlan" data-index="{{index}}">
+      <view class="plan-header">
+        <view class="plan-badge" wx:if="{{item.tag}}">{{item.tag}}</view>
+        <text class="plan-duration">{{item.duration}}</text>
+        <text class="plan-price">¥{{item.price}}起</text>
+      </view>
+      
+      <view class="plan-steps">
+        <view class="step-item" wx:for="{{item.steps}}" wx:key="name" wx:for-item="step">
+          <view class="step-dot"></view>
+          <view class="step-content">
+            <view class="step-header">
+              <text class="step-name">{{step.name}}</text>
+              <text class="step-provider">{{step.provider}}</text>
+            </view>
+            <text class="step-desc">{{step.desc}}</text>
+          </view>
+          <view class="step-line" wx:if="{{index < item.steps.length - 1}}"></view>
+        </view>
+      </view>
+
+      <view class="plan-select" wx:if="{{selectedPlanIndex === index}}">
+        <text class="select-icon">✓</text>
+        <text class="select-text">已选择此方案</text>
+      </view>
+    </view>
+
+    <view class="btn-primary send-btn" bindtap="confirmPlan">发送方案给 {{parentName}}</view>
+  </view>
+
+  <!-- 确认弹窗 -->
+  <view class="confirm-modal" wx:if="{{showConfirmModal}}">
+    <view class="modal-mask" bindtap="cancelSend"></view>
+    <view class="modal-content">
+      <text class="modal-icon">📤</text>
+      <text class="modal-title">确认发送</text>
+      <text class="modal-desc">确定要将此行程方案发送给 {{parentName}} 吗？{{parentName}} 需要确认后才能完成预订。</text>
+      <view class="modal-actions">
+        <view class="modal-btn cancel" bindtap="cancelSend">取消</view>
+        <view class="modal-btn confirm" bindtap="sendPlan">确认发送</view>
+      </view>
+    </view>
+  </view>
+</view>

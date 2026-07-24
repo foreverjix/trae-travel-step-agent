@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "票务预订",
+  "usingComponents": {
+    "custom-tabbar": "/components/custom-tabbar/custom-tabbar",
+    "float-island": "/components/float-island/float-island"
+  }
+}

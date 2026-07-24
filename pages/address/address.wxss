@@ -1,0 +1,71 @@
+.address-list {
+  margin-bottom: 32rpx;
+}
+
+.address-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.address-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+
+.home-icon {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+}
+
+.hospital-icon {
+  background: linear-gradient(135deg, #06D6A0 0%, #48DFB8 100%);
+}
+
+.station-icon {
+  background: linear-gradient(135deg, #118AB2 0%, #3AAED8 100%);
+}
+
+.address-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-label {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.address-input {
+  background: #FFF9F2;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  font-size: 32rpx;
+  color: #2D3142;
+  border: 2rpx solid #F3E5D8;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.save-section {
+  margin-bottom: 32rpx;
+}
+
+.save-section .btn-primary {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
+}

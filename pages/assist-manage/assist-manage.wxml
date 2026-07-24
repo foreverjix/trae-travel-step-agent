@@ -1,0 +1,50 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">辅助账号管理</text>
+    <text class="page-subtitle text-white" style="opacity: 0.9;">管理您的子女辅助账号</text>
+  </view>
+
+  <view wx:if="{{assistAccounts.length > 0}}" class="accounts-list">
+    <view wx:for="{{assistAccounts}}" wx:key="phone" class="account-card">
+      <view class="account-info">
+        <view class="account-avatar">{{item.nameFirstChar}}</view>
+        <view class="account-detail">
+          <view class="account-name-row">
+            <text class="account-name">{{item.name}}</text>
+            <text class="account-relation">{{item.relation}}</text>
+          </view>
+          <text class="account-phone">{{item.phone}}</text>
+          <text class="account-time">绑定时间：{{item.bindTime}}</text>
+        </view>
+      </view>
+      <view class="account-actions">
+        <view class="action-btn action-call" bindtap="callAccount" data-phone="{{item.phone}}">
+          <text>📞 通话</text>
+        </view>
+        <view class="action-btn action-delete" bindtap="deleteAccount" data-phone="{{item.phone}}">
+          <text>删除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:else class="empty-state card">
+    <text class="empty-icon">👨‍👩‍👧</text>
+    <text class="empty-text">还没有绑定子女辅助账号</text>
+    <text class="empty-hint">绑定后子女可以帮助您管理出行事务</text>
+  </view>
+
+  <view class="btn-primary mt-40" bindtap="goBind">添加辅助账号</view>
+
+  <view class="tips-card">
+    <view class="tips-header">
+      <text class="tips-icon">💡</text>
+      <text class="tips-title">管理说明</text>
+    </view>
+    <view class="tips-list">
+      <text class="tips-item">• 删除辅助账号后，该子女将无法再帮助您管理出行</text>
+      <text class="tips-item">• 建议至少绑定一位子女作为紧急联系人</text>
+      <text class="tips-item">• 绑定的手机号将用于接收出行状态通知</text>
+    </view>
+  </view>
+</view>

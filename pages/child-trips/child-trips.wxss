@@ -1,0 +1,121 @@
+.trips-list {
+  margin-bottom: 32rpx;
+}
+
+.trip-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.04);
+}
+
+.trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.trip-date {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
+.trip-status {
+  font-size: 26rpx;
+  font-weight: bold;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 140, 66, 0.1);
+}
+
+.trip-main {
+  margin-bottom: 20rpx;
+}
+
+.trip-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.trip-desc {
+  font-size: 28rpx;
+  color: #6B7280;
+  display: block;
+}
+
+.trip-steps-preview {
+  display: flex;
+  gap: 32rpx;
+  margin-bottom: 20rpx;
+  padding: 16rpx;
+  background: #FFF9F2;
+  border-radius: 16rpx;
+}
+
+.step-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.step-icon {
+  font-size: 32rpx;
+}
+
+.step-time {
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.trip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 2rpx solid #F3F4F6;
+}
+
+.trip-price {
+  font-size: 32rpx;
+  color: #FF8C42;
+  font-weight: bold;
+}
+
+.trip-arrow {
+  font-size: 40rpx;
+  color: #9A5B2E;
+}
+
+.empty-state {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 60rpx 40rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #6B7280;
+  display: block;
+}

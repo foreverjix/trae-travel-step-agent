@@ -1,0 +1,66 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">子女协助</text>
+    <text class="page-subtitle text-white">远程帮父母规划出行</text>
+  </view>
+
+  <view class="bind-section" wx:if="{{parentAccounts.length === 0}}">
+    <view class="empty-state">
+      <text class="empty-icon">👨‍👩‍👧</text>
+      <text class="empty-title">还没有绑定父母</text>
+      <text class="empty-desc">绑定后可以帮父母远程规划行程、查看出行记录</text>
+      <view class="btn-primary" bindtap="goToBindParent">绑定父母</view>
+    </view>
+  </view>
+
+  <view class="parent-list" wx:else>
+    <text class="list-title">我的父母</text>
+    
+    <view class="parent-card" wx:for="{{parentAccounts}}" wx:key="phone">
+      <view class="parent-info">
+        <view class="parent-avatar">
+          <text class="avatar-text">{{item.nameFirstChar}}</text>
+        </view>
+        <view class="parent-detail">
+          <text class="parent-name">{{item.name}}</text>
+          <text class="parent-relation">{{item.relation}}</text>
+        </view>
+      </view>
+      
+      <view class="parent-actions">
+        <view class="action-btn plan-btn" bindtap="goToPlan" data-parent="{{item}}">
+          <text class="action-icon">🗺️</text>
+          <text class="action-text">规划行程</text>
+        </view>
+        <view class="action-btn trips-btn" bindtap="goToViewTrips" data-parent="{{item}}">
+          <text class="action-icon">📋</text>
+          <text class="action-text">查看行程</text>
+        </view>
+        <view class="action-btn call-btn" bindtap="callParent" data-phone="{{item.phone}}">
+          <text class="action-icon">📞</text>
+          <text class="action-text">打电话</text>
+        </view>
+      </view>
+
+      <view class="parent-footer">
+        <text class="bind-time">绑定时间：{{item.bindTime}}</text>
+        <view class="footer-btn delete-btn" bindtap="deleteParent" data-phone="{{item.phone}}">解除绑定</view>
+      </view>
+    </view>
+
+    <view class="add-parent" bindtap="goToBindParent">
+      <text class="add-icon">+</text>
+      <text class="add-text">添加其他父母</text>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-icon">💡</text>
+      <view class="tips-content">
+        <text class="tips-title">使用说明</text>
+        <text class="tips-desc">您可以帮父母规划行程并发送确认消息，父母确认后即可完成预订。您也可以查看父母的出行记录，确保他们的出行安全。</text>
+      </view>
+    </view>
+  </view>
+</view>

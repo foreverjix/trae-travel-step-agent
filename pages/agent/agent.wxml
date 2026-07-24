@@ -1,0 +1,86 @@
+<view class="container">
+  <view class="header-gradient">
+    <view class="agent-header">
+      <view class="agent-avatar">🤖</view>
+      <view class="agent-title-group">
+        <text class="agent-name text-white">出行小助手</text>
+        <text class="agent-desc text-white" style="opacity: 0.9;">根据您的需求，为您推荐最优出行方案</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="input-card">
+    <view class="input-item">
+      <text class="input-label">出发地</text>
+      <input class="input-field" placeholder="请输入出发城市" value="{{from}}" bindinput="onFromInput" />
+    </view>
+    <view class="input-item">
+      <text class="input-label">目的地</text>
+      <input class="input-field" placeholder="请输入目的城市" value="{{to}}" bindinput="onToInput" />
+    </view>
+    <view class="input-item">
+      <text class="input-label">出行日期</text>
+      <input class="input-field" placeholder="请选择出行日期" value="{{date}}" bindtap="showDatePicker" />
+    </view>
+    <view class="input-item">
+      <text class="input-label">出行偏好</text>
+      <view class="preference-tags">
+        <view class="preference-tag {{prefFast ? 'active' : ''}}" bindtap="togglePreference" data-pref="fast">
+          <text>⚡ 快捷</text>
+        </view>
+        <view class="preference-tag {{prefCheap ? 'active' : ''}}" bindtap="togglePreference" data-pref="cheap">
+          <text>💰 经济</text>
+        </view>
+        <view class="preference-tag {{prefComfortable ? 'active' : ''}}" bindtap="togglePreference" data-pref="comfortable">
+          <text>🛋️ 舒适</text>
+        </view>
+      </view>
+    </view>
+    <view class="btn-primary recommend-btn" bindtap="getRecommendations">获取推荐方案</view>
+  </view>
+
+  <view class="plans-section" wx:if="{{plans.length > 0}}">
+    <view class="section-header">
+      <text class="card-title">推荐方案</text>
+      <text class="section-more">共{{plans.length}}个</text>
+    </view>
+    <view class="plans-list">
+      <view class="plan-card" wx:for="{{plans}}" wx:key="id" bindtap="selectPlan" data-plan="{{item}}">
+        <view class="plan-header">
+          <text class="plan-name">{{item.name}}</text>
+          <text class="plan-badge" wx:if="{{item.recommend}}">推荐</text>
+        </view>
+        <text class="plan-desc">{{item.description}}</text>
+        <view class="plan-segments">
+          <view class="segment-item" wx:for="{{item.segments}}" wx:key="type" wx:for-item="segment">
+            <text class="segment-icon">{{segment.type === 'train' ? '🚄' : '🚕'}}</text>
+            <view class="segment-info">
+              <text class="segment-name">{{segment.name}}</text>
+              <text class="segment-time">{{segment.time}}</text>
+            </view>
+            <text class="segment-price">¥{{segment.price}}</text>
+          </view>
+        </view>
+        <view class="plan-summary">
+          <view class="summary-item">
+            <text class="summary-label">总耗时</text>
+            <text class="summary-value">{{item.totalTime}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">总费用</text>
+            <text class="summary-value price">¥{{item.totalPrice}}</text>
+          </view>
+        </view>
+        <view class="plan-action">
+          <text>立即预订 →</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state card" wx:if="{{!plans.length && showEmpty}}">
+    <text class="empty-icon">🤔</text>
+    <text class="empty-text">请输入出行信息</text>
+    <text class="empty-hint">我会为您推荐最适合的出行方案</text>
+  </view>
+</view>

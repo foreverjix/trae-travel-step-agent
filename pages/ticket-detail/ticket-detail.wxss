@@ -1,0 +1,297 @@
+.ticket-info-card {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  border-radius: 28rpx;
+  padding: 40rpx 32rpx;
+  color: #ffffff;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255, 140, 66, 0.25);
+}
+
+.ticket-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.ticket-type-tag {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 10rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  margin-right: 16rpx;
+  font-weight: bold;
+}
+
+.ticket-number {
+  font-size: 44rpx;
+  font-weight: bold;
+}
+
+.route-section {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28rpx;
+}
+
+.station-item {
+  flex: 1;
+  text-align: center;
+}
+
+.station-name {
+  font-size: 34rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.station-time {
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.route-line {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.line-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.line-dot.start {
+  box-shadow: 0 0 0 8rpx rgba(255, 255, 255, 0.3);
+}
+
+.line-path {
+  flex: 1;
+  width: 4rpx;
+  background: rgba(255, 255, 255, 0.5);
+  margin: 12rpx 0;
+}
+
+.duration-info {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20rpx;
+  padding: 16rpx;
+}
+
+.duration-text {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.seats-section {
+  margin-bottom: 24rpx;
+}
+
+.seats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.seat-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  background: #FFF9F2;
+  border-radius: 20rpx;
+  border: 2rpx solid transparent;
+}
+
+.seat-item.selected {
+  background: #FFF2E6;
+  border-color: #FF8C42;
+}
+
+.seat-info {
+  flex: 1;
+}
+
+.seat-type {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.seat-count {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.seat-price {
+  margin-right: 16rpx;
+}
+
+.seat-price .price-unit {
+  font-size: 28rpx;
+  color: #FF8C42;
+  font-weight: bold;
+}
+
+.seat-price .price-value {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #FF8C42;
+}
+
+.seat-check {
+  width: 52rpx;
+  height: 52rpx;
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.passenger-section {
+  margin-bottom: 24rpx;
+}
+
+.passenger-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx;
+  background: #FFF9F2;
+  border-radius: 20rpx;
+}
+
+.passenger-name {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.passenger-id {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.passenger-tag {
+  background: #E6FAF4;
+  color: #06D6A0;
+  padding: 10rpx 20rpx;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.add-passenger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36rpx;
+  background: #FFF9F2;
+  border-radius: 20rpx;
+  border: 2rpx dashed #FF8C42;
+}
+
+.add-icon {
+  font-size: 48rpx;
+  color: #FF8C42;
+  margin-right: 12rpx;
+}
+
+.add-text {
+  font-size: 32rpx;
+  color: #FF8C42;
+  font-weight: bold;
+}
+
+.order-info-section {
+  margin-bottom: 120rpx;
+}
+
+.order-info-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #F9FAFB;
+}
+
+.order-info-item:last-child {
+  border-bottom: none;
+}
+
+.order-info-item.total {
+  padding-top: 24rpx;
+  border-top: 2rpx solid #F3E5D8;
+}
+
+.info-label {
+  font-size: 30rpx;
+  color: #6B7280;
+}
+
+.info-value {
+  font-size: 30rpx;
+  color: #2D3142;
+  font-weight: bold;
+}
+
+.info-value.price {
+  color: #FF8C42;
+  font-size: 36rpx;
+}
+
+.footer-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 24rpx;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 24rpx);
+  box-shadow: 0 -8rpx 24rpx rgba(255, 140, 66, 0.1);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.action-buttons .btn-secondary,
+.action-buttons .btn-primary {
+  flex: 1;
+}
+
+.price-summary {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+}
+
+.summary-label {
+  font-size: 28rpx;
+  color: #6B7280;
+  margin-right: 8rpx;
+}
+
+.summary-price {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #FF8C42;
+}

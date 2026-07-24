@@ -1,0 +1,82 @@
+<view class="float-island-container" wx:if="{{visible}}">
+  <view class="float-island {{expanded ? 'expanded' : ''}} {{isUrgent ? 'urgent' : ''}}" style="top: {{statusBarHeight + 10}}px;">
+    <view class="island-pulse" wx:if="{{isUrgent && !expanded}}"></view>
+    
+    <view class="island-content">
+      <view class="island-short" wx:if="{{!expanded}}" bindtap="toggleExpand">
+        <view class="short-info">
+          <view class="short-route-row">
+            <text class="short-route">{{trip.from}} → {{trip.to}}</text>
+            <text class="short-time">{{trip.departureTime}}</text>
+          </view>
+          <view class="short-mid-row">
+            <text class="short-train" wx:if="{{trip.trainNo || trip.name}}">{{trip.trainNo || trip.name}}</text>
+            <text class="short-gate" wx:if="{{trip.gate}}">{{trip.gate}}</text>
+            <text class="short-seat" wx:if="{{trip.seat}}">座位{{trip.seat}}</text>
+          </view>
+          <view class="short-bottom-row">
+            <text class="short-plate" wx:if="{{trip.plate || (trip.steps && trip.steps[0] && trip.steps[0].plate)}}">接站车牌 {{trip.plate || (trip.steps && trip.steps[0] && trip.steps[0].plate)}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="island-expanded" wx:else>
+        <view class="expanded-header">
+          <text class="expanded-title">📋 今日行程</text>
+          <view class="expanded-close" catchtap="closeIsland">✕</view>
+        </view>
+        
+        <view class="expanded-main">
+          <view class="expanded-route">
+            <text class="route-start">{{trip.from}}</text>
+            <text class="route-arrow">→</text>
+            <text class="route-end">{{trip.to}}</text>
+          </view>
+          
+          <view class="expanded-info">
+            <view class="info-item">
+              <text class="info-label">车次</text>
+              <text class="info-value">{{trip.name}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">发车</text>
+              <text class="info-value">{{trip.departureTime}}</text>
+            </view>
+          </view>
+          
+          <view class="expanded-info">
+            <view class="info-item">
+              <text class="info-label">座位</text>
+              <text class="info-value">{{trip.seat || '查看详情'}}</text>
+            </view>
+            <view class="info-item">
+              <text class="info-label">接站车牌</text>
+              <text class="info-value">{{trip.plate || (trip.steps && trip.steps[0] && trip.steps[0].plate) || '查看详情'}}</text>
+            </view>
+          </view>
+          
+          <view class="expanded-steps" wx:if="{{trip.steps && trip.steps.length}}">
+            <text class="steps-title">行程安排</text>
+            <view class="step-item" wx:for="{{trip.steps}}" wx:key="type">
+              <view class="step-dot {{item.type}}"></view>
+              <view class="step-content">
+                <text class="step-name">{{item.name}}</text>
+                <text class="step-detail">{{item.time}}
+                  <text wx:if="{{item.seat}}"> · {{item.seat}}</text>
+                  <text wx:if="{{item.plate}}"> · {{item.plate}}</text>
+                  <text wx:if="{{item.driver}}"> · {{item.driver}}</text>
+                  <text wx:if="{{item.platform}}"> · {{item.platform}}</text>
+                </text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <view class="expanded-actions">
+          <view class="action-btn action-secondary" bindtap="saveCard">保存卡片</view>
+          <view class="action-btn action-primary" bindtap="goToDetail">查看详情</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

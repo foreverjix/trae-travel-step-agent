@@ -1,0 +1,236 @@
+.user-card {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 8rpx;
+}
+
+.user-avatar {
+  width: 132rpx;
+  height: 132rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+.avatar-icon {
+  font-size: 72rpx;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 44rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.user-phone {
+  font-size: 28rpx;
+  display: block;
+}
+
+.edit-btn {
+  padding: 14rpx 28rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.login-card-simple {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.login-icon {
+  font-size: 100rpx;
+  margin-bottom: 16rpx;
+}
+
+.login-text {
+  font-size: 40rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 28rpx;
+}
+
+.btn-white {
+  background: #ffffff;
+  color: #FF8C42;
+  border-radius: 50rpx;
+  padding: 24rpx 64rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+}
+
+.stats-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx 24rpx;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.stat-item {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FF8C42;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.stat-label {
+  font-size: 28rpx;
+  color: #6B7280;
+  font-weight: bold;
+}
+
+.stat-divider {
+  width: 1rpx;
+  background: #F3E5D8;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.menu-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.menu-title {
+  font-size: 32rpx;
+  color: #9CA3AF;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 16rpx;
+  padding-left: 12rpx;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 12rpx;
+  border-bottom: 1rpx solid #F9FAFB;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon-box {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.menu-icon-box.address-bg {
+  background: #E6F4FF;
+}
+
+.menu-icon-box.order-bg {
+  background: #FFF2E6;
+}
+
+.menu-icon-box.medal-bg {
+  background: #FFF4E0;
+}
+
+.menu-icon-box.assist-bg {
+  background: #FFE4EC;
+}
+
+.menu-icon-box.agent-bg {
+  background: #F3E8FF;
+}
+
+.menu-icon-box.sos-bg {
+  background: #FFEBEF;
+}
+
+.menu-icon-box.service-bg {
+  background: #E6F4FF;
+}
+
+.menu-icon-box.setting-bg {
+  background: #F3F4F6;
+}
+
+.menu-icon {
+  font-size: 40rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 32rpx;
+  color: #2D3142;
+  font-weight: bold;
+}
+
+.menu-tag {
+  font-size: 22rpx;
+  color: #ffffff;
+  background: #EF476F;
+  padding: 6rpx 14rpx;
+  border-radius: 20rpx;
+  margin-right: 12rpx;
+  font-weight: bold;
+}
+
+.menu-arrow {
+  font-size: 40rpx;
+  color: #D1D5DB;
+}
+
+.logout-section {
+  margin-top: 32rpx;
+  margin-bottom: 40rpx;
+}
+
+.logout-btn {
+  width: 100%;
+}
+
+.version-info {
+  text-align: center;
+  padding: 40rpx 20rpx;
+}
+
+.version-text {
+  font-size: 26rpx;
+  color: #9CA3AF;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.copyright {
+  font-size: 24rpx;
+  color: #D1D5DB;
+}

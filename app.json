@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/map-trip/map-trip",
+    "pages/step-confirm/step-confirm",
+    "pages/ticket/ticket",
+    "pages/taxi/taxi",
+    "pages/orders/orders",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/assist/assist",
+    "pages/agent/agent",
+    "pages/medals/medals",
+    "pages/ticket-detail/ticket-detail",
+    "pages/taxi-detail/taxi-detail",
+    "pages/sos/sos",
+    "pages/bind-assist/bind-assist",
+    "pages/assist-manage/assist-manage",
+    "pages/order-detail/order-detail",
+    "pages/address/address",
+    "pages/child/child",
+    "pages/child-plan/child-plan",
+    "pages/child-trips/child-trips"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FF8C42",
+    "navigationBarTitleText": "乐龄出行",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FFF9F2"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

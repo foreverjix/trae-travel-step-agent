@@ -1,0 +1,97 @@
+<view class="container">
+  <view class="ticket-info-card">
+    <view class="ticket-header">
+      <text class="ticket-type-tag">{{ticket.type || '长途汽车'}}</text>
+      <text class="ticket-number">{{ticket.name || ticket.id}}</text>
+    </view>
+    <view class="route-section">
+      <view class="station-item">
+        <text class="station-name">{{ticket.startStation}}</text>
+        <text class="station-time">{{ticket.startTime}}</text>
+      </view>
+      <view class="route-line">
+        <view class="line-dot start"></view>
+        <view class="line-path"></view>
+        <view class="line-dot end"></view>
+      </view>
+      <view class="station-item">
+        <text class="station-name">{{ticket.endStation}}</text>
+        <text class="station-time">{{ticket.endTime}}</text>
+      </view>
+    </view>
+    <view class="duration-info">
+      <text class="duration-text">历时 {{ticket.duration}}</text>
+    </view>
+  </view>
+
+  <view class="seats-section card" wx:if="{{ticket.seats && ticket.seats.length > 0}}">
+    <view class="section-header">
+      <text class="card-title">选择座位类型</text>
+    </view>
+    <view class="seats-list">
+      <view class="seat-item {{selectedSeat === seat.type ? 'selected' : ''}}" wx:for="{{ticket.seats}}" wx:key="type" bindtap="selectSeat" data-seat="{{seat}}">
+        <view class="seat-info">
+          <text class="seat-type">{{seat.type}}</text>
+          <text class="seat-count">剩余{{seat.count}}张</text>
+        </view>
+        <view class="seat-price">
+          <text class="price-unit">¥</text>
+          <text class="price-value">{{seat.price}}</text>
+        </view>
+        <view class="seat-check" wx:if="{{selectedSeat === seat.type}}">✓</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="passenger-section card">
+    <view class="section-header">
+      <text class="card-title">乘车人信息</text>
+    </view>
+    <view class="passenger-card" wx:if="{{passenger.name}}">
+      <view class="passenger-info">
+        <text class="passenger-name">{{passenger.name}}</text>
+        <text class="passenger-id">{{passenger.idCard}}</text>
+      </view>
+      <text class="passenger-tag">{{passenger.isSenior ? '老年人优惠' : '成人票'}}</text>
+    </view>
+    <view class="add-passenger" wx:else bindtap="addPassenger">
+      <text class="add-icon">+</text>
+      <text class="add-text">添加乘车人</text>
+    </view>
+  </view>
+
+  <view class="order-info-section card">
+    <view class="section-header">
+      <text class="card-title">订单信息</text>
+    </view>
+    <view class="order-info-list">
+      <view class="order-info-item">
+        <text class="info-label">出发日期</text>
+        <text class="info-value">{{date || '未选择'}}</text>
+      </view>
+      <view class="order-info-item">
+        <text class="info-label">票种类型</text>
+        <text class="info-value">{{selectedSeat || '未选择'}}</text>
+      </view>
+      <view class="order-info-item">
+        <text class="info-label">乘车人</text>
+        <text class="info-value">{{passenger.name || '未添加'}}</text>
+      </view>
+      <view class="order-info-item total">
+        <text class="info-label">总金额</text>
+        <text class="info-value price">{{totalPrice > 0 ? '¥' + totalPrice : '待计算'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-actions">
+    <view class="action-buttons">
+      <view class="btn-secondary" bindtap="goBack">返回修改</view>
+      <view class="btn-primary" bindtap="submitOrder">立即预订</view>
+    </view>
+    <view class="price-summary">
+      <text class="summary-label">合计:</text>
+      <text class="summary-price">¥{{totalPrice}}</text>
+    </view>
+  </view>
+</view>

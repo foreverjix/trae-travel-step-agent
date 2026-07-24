@@ -1,0 +1,164 @@
+<view class="zero-container">
+  <!-- 顶部装饰背景 -->
+  <view class="zero-header-bg"></view>
+
+  <!-- 顶部问候与状态 -->
+  <view class="zero-header" style="padding-top: {{statusBarHeight + 20}}px;">
+    <view class="zero-header-left">
+      <text class="zero-greeting">{{greeting}}，{{userName}}</text>
+      <text class="zero-date">{{weekDay}} · {{today}}</text>
+    </view>
+    <view class="header-right">
+      <button class="share-btn" open-type="share">
+        <text class="share-icon">分享</text>
+      </button>
+      <view class="weather-pill">
+        <text class="weather-icon">☀️</text>
+        <text class="weather-temp">28°</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 悬浮灵动岛组件 -->
+  <float-island trip="{{currentTrip}}" default-collapsed="{{false}}" show-exit-reminder="{{true}}"></float-island>
+
+  <!-- 语音助手大卡片 -->
+  <view class="voice-section">
+    <view class="voice-card {{isRecording ? 'recording' : ''}}" bindtap="startVoice" bindlongpress="startRecord" bindtouchend="stopRecord">
+      <view class="voice-card-bg"></view>
+      <view class="voice-content">
+        <view class="voice-icon-wrapper">
+          <view class="voice-ring {{isRecording ? 'ring-pulse' : ''}}">
+            <text class="voice-icon-big">{{isRecording ? '🔴' : '🎙️'}}</text>
+          </view>
+        </view>
+        <view class="voice-text-wrapper">
+          <text class="voice-title">{{isRecording ? '正在听您说…' : '说一句就能出发'}}</text>
+          <text class="voice-subtitle">{{isRecording ? '松开结束说话' : '试试说 我要去县医院'}}</text>
+        </view>
+        <text class="voice-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 三大场景按钮 -->
+  <view class="scene-section">
+    <view class="section-header-row">
+      <text class="section-title-bold">想去哪儿？</text>
+      <text class="section-hint">点一下就好</text>
+    </view>
+    <view class="scene-grid">
+      <view class="scene-card scene-home" bindtap="goHome">
+        <view class="scene-emoji-wrap">
+          <text class="scene-emoji">🏠</text>
+        </view>
+        <view class="scene-info">
+          <text class="scene-label">回家</text>
+          <text class="scene-desc">{{homeName}}</text>
+        </view>
+        <text class="scene-go">›</text>
+      </view>
+
+      <view class="scene-card scene-hospital" bindtap="goHospital">
+        <view class="scene-emoji-wrap">
+          <text class="scene-emoji">🏥</text>
+        </view>
+        <view class="scene-info">
+          <text class="scene-label">就医</text>
+          <text class="scene-desc">{{hospitalName}}</text>
+        </view>
+        <text class="scene-go">›</text>
+      </view>
+
+      <view class="scene-card scene-station" bindtap="goStation">
+        <view class="scene-emoji-wrap">
+          <text class="scene-emoji">🚉</text>
+        </view>
+        <view class="scene-info">
+          <text class="scene-label">车站</text>
+          <text class="scene-desc">{{stationName}}</text>
+        </view>
+        <text class="scene-go">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 行程入口大区 -->
+  <view class="trip-section">
+    <view class="section-header-row">
+      <text class="section-title-bold">行程规划</text>
+      <text class="section-hint">想去任何地方</text>
+    </view>
+    <view class="trip-card" bindtap="goToMapTrip">
+      <view class="trip-card-bg"></view>
+      <view class="trip-content">
+        <view class="trip-left">
+          <text class="trip-icon">🗺️</text>
+          <view class="trip-info">
+            <text class="trip-title">地图智能规划</text>
+            <text class="trip-desc">输入目的地，自动安排火车+打车全程</text>
+          </view>
+        </view>
+        <text class="trip-go-btn">去规划</text>
+      </view>
+      <view class="trip-route-demo">
+        <view class="route-dot start"></view>
+        <view class="route-line"></view>
+        <view class="route-dot transfer"></view>
+        <view class="route-line"></view>
+        <view class="route-dot end"></view>
+      </view>
+    </view>
+
+    <view class="trip-grid">
+      <view class="trip-mini-card" bindtap="goToOrders">
+        <text class="mini-icon">📋</text>
+        <text class="mini-title">我的行程</text>
+        <text class="mini-desc">查看已订行程</text>
+      </view>
+      <view class="trip-mini-card" bindtap="goToAssist">
+        <text class="mini-icon">👨‍👩‍👧</text>
+        <text class="mini-title">亲友协助</text>
+        <text class="mini-desc">子女远程帮订</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- SOS 紧急按钮 -->
+  <view class="sos-section">
+    <view class="sos-card" bindtap="goToSos">
+      <view class="sos-content">
+        <text class="sos-icon">🆘</text>
+        <view class="sos-info">
+          <text class="sos-title">紧急求助</text>
+          <text class="sos-desc">一键联系子女和120</text>
+        </view>
+      </view>
+      <text class="sos-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 语音结果弹窗 -->
+  <view class="voice-modal" wx:if="{{showVoiceModal}}">
+    <view class="voice-modal-mask" bindtap="closeVoiceModal"></view>
+    <view class="voice-modal-content">
+      <view class="voice-modal-icon">{{isRecognizing ? '🔮' : '🎙️'}}</view>
+      <text class="voice-modal-text">{{voiceText}}</text>
+      <view class="voice-modal-loading" wx:if="{{isRecognizing}}">
+        <view class="voice-loading-dot"></view>
+        <view class="voice-loading-dot"></view>
+        <view class="voice-loading-dot"></view>
+      </view>
+      <view class="voice-modal-result" wx:if="{{voiceResult}}">
+        <text class="result-label">识别到您说的是</text>
+        <text class="result-text">"{{voiceResult}}"</text>
+      </view>
+      <view class="voice-modal-actions" wx:if="{{voiceResult}}">
+        <view class="voice-btn-cancel" bindtap="closeVoiceModal">取消</view>
+        <view class="voice-btn-confirm" bindtap="confirmVoiceResult">确认去这里</view>
+      </view>
+    </view>
+  </view>
+
+  <custom-tabbar current-path="/pages/index/index"></custom-tabbar>
+</view>

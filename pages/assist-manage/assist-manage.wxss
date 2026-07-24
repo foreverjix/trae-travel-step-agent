@@ -1,0 +1,132 @@
+.accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.account-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.account-info {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.account-avatar {
+  width: 96rpx;
+  height: 96rpx;
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: #ffffff;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.account-detail {
+  flex: 1;
+}
+
+.account-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 10rpx;
+}
+
+.account-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.account-relation {
+  font-size: 24rpx;
+  color: #FF8C42;
+  background: #FFF2E6;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-weight: bold;
+}
+
+.account-phone {
+  font-size: 30rpx;
+  color: #6B7280;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.account-time {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.account-actions {
+  display: flex;
+  gap: 16rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #F3E5D8;
+}
+
+.action-btn {
+  padding: 18rpx 28rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  text-align: center;
+}
+
+.action-call {
+  background: #E6FAF4;
+  color: #06D6A0;
+  flex: 1;
+}
+
+.action-delete {
+  background: #FFEBEF;
+  color: #EF476F;
+}
+
+.tips-card {
+  background: #FFF9F2;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-top: 30rpx;
+  border: 2rpx solid #FFE4D1;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.tips-icon {
+  font-size: 40rpx;
+  margin-right: 12rpx;
+}
+
+.tips-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.tips-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tips-item {
+  font-size: 28rpx;
+  color: #6B7280;
+  line-height: 1.8;
+}

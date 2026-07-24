@@ -1,0 +1,172 @@
+<view class="container">
+  <view class="status-bar" style="background: {{statusBg}}">
+    <view class="status-icon-ring">
+      <text class="status-icon">{{statusIcon}}</text>
+    </view>
+    <text class="status-text">{{statusText}}</text>
+    <text class="status-time" wx:if="{{order.departureTime}}">{{order.date}} {{order.departureTime}} 出发</text>
+  </view>
+
+  <!-- 车票信息大卡片 -->
+  <view class="ticket-big-card" wx:if="{{order.type === 'train' || order.type === 'bus'}}">
+    <view class="ticket-header">
+      <text class="ticket-type">{{order.type === 'train' ? '火车票' : '汽车票'}}</text>
+      <text class="ticket-number">{{order.name}}</text>
+    </view>
+    <view class="ticket-stations">
+      <view class="ticket-station">
+        <text class="station-name">{{order.startStation || order.from}}</text>
+        <text class="station-time" wx:if="{{order.departureTime}}">{{order.departureTime}}</text>
+      </view>
+      <view class="ticket-arrow">
+        <text class="arrow-line">→</text>
+        <text class="arrow-duration" wx:if="{{order.duration}}">{{order.duration}}</text>
+      </view>
+      <view class="ticket-station">
+        <text class="station-name">{{order.endStation || order.to}}</text>
+        <text class="station-time" wx:if="{{order.arrivalTime}}">{{order.arrivalTime}}</text>
+      </view>
+    </view>
+    <view class="ticket-seat" wx:if="{{order.seat}}">
+      <view class="seat-box">
+        <text class="seat-label">座位号</text>
+        <text class="seat-value">{{order.seat}}</text>
+      </view>
+      <view class="platform-box" wx:if="{{order.platform}}">
+        <text class="platform-label">检票口</text>
+        <text class="platform-value">{{order.platform}}</text>
+      </view>
+      <view class="carriage-box" wx:if="{{order.carriage}}">
+        <text class="carriage-label">车厢</text>
+        <text class="carriage-value">{{order.carriage}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 网约车信息大卡片 -->
+  <view class="taxi-big-card" wx:if="{{order.type === 'taxi'}}">
+    <view class="taxi-status">
+      <text class="taxi-status-text">{{order.status === 'onway' ? '行程中' : '已接单'}}</text>
+    </view>
+    <view class="taxi-plate" wx:if="{{order.plate}}">
+      <text class="plate-label">车牌号</text>
+      <text class="plate-value">{{order.plate}}</text>
+    </view>
+    <view class="taxi-route" wx:if="{{order.start || order.end}}">
+      <text class="taxi-route-text">{{order.start || order.from}} → {{order.end || order.to}}</text>
+    </view>
+  </view>
+
+  <view class="order-info-card">
+    <view class="order-id-row">
+      <text class="order-id-label">订单号</text>
+      <text class="order-id-value">{{order.orderId}}</text>
+    </view>
+    <view class="order-type-row">
+      <view class="order-icon-box {{order.type}}-bg">
+        <text class="order-type-icon">{{order.orderIcon}}</text>
+      </view>
+      <text class="order-type-text">{{order.orderTitle}}</text>
+    </view>
+  </view>
+
+  <view class="route-card">
+    <view class="route-header">
+      <text class="route-title">行程信息</text>
+    </view>
+    <view class="route-content">
+      <view class="route-point">
+        <view class="point-dot start"></view>
+        <view class="point-info">
+          <text class="point-station">{{order.startStation || order.start || order.from}}</text>
+          <text class="point-time" wx:if="{{order.startTime || order.departureTime}}">{{order.startTime || order.departureTime}}</text>
+        </view>
+      </view>
+      <view class="route-line"></view>
+      <view class="route-point">
+        <view class="point-dot end"></view>
+        <view class="point-info">
+          <text class="point-station">{{order.endStation || order.end || order.to}}</text>
+          <text class="point-time" wx:if="{{order.endTime || order.arrivalTime}}">{{order.endTime || order.arrivalTime}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="route-meta" wx:if="{{order.distance || order.duration}}">
+      <text class="meta-item" wx:if="{{order.distance}}">📍 {{order.distance}}公里</text>
+      <text class="meta-item" wx:if="{{order.duration}}">⏱️ {{order.duration}}</text>
+    </view>
+  </view>
+
+  <view class="detail-card" wx:if="{{order.passenger}}">
+    <view class="detail-header">
+      <text class="detail-title">乘车人信息</text>
+    </view>
+    <view class="detail-content">
+      <view class="detail-row">
+        <text class="detail-label">姓名</text>
+        <text class="detail-value">{{order.passenger.name}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">身份证</text>
+        <text class="detail-value">{{order.passenger.idCard}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">票种</text>
+        <text class="detail-value">{{order.passenger.isSenior ? '老年人优惠票' : '成人票'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-card" wx:if="{{order.driver || order.plate}}">
+    <view class="detail-header">
+      <text class="detail-title">车辆信息</text>
+    </view>
+    <view class="driver-info">
+      <view class="driver-avatar" wx:if="{{order.driver}}">
+        <text class="avatar-icon">👨‍✈️</text>
+      </view>
+      <view class="driver-details">
+        <text class="driver-name" wx:if="{{order.driver}}">{{order.driver.name}}</text>
+        <text class="driver-phone" wx:if="{{order.driver}}">{{order.driver.phone}}</text>
+        <text class="driver-plate" wx:if="{{order.plate}}">车牌：{{order.plate}}</text>
+      </view>
+      <view class="driver-call" wx:if="{{order.driver}}" bindtap="callDriver">
+        <text>📞</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="detail-card">
+    <view class="detail-header">
+      <text class="detail-title">费用信息</text>
+    </view>
+    <view class="detail-content">
+      <view class="detail-row">
+        <text class="detail-label">票价/车费</text>
+        <text class="detail-value">¥{{order.price}}</text>
+      </view>
+      <view class="detail-row total">
+        <text class="detail-label">实付金额</text>
+        <text class="detail-value price">¥{{order.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-actions">
+    <view class="btn-secondary" wx:if="{{showCancel}}" bindtap="cancelOrder">取消订单</view>
+    <view class="btn-primary" wx:if="{{showChange}}" bindtap="changeOrder">改签/变更</view>
+    <view class="btn-primary" wx:if="{{showConfirm}}" bindtap="confirmOrder">确认完成</view>
+  </view>
+
+  <!-- 保存行程卡片按钮 -->
+  <view class="save-card-section">
+    <view class="save-card-btn" bindtap="saveTripCard">
+      <text class="save-card-icon">📷</text>
+      <text class="save-card-text">保存行程卡片到相册</text>
+      <text class="save-card-hint">微信聊天里也能看</text>
+    </view>
+  </view>
+
+  <!-- 隐藏的canvas用于生成卡片 -->
+  <canvas canvas-id="tripCard" class="trip-card-canvas" style="width: 750px; height: 1000px;"></canvas>
+</view>

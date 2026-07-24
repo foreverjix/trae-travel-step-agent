@@ -1,0 +1,52 @@
+<view class="container">
+  <view class="login-header">
+    <view class="logo-ring">
+      <text class="logo-icon">🚗</text>
+    </view>
+    <text class="app-name">乐龄出行</text>
+    <text class="app-slogan">让出行更简单、更安全</text>
+  </view>
+
+  <view class="form-card">
+    <text class="form-title">欢迎登录</text>
+    
+    <view class="form-item">
+      <text class="form-label">手机号</text>
+      <input class="form-input" placeholder="请输入手机号" value="{{phone}}" bindinput="onPhoneInput" maxlength="11" type="number" />
+    </view>
+    
+    <view class="form-item">
+      <text class="form-label">验证码</text>
+      <view class="code-input-group">
+        <input class="form-input code-input" placeholder="请输入验证码" value="{{code}}" bindinput="onCodeInput" maxlength="6" type="number" />
+        <view class="send-code-btn {{countdown > 0 ? 'disabled' : ''}}" bindtap="sendCode">
+          <text>{{countdown > 0 ? countdown + '秒后重发' : '发送验证码'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="form-label">姓名</text>
+      <input class="form-input" placeholder="请输入您的姓名" value="{{name}}" bindinput="onNameInput" />
+    </view>
+
+    <view class="agreement-row" bindtap="toggleAgreement">
+      <view class="checkbox {{checked ? 'checked' : ''}}">
+        <text>{{checked ? '✓' : ''}}</text>
+      </view>
+      <text class="agreement-text">我已阅读并同意</text>
+      <text class="agreement-link">《用户服务协议》</text>
+    </view>
+
+    <view class="btn-primary login-btn" bindtap="login">登录/注册</view>
+  </view>
+
+  <view class="assist-card">
+    <view class="assist-icon">👨‍👩‍👧</view>
+    <view class="assist-info">
+      <text class="assist-title">子女代绑辅助账号</text>
+      <text class="assist-desc">子女可帮助父母注册和管理账号，远程协助完成出行预订</text>
+    </view>
+    <view class="btn-secondary assist-btn" bindtap="goToBindAssist">立即绑定</view>
+  </view>
+</view>

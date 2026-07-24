@@ -1,0 +1,109 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">地图智能规划</text>
+    <text class="page-subtitle text-white" style="opacity: 0.9;">输入目的地，自动安排全程出行</text>
+  </view>
+
+  <!-- 地址输入 -->
+  <view class="address-card">
+    <view class="address-row">
+      <view class="address-dot start"></view>
+      <input class="address-input" placeholder="您在哪里出发？" value="{{from}}" bindinput="onFromInput" />
+    </view>
+    <view class="address-divider"></view>
+    <view class="address-row">
+      <view class="address-dot end"></view>
+      <input class="address-input" placeholder="您要去哪里？" value="{{to}}" bindinput="onToInput" />
+    </view>
+    <view class="swap-btn" bindtap="swapAddress">⇅ 调换</view>
+  </view>
+
+  <!-- 日期 -->
+  <view class="date-card">
+    <text class="date-label">出发日期</text>
+    <picker mode="date" value="{{date}}" start="{{today}}" bindchange="onDateChange">
+      <view class="date-value">{{date}}</view>
+    </picker>
+  </view>
+
+  <!-- 真实地图 -->
+  <view class="map-card" wx:if="{{from && to}}">
+    <view class="map-header">
+      <text class="map-title">路线预览</text>
+      <text class="map-distance">全程约 {{distance}} 公里</text>
+    </view>
+    <view class="real-map-container">
+      <map 
+        id="routeMap"
+        longitude="{{centerLng}}"
+        latitude="{{centerLat}}"
+        scale="{{mapScale}}"
+        markers="{{markers}}"
+        polyline="{{polyline}}"
+        bindmarkertap="onMarkerTap"
+        style="width: 100%; height: 100%;"
+      />
+    </view>
+  </view>
+
+  <!-- 规划方案 -->
+  <view class="plans-section" wx:if="{{plans.length > 0}}">
+    <view class="section-header">
+      <text class="card-title">推荐方案</text>
+      <text class="section-more">{{plans.length}}个方案</text>
+    </view>
+    <view class="plan-list">
+      <view class="plan-card {{selectedPlan && selectedPlan.id === item.id ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="id" bindtap="selectPlan" data-plan="{{item}}">
+        <view class="plan-badge" wx:if="{{item.recommended}}">推荐</view>
+        <view class="plan-header">
+          <view class="plan-time">
+            <text class="time-icon">⏱</text>
+            <text class="time-text">{{item.totalTime}}</text>
+          </view>
+          <view class="plan-price">
+            <text class="price-unit">¥</text>
+            <text class="price-value">{{item.totalPrice}}</text>
+            <text class="price-text">起</text>
+          </view>
+        </view>
+        <view class="plan-steps">
+          <view class="plan-step" wx:for="{{item.steps}}" wx:key="index" wx:for-item="step" wx:for-index="stepIndex">
+            <view class="step-icon">{{step.icon}}</view>
+            <view class="step-info">
+              <view class="step-name-row">
+                <text class="step-name">{{step.name}}</text>
+                <text class="step-provider">{{getProviderShortName(step.provider)}}</text>
+              </view>
+              <text class="step-detail">{{step.detail}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="plan-action">
+          <view class="plan-providers" wx:if="{{selectedPlan && selectedPlan.id === item.id}}">
+            <view class="provider-label">点击跳转对应小程序下单：</view>
+            <view class="provider-chips">
+              <view class="provider-chip" wx:for="{{item.steps}}" wx:key="index" wx:for-item="pstep" catchtap="goToProvider" data-provider="{{pstep.provider}}" data-plan="{{item}}">
+                <text class="chip-icon">{{pstep.icon}}</text>
+                <text class="chip-text">{{getProviderShortName(pstep.provider)}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="btn-primary plan-btn" wx:if="{{selectedPlan && selectedPlan.id === item.id}}">已选此方案</view>
+          <view class="btn-primary plan-btn" wx:else>选择此方案</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <text class="empty-icon">🗺️</text>
+    <text class="empty-text">请输入出发地和目的地</text>
+    <text class="empty-hint">试试：太原 → 南京</text>
+  </view>
+
+  <!-- 提示 -->
+  <view class="safety-tip">
+    <text class="safety-tip-icon">💡</text>
+    <text class="safety-tip-text">选择方案后，每一步都需要您手动确认才会预订</text>
+  </view>
+</view>

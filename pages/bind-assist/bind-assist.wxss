@@ -1,0 +1,68 @@
+.form-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.code-input-wrap {
+  display: flex;
+  gap: 16rpx;
+}
+
+.code-input {
+  flex: 1;
+}
+
+.send-code-btn {
+  padding: 28rpx 28rpx;
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  color: #ffffff;
+  border-radius: 20rpx;
+  font-size: 28rpx;
+  white-space: nowrap;
+  font-weight: bold;
+  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+}
+
+.send-code-btn.disabled {
+  background: #E5E7EB;
+  box-shadow: none;
+  color: #9CA3AF;
+}
+
+.tips-card {
+  background: #FFF9F2;
+  border-radius: 28rpx;
+  padding: 32rpx;
+  border: 2rpx solid #FFE4D1;
+}
+
+.tips-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.tips-icon {
+  font-size: 40rpx;
+  margin-right: 12rpx;
+}
+
+.tips-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.tips-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tips-item {
+  font-size: 28rpx;
+  color: #6B7280;
+  line-height: 1.8;
+}

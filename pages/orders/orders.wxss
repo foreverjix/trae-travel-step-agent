@@ -1,0 +1,309 @@
+.order-tabs {
+  display: flex;
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 10rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 22rpx 10rpx;
+  font-size: 30rpx;
+  color: #6B7280;
+  border-radius: 18rpx;
+  font-weight: bold;
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  color: #ffffff;
+  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.order-card {
+  background: #ffffff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.order-type {
+  display: flex;
+  align-items: center;
+}
+
+.order-icon-box {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+}
+
+.order-icon-box.train-bg {
+  background: #FFF2E6;
+}
+
+.order-icon-box.bus-bg {
+  background: #E6FAF4;
+}
+
+.order-icon-box.taxi-bg {
+  background: #FFF4E0;
+}
+
+.order-icon {
+  font-size: 44rpx;
+}
+
+.order-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-title-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2D3142;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.order-id {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 10rpx 22rpx;
+  border-radius: 24rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+}
+
+.booked-pill,
+.picking-pill,
+.onway-pill,
+.waiting-pill {
+  background: #FFF4E0;
+  color: #FF8C42;
+}
+
+.completed-pill {
+  background: #E6FAF4;
+  color: #06D6A0;
+}
+
+.cancelled-pill {
+  background: #FFEBEF;
+  color: #EF476F;
+}
+
+.order-route-box {
+  background: #FFF9F2;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.route-point {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.route-point:last-child {
+  margin-bottom: 0;
+  margin-top: 16rpx;
+}
+
+.route-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.route-dot.start {
+  background: #FF8C42;
+  box-shadow: 0 0 0 6rpx rgba(255, 140, 66, 0.2);
+}
+
+.route-dot.end {
+  background: #06D6A0;
+  box-shadow: 0 0 0 6rpx rgba(6, 214, 160, 0.2);
+}
+
+.route-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #2D3142;
+}
+
+.route-line-section {
+  display: flex;
+  align-items: center;
+  margin-left: 10rpx;
+}
+
+.route-arrow-line {
+  width: 4rpx;
+  height: 40rpx;
+  background: linear-gradient(180deg, #FF8C42 0%, #FFB627 100%);
+  margin-right: 20rpx;
+  margin-left: 6rpx;
+  border-radius: 2rpx;
+}
+
+.route-type {
+  font-size: 24rpx;
+  color: #FF8C42;
+  background: #ffffff;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-weight: bold;
+}
+
+.order-keyinfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.keyinfo-item {
+  background: #FFF2E6;
+  border-radius: 16rpx;
+  padding: 16rpx 24rpx;
+  min-width: 120rpx;
+  text-align: center;
+}
+
+.keyinfo-label {
+  font-size: 22rpx;
+  color: #9A5B2E;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.keyinfo-value {
+  font-size: 30rpx;
+  color: #2D3142;
+  font-weight: bold;
+  display: block;
+}
+
+.order-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  background: #F9FAFB;
+  padding: 14rpx 20rpx;
+  border-radius: 16rpx;
+}
+
+.meta-icon {
+  font-size: 28rpx;
+  margin-right: 10rpx;
+}
+
+.meta-text {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #F3E5D8;
+}
+
+.order-price {
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 26rpx;
+  color: #6B7280;
+  margin-right: 12rpx;
+}
+
+.price-unit {
+  font-size: 26rpx;
+  color: #FF8C42;
+  font-weight: bold;
+}
+
+.price-value {
+  font-size: 44rpx;
+  color: #FF8C42;
+  font-weight: bold;
+}
+
+.order-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.action-btn {
+  padding: 16rpx 28rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.action-btn.outline {
+  background: #FFF9F2;
+  color: #FF8C42;
+}
+
+.action-btn.danger {
+  background: #FFEBEF;
+  color: #EF476F;
+}
+
+.action-btn.primary {
+  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  color: #ffffff;
+  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80rpx 40rpx;
+}
+
+.empty-btn {
+  margin-top: 32rpx;
+  width: 60%;
+  display: inline-block;
+}

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>地图智能规划</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #FFF9F2; }
+    #container { width: 100%; height: 100%; }
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #FF8C42;
+      font-size: 16px;
+    }
+    .loading-icon { font-size: 40px; margin-bottom: 10px; }
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    .legend-item:last-child { margin-bottom: 0; }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    .header-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+      padding: 16px 20px;
+      padding-top: calc(env(safe-area-inset-top) + 16px);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title {
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .back-btn {
+      color: #fff;
+      font-size: 14px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">
+    <div class="back-btn" onclick="goBack()">返回</div>
+    <div class="header-title">路线规划</div>
+    <div style="width: 60px;"></div>
+  </div>
+  
+  <div id="container"></div>
+  
+  <div class="loading" id="loading">
+    <div class="loading-icon">🗺️</div>
+    <div>正在加载地图...</div>
+  </div>
+  
+  <div class="legend" id="legend" style="display: none;">
+    <div class="legend-item"><div class="legend-dot" style="background:#FF8C42;"></div><span>🚄 高铁/火车</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FFB627;"></div><span>🚕 网约车</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#06D6A0;"></div><span>🚌 公交</span></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#EF476F;"></div><span>✈️ 航班</span></div>
+  </div>
+
+  <script>
+    function getQueryParam(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || '';
+    }
+
+    function goBack() {
+      wx.miniProgram.navigateBack();
+    }
+
+    const from = getQueryParam('from') || '太原';
+    const to = getQueryParam('to') || '南京';
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://webapi.amap.com/maps?v=1.4.15&key=您的高德地图Web服务Key';
+    
+    script.onload = function() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('legend').style.display = 'block';
+      initMap();
+    };
+    
+    script.onerror = function() {
+      document.getElementById('loading').innerHTML = '<div class="loading-icon">⚠️</div><div>地图加载失败</div>';
+    };
+    
+    document.head.appendChild(script);
+
+    function initMap() {
+      const map = new AMap.Map('container', {
+        zoom: 6,
+        center: [116.397428, 39.90923],
+        mapStyle: 'amap://styles/light',
+        showLabel: true
+      });
+
+      const geocoder = new AMap.Geocoder({
+        city: '全国'
+      });
+
+      let fromMarker = null;
+      let toMarker = null;
+
+      geocoder.getLocation(from, function(status, result) {
+        if (status === 'complete' && result.geocodes.length > 0) {
+          const location = result.geocodes[0].location;
+          fromMarker = new AMap.Marker({
+            position: location,
+            icon: new AMap.Icon({
+              size: new AMap.Size(40, 40),
+              image: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="url(%23grad)"/><defs><radialGradient id="grad"><stop offset="0%" stop-color="%23FFB627"/><stop offset="100%" stop-color="%23FF8C42"/></radialGradient></defs><text x="20" y="25" font-size="20" text-anchor="middle">📍</text></svg>'),
+              imageSize: new AMap.Size(40, 40)
+            }),
+            label: {
+              content: from,
+              offset: new AMap.Pixel(0, 25),
+              style: {
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#2D3142',
+                background: 'rgba(255,255,255,0.9)',
+                padding: '4px 8px',
+                borderRadius: '8px'
+              }
+            }
+          });
+          map.add(fromMarker);
+          adjustMapCenter();
+        }
+      });
+
+      geocoder.getLocation(to, function(status, result) {
+        if (status === 'complete' && result.geocodes.length > 0) {
+          const location = result.geocodes[0].location;
+          toMarker = new AMap.Marker({
+            position: location,
+            icon: new AMap.Icon({
+              size: new AMap.Size(40, 40),
+              image: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="url(%23grad)"/><defs><radialGradient id="grad"><stop offset="0%" stop-color="%2306D6A0"/><stop offset="100%" stop-color="%2311998E"/></radialGradient></defs><text x="20" y="25" font-size="20" text-anchor="middle">🏁</text></svg>'),
+              imageSize: new AMap.Size(40, 40)
+            }),
+            label: {
+              content: to,
+              offset: new AMap.Pixel(0, 25),
+              style: {
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: '#2D3142',
+                background: 'rgba(255,255,255,0.9)',
+                padding: '4px 8px',
+                borderRadius: '8px'
+              }
+            }
+          });
+          map.add(toMarker);
+          adjustMapCenter();
+        }
+      });
+
+      function adjustMapCenter() {
+        if (fromMarker && toMarker) {
+          const bounds = new AMap.Bounds(fromMarker.getPosition(), toMarker.getPosition());
+          map.setFitView([fromMarker, toMarker], false, [50, 50, 50, 80]);
+          
+          const polyline = new AMap.Polyline({
+            path: [fromMarker.getPosition(), toMarker.getPosition()],
+            strokeColor: '#FF8C42',
+            strokeWeight: 4,
+            strokeOpacity: 0.8,
+            strokeStyle: 'solid',
+            lineCap: 'round',
+            lineJoin: 'round'
+          });
+          map.add(polyline);
+        }
+      }
+
+      map.on('complete', function() {
+        console.log('地图加载完成');
+      });
+    }
+  </script>
+</body>
+</html>

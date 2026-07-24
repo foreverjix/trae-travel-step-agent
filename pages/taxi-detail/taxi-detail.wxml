@@ -1,0 +1,106 @@
+<view class="container">
+  <view class="status-card">
+    <view class="status-icon-ring">
+      <text class="status-icon">{{statusIcon}}</text>
+    </view>
+    <text class="status-text">{{statusText}}</text>
+    <text class="status-desc">{{statusDesc}}</text>
+  </view>
+
+  <view class="route-card">
+    <view class="route-content">
+      <view class="route-point start">
+        <view class="point-dot"></view>
+        <text class="point-label">出发</text>
+        <text class="point-text">{{order.start}}</text>
+      </view>
+      <view class="route-line"></view>
+      <view class="route-point end">
+        <view class="point-dot"></view>
+        <text class="point-label">目的</text>
+        <text class="point-text">{{order.end}}</text>
+      </view>
+    </view>
+    <view class="route-info">
+      <view class="info-item">
+        <text class="info-icon">📍</text>
+        <text class="info-text">{{order.distance}}公里</text>
+      </view>
+      <view class="info-item">
+        <text class="info-icon">⏱️</text>
+        <text class="info-text">{{order.duration}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-icon">💰</text>
+        <text class="info-text price">¥{{order.price}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="driver-card" wx:if="{{order.driver}}">
+    <view class="driver-header">
+      <view class="driver-avatar">
+        <text class="avatar-icon">👨‍✈️</text>
+      </view>
+      <view class="driver-info">
+        <text class="driver-name">{{order.driver.name}}</text>
+        <view class="driver-rating">
+          <text class="star">★</text>
+          <text class="rating-value">{{order.driver.rating}}</text>
+        </view>
+      </view>
+      <view class="driver-call" bindtap="callDriver">
+        <text class="call-icon">📞</text>
+      </view>
+    </view>
+    <view class="vehicle-info">
+      <text class="vehicle-icon">🚗</text>
+      <text class="vehicle-text">车牌号: {{vehiclePlate}}</text>
+    </view>
+  </view>
+
+  <view class="progress-section card">
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{progress}}%"></view>
+    </view>
+    <view class="progress-steps">
+      <view class="step {{step >= 1 ? 'active' : ''}}">
+        <view class="step-dot">1</view>
+        <text class="step-text">等待接单</text>
+      </view>
+      <view class="step {{step >= 2 ? 'active' : ''}}">
+        <view class="step-dot">2</view>
+        <text class="step-text">司机接单</text>
+      </view>
+      <view class="step {{step >= 3 ? 'active' : ''}}">
+        <view class="step-dot">3</view>
+        <text class="step-text">司机到达</text>
+      </view>
+      <view class="step {{step >= 4 ? 'active' : ''}}">
+        <view class="step-dot">4</view>
+        <text class="step-text">行程中</text>
+      </view>
+      <view class="step {{step >= 5 ? 'active' : ''}}">
+        <view class="step-dot">5</view>
+        <text class="step-text">到达终点</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="safety-section">
+    <view class="safety-item">
+      <text class="safety-icon">⚠️</text>
+      <text class="safety-text">行程已分享给紧急联系人</text>
+    </view>
+    <view class="safety-item">
+      <text class="safety-icon">🆘</text>
+      <text class="safety-text">紧急求助按钮已就绪</text>
+    </view>
+  </view>
+
+  <view class="footer-actions">
+    <view class="btn-secondary" bindtap="cancelOrder">取消订单</view>
+    <view class="btn-primary" bindtap="startTrip" wx:if="{{step === 3}}">确认上车</view>
+    <view class="btn-primary" bindtap="endTrip" wx:if="{{step === 4}}">确认到达</view>
+  </view>
+</view>

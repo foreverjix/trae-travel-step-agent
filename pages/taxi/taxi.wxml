@@ -1,0 +1,114 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">打车服务</text>
+    <text class="page-subtitle text-white" style="opacity: 0.9;">城区、乡镇、偏远地区都能叫到车</text>
+  </view>
+
+  <view class="address-card">
+    <view class="address-row">
+      <view class="address-dot start"></view>
+      <view class="address-info">
+        <text class="address-label">出发地</text>
+        <input class="address-input" placeholder="请输入出发地点" value="{{from}}" bindinput="onFromInput" />
+      </view>
+      <view class="location-btn" bindtap="useCurrentLocation">
+        <text>📍</text>
+      </view>
+    </view>
+    <view class="address-divider"></view>
+    <view class="address-row">
+      <view class="address-dot end"></view>
+      <view class="address-info">
+        <text class="address-label">目的地</text>
+        <input class="address-input" placeholder="请输入目的地" value="{{to}}" bindinput="onToInput" />
+      </view>
+    </view>
+  </view>
+
+  <view class="area-tabs">
+    <view class="area-tab {{area === 'city' ? 'active' : ''}}" bindtap="switchArea" data-area="city">
+      <text class="area-icon">🏙️</text>
+      <text class="area-text">城区</text>
+    </view>
+    <view class="area-tab {{area === 'town' ? 'active' : ''}}" bindtap="switchArea" data-area="town">
+      <text class="area-icon">🏡</text>
+      <text class="area-text">乡镇</text>
+    </view>
+    <view class="area-tab {{area === 'remote' ? 'active' : ''}}" bindtap="switchArea" data-area="remote">
+      <text class="area-icon">🌄</text>
+      <text class="area-text">偏远地区</text>
+    </view>
+  </view>
+
+  <view class="estimate-card">
+    <view class="estimate-item">
+      <text class="estimate-label">距离</text>
+      <text class="estimate-value">{{distance}}公里</text>
+    </view>
+    <view class="estimate-item">
+      <text class="estimate-label">时间</text>
+      <text class="estimate-value">{{duration}}</text>
+    </view>
+    <view class="estimate-item">
+      <text class="estimate-label">费用</text>
+      <text class="estimate-value price">¥{{price}}</text>
+    </view>
+  </view>
+
+  <view class="driver-section card" wx:if="{{area !== 'remote'}}">
+    <text class="card-title">附近司机</text>
+    <view class="driver-list">
+      <view class="driver-item" wx:for="{{drivers}}" wx:key="id">
+        <view class="driver-avatar">👨‍✈️</view>
+        <view class="driver-info">
+          <view class="driver-name-row">
+            <text class="driver-name">{{item.name}}</text>
+            <view class="driver-rating">
+              <text class="star">★</text>
+              <text class="rating-value">{{item.rating}}</text>
+            </view>
+          </view>
+          <text class="driver-trips">已完成{{item.trips}}单</text>
+        </view>
+        <view class="driver-distance">{{item.distance}}公里</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="remote-section card" wx:if="{{area === 'remote'}}">
+    <view class="remote-notice">
+      <text class="remote-icon">📞</text>
+      <view class="remote-text">
+        <text class="remote-title">偏远地区用车调度</text>
+        <text class="remote-desc">车辆较少，我们将电话为您联系附近的营运车辆</text>
+      </view>
+    </view>
+    <view class="remote-form">
+      <view class="form-item">
+        <text class="form-label">联系电话</text>
+        <input class="form-input" placeholder="请输入联系电话" value="{{phone}}" bindinput="onPhoneInput" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">用车时间</text>
+        <input class="form-input" placeholder="请选择用车时间" value="{{time}}" bindtap="showTimePicker" />
+      </view>
+      <view class="form-item">
+        <text class="form-label">乘客人数</text>
+        <input class="form-input" placeholder="请输入乘客人数" value="{{passengers}}" bindinput="onPassengersInput" />
+      </view>
+    </view>
+  </view>
+
+  <view class="safety-tip">
+    <text class="safety-tip-icon">💡</text>
+    <text class="safety-tip-text">上车前请核对车牌号码，系好安全带</text>
+  </view>
+
+  <view class="footer-bar">
+    <view class="btn-primary footer-btn" bindtap="callTaxi">
+      {{area === 'remote' ? '立即预约调度' : '立即呼叫'}}
+    </view>
+  </view>
+
+  <custom-tabbar current-path="/pages/taxi/taxi"></custom-tabbar>
+</view>

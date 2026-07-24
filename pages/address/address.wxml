@@ -1,0 +1,56 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">常用地址</text>
+    <text class="page-subtitle text-white" style="opacity: 0.9;">设置您的常用目的地，一键出行</text>
+  </view>
+
+  <view class="address-list">
+    <view class="address-card">
+      <view class="address-icon home-icon">🏠</view>
+      <view class="address-info">
+        <text class="address-label">家庭地址</text>
+        <input 
+          class="address-input" 
+          placeholder="请输入家庭地址，例如：太原市小店区" 
+          value="{{homeAddress}}"
+          bindinput="onHomeAddressChange"
+        />
+      </view>
+    </view>
+
+    <view class="address-card">
+      <view class="address-icon hospital-icon">🏥</view>
+      <view class="address-info">
+        <text class="address-label">就医地址</text>
+        <input 
+          class="address-input" 
+          placeholder="请输入常去医院，例如：太原市中心医院" 
+          value="{{hospitalAddress}}"
+          bindinput="onHospitalAddressChange"
+        />
+      </view>
+    </view>
+
+    <view class="address-card">
+      <view class="address-icon station-icon">🚉</view>
+      <view class="address-info">
+        <text class="address-label">车站地址</text>
+        <input 
+          class="address-input" 
+          placeholder="请输入常去车站，例如：太原南站" 
+          value="{{stationAddress}}"
+          bindinput="onStationAddressChange"
+        />
+      </view>
+    </view>
+  </view>
+
+  <view class="save-section">
+    <view class="btn-primary" bindtap="saveAddresses">保存地址</view>
+  </view>
+
+  <view class="safety-tip">
+    <text class="safety-tip-icon">💡</text>
+    <text class="safety-tip-text">设置好常用地址后，首页可以直接点击"回家"、"就医"、"车站"快速规划行程</text>
+  </view>
+</view>

@@ -1,0 +1,60 @@
+<view class="container">
+  <view class="header-gradient">
+    <text class="page-title text-white">出行勋章</text>
+    <text class="page-subtitle text-white" style="opacity: 0.9;">记录您的每一次出行成就</text>
+  </view>
+
+  <view class="stats-card">
+    <view class="stats-item">
+      <text class="stats-value">{{medals.length}}</text>
+      <text class="stats-label">已获得勋章</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="stats-item">
+      <text class="stats-value">{{totalTrips}}</text>
+      <text class="stats-label">出行次数</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="stats-item">
+      <text class="stats-value">{{totalDistance}}km</text>
+      <text class="stats-label">累计里程</text>
+    </view>
+  </view>
+
+  <view class="medals-section card">
+    <view class="section-header">
+      <text class="card-title">勋章墙</text>
+      <text class="section-more">{{medals.length}}/{{allMedals.length}}</text>
+    </view>
+    <view class="medals-grid">
+      <view 
+        wx:for="{{allMedals}}" 
+        wx:key="id" 
+        class="medal-item {{item.unlocked ? 'medal-unlocked' : 'medal-locked'}}"
+        bindtap="showMedalDetail"
+        data-medal="{{item}}"
+      >
+        <view class="medal-icon-box">
+          <text class="medal-emoji">{{item.emoji}}</text>
+          <view wx:if="{{!item.unlocked}}" class="medal-lock">🔒</view>
+        </view>
+        <text class="medal-name">{{item.name}}</text>
+        <text class="medal-desc">{{item.description}}</text>
+        <text wx:if="{{!item.unlocked}}" class="medal-condition">{{item.condition}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-card">
+    <view class="tips-header">
+      <text class="tips-icon">💡</text>
+      <text class="tips-title">勋章获取小贴士</text>
+    </view>
+    <view class="tips-list">
+      <text class="tips-item">• 首次使用小程序可获得「初出茅庐」勋章</text>
+      <text class="tips-item">• 完成10次出行可获得「出行达人」勋章</text>
+      <text class="tips-item">• 邀请子女绑定辅助账号可获得「亲情相伴」勋章</text>
+      <text class="tips-item">• 连续7天使用小程序可获得「坚持不懈」勋章</text>
+    </view>
+  </view>
+</view>
