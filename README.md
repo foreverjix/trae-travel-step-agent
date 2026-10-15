@@ -1,215 +1,154 @@
-# 乐龄出行 —— AI 语音驱动的老年一站式出行守护小程序
+# LeLing Travel (乐龄出行)
 
-## 一、团队介绍
+**AI voice-driven one-stop travel guardian for elderly users — a WeChat Mini Program.**
 
-本人为本科在校生、独立开发者，长期聚焦民生场景挖掘与轻量化 AI 产品落地，擅长真实需求调研、前端架构搭建、AI 意图识别与异常监测算法设计，坚持以真实用户痛点驱动产品迭代。
-
-## 二、项目创作初衷
-
-项目灵感完全来源于线下真实观察。我多次长途出行途中，亲眼见到不少中老年人被数字化出行困住。曾遇到一位阿姨感慨，年轻人掏出手机两分钟就能叫到车，而她在高铁站苦苦等候四十分钟依旧打不到车。结合身边长辈的真实反馈我意识到，飞速普及的智慧出行，反而在老年人面前筑起了一道无形的数字鸿沟。
-
-因此我希望依托小程序与轻量化 AI，打造一款**零门槛、高安全、有温度**的适老出行工具，专注解决数字化时代老人的出行难题。
-
-## 三、产品整体定位与用户群体
-
-### 3.1 产品核心定位
-
-**乐龄出行**是一款 AI 语音驱动的老年一站式出行守护小程序。
-
-聚焦老年人**操作难、出行难、切换软件繁琐、学习成本高、无人陪护、安全无保障**五大核心痛点，整合火车、网约车、公交全场景资源，构建 AI 规划、极简操作、亲情监护的完整公益服务闭环，并预留志愿者线下兜底能力。
-
-### 3.2 目标用户与使用场景
-
-- **核心用户**：50 岁以上中老年群体，普遍存在视力下降、手机操作生疏、害怕复杂界面等问题，常用于独自就医、返乡乘车、乡镇外出等高刚需场景。
-- **次要用户**：25–45 岁异地子女，常年在外无法贴身陪护，极度担忧长辈独自出行风险，需要远程协助、实时监护、异常预警的亲情守护能力。
-
-## 四、产品核心亮点与复赛升级内容
-
-### 4.1 适老化极致体验设计
-
-产品彻底摒弃传统出行软件繁琐的层级架构与年轻化、复杂的交互逻辑，全程采用**大字体、高对比度、无广告、无冗余装饰**的极简适配界面。产品核心依托语音交互打造零门槛操作模式，深度接入百度 ASR、TTS 全套语音 API，同时迭代优化方言识别模型，兼容多地区中老年口语、口音表达习惯，摆脱传统手动输入、多点触控的复杂操作。
-
-老人仅需口述出行需求，系统即可自动完成语音转写、语义纠错、意图解析，一键生成完整行程方案，真正实现**无学习、零上手成本**的适老交互体验。
-
-### 4.2 适老化多模态 AI 语音交互引擎
-
-**核心创新："点一次持续对话"的零门槛语音闭环**
-
-**交互层 —— 豆包式持续对话**：老人只需点击一次悬浮球即可开启"类通话"会话，系统进入持续监听状态。用户说话时实时采集音频，停顿 1.2 秒自动停止录音进入识别，识别完 AI 生成回复并通过 TTS 语音播报，播完 0.6 秒自动回到监听状态等待下一轮，全程无需反复点击。再次点击悬浮球结束会话。
-
-针对老年人三重强化：
-
-- 录音中显示红色"说完了"大按钮，提供明确停止指引
-- 呼吸动画反馈录音状态，让老人知道"在听"
-- 对话期间结果卡片常驻显示不消失
-
-**检测层 —— 帧级 VAD + 600ms 宽限期防回声**：16bit PCM 帧实时 RMS 音量计算，三重判断（静音阈值 55 + 最小说话时长 500ms + 连续静音 600ms 自动停止），录音启动后前 600ms 宽限期内跳过检测，避免 TTS 尾音被误判为用户说话，解决了"说两次才识别"的痛点。
-
-### 4.3 线上智能服务 + 线下规划兜底
-
-针对乡镇、偏远地区网约车运力不足、线上服务覆盖不全的核心痛点，项目搭建「线上智能服务 + 线下规划兜底」的双轨机制。线上深度对接高德地图全量 API，整合定位、POI 地标检索、公交地铁路线规划、实时出行数据等能力，搭配**自研熵权法 + TOPSIS 智能排序算法**，多维度比对出行价格、耗时、舒适度，智能输出最优联运出行方案。线下志愿者帮扶体系已完成架构设计与 Demo 演示，计划联合社区落地（详见未来规划板块）。
-
-### 4.4 多维度 AI 安全预警系统（双层混合架构）
-
-采用**本地规则引擎 + AI Agent 二次分析**的双层混合架构：
-
-- **第一层（本地规则引擎）**：轨迹偏离 500m / 静止 15min / 安全比率 < 1.2 / 到站 > 22:00，毫秒级响应，不依赖网络
-- **第二层（AI Agent 增强）**：并行调用通义千问 Agent，基于偏离距离、老人画像、缓冲时间剩余等结构化上下文，生成含具体数值的人性化风险说明与可执行处置建议
-- **置信度门槛**：仅当 AI 返回 confidence ≥ 0.7 时覆盖默认文案，防止乱改；失败/超时自动回落本地默认描述
-- **两步触发机制**：本地规则触发后立即显示默认文案 + 震动提醒（零等待），AI 返回后异步刷新为更人性化的预警文案
-
-兼顾可靠性与智能性——网络异常时仍有本地规则兜底，网络正常时 AI 让预警文案从"轨迹偏离 500 米"变成"您父亲偏离路线 523 米，可能走错路了，建议电话确认"。
-
-### 4.5 AI 多模态实时视觉导航
-
-针对老年人在车站、机场等复杂场景"看不懂指示牌、找不到检票口"的核心痛点，创新性落地"第一视角实时视觉导航"能力：
-
-**实时视频流截帧分析**：老人举起手机开启摄像头，系统每 3 秒自动截取一帧画面，调用通义千问视觉大模型（qwen-vl-max）进行场景理解，结合老人当前行程上下文（车次、检票口、座位号、出发时间），生成"看到了什么 → 该怎么走 → 目标在哪 → 要小心什么"四段式口语化导航指令，通过百度 TTS 实时语音播报。
-
-**与传统 OCR 的本质区别**：OCR 只能识别站牌上的文字，无法理解场景空间布局；视觉大模型能理解"这是候车大厅、左侧是安检口、电梯在右前方"，并结合行程数据主动告知"12 号检票口在您右手边 50 米"。
-
-**降级容错机制**：AI 判断画面不清晰时提示"慢慢转一下手机"并自动重试；网络超时自动降级为 GPS 地图导航；非车站场景也能尽力提供方向建议。全流程零打字、零按钮切换，老人只需举起手机对着前方。
-
-**单张拍照问路模式**：除实时模式外，同时提供"拍一下问问路"的单帧模式，老人拍照后 AI 分析画面并弹出大字回答卡片（字号 40rpx+），支持"再读一遍"语音复播和"用地图给我指路" GPS 兜底，适配不同网络条件和操作习惯。
-
-### 4.6 全场景语音助手（适老化 AI 交互）
-
-- **语音语义解析引擎**：接入百度语音识别（ASR）+ 百度语音合成（TTS）全套 API，自研适老化 NLP 预处理管道——去重复词、去口头语、语序纠偏、实体提取四层处理，将老人模糊口语（如"明天去南京看孙子"）精准解析为结构化出行意图。
-- **AI 大模型对话增强**：对接通义千问大模型，支持多轮对话追问澄清——当老人表达模糊时（如"明天去看病"），AI 主动追问"上次那个省人民医院吗？早上还是下午？"，而非简单提示"请再说一遍"。
-- **全程语音导览模式**：行程规划完成后，支持逐步骤语音播报——"下一步，请在太原南站北 2 门进入安检"，老人无需看屏幕即可完成全程出行。嘈杂环境下自动提高音量并重复播报。
-- **实时语音通话能力**：接入豆包端到端实时语音大模型，支持打断式自然对话——AI 播报过程中老人可随时插嘴提问，系统暂停播报、识别问题、回答后继续，而非传统"AI 说完 → 老人再说"的客服式交互。
-
-### 4.7 复赛全方位迭代升级
-
-本次复赛相较于初赛简易 Demo，完成了技术、功能、算法、体验全方位体系化升级：
-
-**技术层面**：全新接入百度语音全套 API（ASR + TTS）、高德地图出行 API、通义千问 AI 大模型接口（文本 + 视觉多模态）、豆包实时语音大模型，搭建 AI + 本地 NLP 双层解析架构，自研适老化 NLP 预处理引擎（去重复/去口头语/语序纠偏/实体提取四层管道），落地熵权法 + TOPSIS 多准则智能排序算法 + 行程衔接安全验证模型。
-
-**功能层面**：全新自研 VAD 连续对话引擎（宽限期防回声 + 帧级音量状态机 + 自动恢复监听闭环），实现"点一次持续对话"的适老化语音交互模式；构建五级降级策略保障弱网友音场景可用性；新增多维度 AI 安全预警 Agent（本地规则 + AI 双层架构）。
-
-**体验层面**：完成数十轮 UI 视觉、交互逻辑、细节 BUG 迭代打磨，落地先填后纠 POI 策略实现语音零等待回填、车站多层模糊匹配解决跨城市站点匹配难题，配色从暖橙升级为蓝白冷色系。
-
-### 4.8 无层级嵌套、一键直达的极简功能体系
-
-针对老年人记不住多层菜单、操作路径繁琐、容易迷路的使用痛点，项目彻底摒弃传统 APP 多层级嵌套的交互逻辑，搭建扁平化、一键直达的功能体系。
-
-摒弃冗余次级菜单和隐藏入口，将就医、返乡、日常通勤等老年高频出行场景直接固化为首页快捷卡片，无需多次点击查找。行程确认后悬浮卡片常驻首页，一打开即可查看今日行程概要（车次、出发时间、座位号），行进中自动语音播报节点进度，无需翻页查找。订票、叫车、求助、监护核心功能均实现单次点击直达。
-
-配合全场景语音一键操控——首页大麦克风点一次即可持续对话，说完自动识别、自动提取目的地和时间、自动回填表单，识别不准时支持手动修改兜底，彻底斩断复杂操作链路。同时搭载全局录音器单例互斥机制，确保页面大麦克风与 AI 助手不会互相冲突死机。让老年用户无需学习、无需摸索，点开即用、说话即可，最大化降低操作认知负担。
-
-## 五、核心功能总览
-
-| 功能模块 | 说明 |
-|----------|------|
-| 语音出行 | 点一次持续对话，AI 自动规划路线 |
-| 打车服务 | 一键叫车，支持城区/乡镇/偏远地区 |
-| 票务预订 | 火车票、汽车票查询与预订 |
-| 行程监控 | 实时追踪行程进度，到期提醒 |
-| AI 安全预警 | 本地规则 + AI Agent 双层异常监测 |
-| 视觉导航 | 第一视角实时视觉导航 / 拍照问路 |
-| 紧急求助(SOS) | 一键联系紧急联系人、拨打110/120 |
-| 志愿者互助 | 附近志愿者匹配，陪诊/接站/送站 |
-| 爱心积分 | 帮助老人积攒爱心值，兑换福利 |
-| 子女远程协助 | 子女端远程查看老人位置、代办操作、实时监护 |
+Speak a destination, get a complete trip plan; the whole journey is monitored, narrated aloud, and guarded by AI. No typing, no menus, no learning curve.
 
 ---
 
-## 六、环境准备
+## 1. About This Project
 
-### 6.1 开发工具
+I am an undergraduate student and independent developer. Most of my work is about finding real pain points in everyday life and shipping lightweight AI products around them — user research first, then front-end architecture, intent recognition, and anomaly-detection algorithms.
 
-- [微信开发者工具](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html)（稳定版 1.06 以上）
-- 微信版本 8.0 以上
+**LeLing Travel** started from what I kept seeing on long-distance trips: older travelers locked out of digital mobility. I once watched a woman wait 40 minutes for a ride outside a high-speed rail station, while the young man next to her got one in two minutes. Smart mobility is spreading fast, but for many seniors it has quietly built a wall.
 
-### 6.2 AppID
+So I built this: a **zero-learning-cost, safety-first, voice-powered** travel tool that treats elderly users as first-class citizens — not as an accessibility afterthought.
 
-项目已配置 AppID：`wx15d63b4104db72a8`
+## 2. What It Does & Who It Serves
 
-如需替换为自己的 AppID，修改 `project.config.json` 中的 `appid` 字段。
+LeLing Travel targets five core pain points: hard to operate, hard to travel, too many apps to switch between, high learning cost, no companion, no safety net. It integrates **rail tickets, ride-hailing, and public transit** into one closed loop of AI planning, minimal interaction, family guardianship, and volunteer-based offline fallback.
 
-### 6.3 域名白名单配置
+| User group | Needs |
+|---|---|
+| **Seniors 50+** (primary) | Simplified large-text UI, voice-only operation, high-frequency scenarios: solo medical visits, returning home by train, township-to-city travel |
+| **Adult children 25–45** (secondary) | Remote assistance, real-time location monitoring, anomaly alerts for parents traveling alone |
 
-**重要**：小程序需要在微信公众平台配置 request 合法域名，否则 API 调用会失败。
+## 3. Key Features
 
-登录 [微信公众平台](https://mp.weixin.qq.com) → 开发 → 开发管理 → 开发设置 → 服务器域名
+### 3.1 Voice-first, senior-first UI
 
-添加以下 request 合法域名：
+Large fonts, high contrast, zero ads, zero decoration. Interaction is built around speech instead of taps: Baidu ASR + TTS across the whole app, a tuned recognition pipeline that tolerates dialects and accents, and a one-sentence trip builder — the senior says "I want to visit my grandson in Nanjing tomorrow" and a full itinerary comes back. No typing, no multi-level menus.
+
+### 3.2 "Tap once, keep talking" conversation engine
+
+The signature interaction. Tap the floating orb once and it behaves like a phone call:
+
+- Speech is captured continuously; a 1.2 s pause auto-submits it for recognition
+- The AI reply is spoken via TTS, then the app returns to listening after 0.6 s — no repeated tapping until the user taps again to end the session
+- Senior-friendly affordances: a large red **"Done speaking"** button, a breathing animation that shows "I'm listening", result cards that stay on screen
+
+Under the hood is a self-built **frame-level VAD**: real-time RMS energy on 16-bit PCM frames, with a triple condition (silence threshold 55, minimum speech 500 ms, 600 ms consecutive silence to stop). A **600 ms grace period** after recording starts skips detection so the TTS tail is never mistaken for the user talking again — this fixed the "had to say it twice" bug.
+
+### 3.3 Online intelligence + offline fallback
+
+Ride-hailing coverage is thin in townships and remote areas, so the app plans multimodal routes (walk / bus / subway / rail / ride-hailing) online via the full AMap API suite — geocoding, POI search, transit planning, real-time data — ranked by a self-implemented **entropy-weight + TOPSIS** multi-criteria algorithm across price, duration, and comfort. Offline, a community volunteer assistance system (architecture + demo done, community rollout planned) covers the last mile where online supply fails.
+
+### 3.4 Two-layer AI safety alerts
+
+A hybrid local-rules + AI-Agent architecture:
+
+- **Layer 1, local rule engine** — route deviation > 500 m, stationary > 15 min, safety ratio < 1.2, arrival after 22:00. Millisecond response, works fully offline; triggers instant default alert text + vibration
+- **Layer 2, Qwen Agent** — runs in parallel with structured context (deviation distance, traveler profile, remaining buffer time) and rewrites the alert into something human: "Your father is 523 m off the route, he may have taken a wrong turn. A phone call is recommended."
+- **Guardrails** — AI output only overrides the default text when `confidence ≥ 0.7`; on failure or timeout it falls back to the local text. Alerts render instantly from rules, then refresh asynchronously when AI answers
+
+Network dies? Rules still guard. Network lives? Alerts read like a family member wrote them.
+
+### 3.5 Real-time visual navigation
+
+For "I can't read the signs / can't find my gate" moments in stations:
+
+- The senior raises the phone; every 3 s a frame is sent to **qwen-vl-max**, which reasons about the scene *together with the trip context* (train number, gate, seat, departure time) and returns four-part spoken guidance — *what I see → where to go → where the target is → what to watch out for* — played via Baidu TTS
+- Unlike OCR, which only reads text off signs, the vision model understands spatial layout ("waiting hall, security check on the left, elevator ahead-right") and fuses it with the itinerary ("Gate 12 is 50 m on your right")
+- Graceful failure: blurry frame → "turn your phone slowly" + auto retry; network timeout → fall back to GPS map navigation; non-station scenes → best-effort direction hints
+- A single-shot **"snap & ask"** mode for weak networks: photo in, large-type answer card out (40 rpx+ font), with "read it again" and "show me on the map" buttons
+
+### 3.6 Full-scenario voice assistant
+
+- **Elderly-speech NLP pipeline** (self-built, four layers): duplicate-word removal → filler-word removal → word-order correction → entity extraction, turning vague speech into structured trip intents
+- **Multi-turn clarification with Qwen**: when the request is ambiguous ("I have a hospital appointment tomorrow"), the AI asks back ("The provincial people's hospital again? Morning or afternoon?") instead of repeating "please say it again"
+- **Step-by-step voice guidance** for the whole journey ("Next, enter through Gate 2 North of Taiyuan South Station"), with louder volume and repeat playback in noisy environments
+- **Doubao end-to-end realtime voice** with barge-in: the senior can interrupt the AI mid-sentence, get an answer, and the narration continues — no walkie-talkie-style turn taking
+
+### 3.7 Flat information architecture, one tap to everything
+
+No nested menus anywhere. High-frequency scenarios (hospital, homecoming, commute) sit directly on the home page as cards; after booking, a floating card with today's trip summary (train, departure, seat) stays on the home page and narrates progress en route. Booking, ride-hailing, SOS, and guardianship are all single-tap. A global recorder singleton mutex guarantees the home mic and the AI assistant never fight over the recorder.
+
+### 3.8 Iteration highlights (round 2)
+
+- **Tech**: Baidu ASR/TTS, AMap travel APIs, Qwen (text + vision), Doubao realtime voice; dual-layer AI + local NLP parsing; entropy-weight + TOPSIS ranking; trip-connection safety verification model
+- **Features**: VAD continuous-conversation engine (echo-proof grace period + frame-level energy state machine + auto-resume loop); five-level degradation for weak networks; two-layer safety-alert agent
+- **UX**: dozens of polish rounds; fill-then-correct POI strategy for zero-latency voice form filling; multi-level fuzzy station matching for cross-city queries; palette moved from warm orange to a calm blue-white scheme
+
+## 4. Feature Overview
+
+| Module | Description |
+|---|---|
+| Voice travel | Tap once and keep talking; AI plans the route |
+| Ride-hailing | One-tap ride for urban, township, and remote areas |
+| Ticketing | Train & coach ticket search and booking |
+| Trip monitoring | Real-time progress tracking and departure reminders |
+| AI safety alerts | Local rules + AI agent anomaly detection |
+| Visual navigation | First-person live guidance / snap & ask |
+| SOS | One-tap emergency contacts, 110 / 120 dialing |
+| Volunteer help | Nearby volunteers for accompaniment and station pickup |
+| Care points | Seniors earn points for accepted help, redeemable rewards |
+| Family remote assist | Children view parents' location, book on their behalf, monitor trips |
+
+---
+
+## 5. Getting Started
+
+### 5.1 Requirements
+
+- [WeChat DevTools](https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html) (stable 1.06+)
+- WeChat 8.0+
+
+### 5.2 AppID
+
+The project ships with AppID `wx15d63b4104db72a8`. To use your own, change `appid` in `project.config.json`.
+
+### 5.3 Domain whitelist
+
+Request domains must be registered in the WeChat admin console (**mp.weixin.qq.com → Development → Development Settings → Server Domains**):
 
 ```
-https://restapi.amap.com       # 高德地图 API（定位、逆地理编码、路线规划）
-https://aip.baidubce.com       # 百度语音 API（ASR 语音识别、TTS 语音合成）
-https://dashscope.aliyuncs.com  # 阿里达摩院 AI API（行程规划、智能对话）
+https://restapi.amap.com        # AMap (geocoding, POI, routing)
+https://aip.baidubce.com        # Baidu voice (ASR + TTS)
+https://dashscope.aliyuncs.com  # Alibaba DashScope (Qwen text + vision)
 ```
 
-> **开发调试**：在开发者工具中可勾选「不校验合法域名」进行调试
+> In DevTools you can check "Do not verify legal domains" for local debugging.
 
-### 6.4 API Key 配置
+### 5.4 API keys
 
-项目使用**前端直连第三方 API** 模式，所有密钥统一配置在 `config/api.js` 文件中。
+All keys live in **`config/api.js`**. The repo ships with every key **blanked out** — never commit real keys to a public repo.
 
-> **安全提示**：仓库中的 `config/api.js` 已将所有密钥置空，请勿将真实密钥提交到公开仓库。
+**Step 1 — Apply for keys**
 
-#### 步骤 1：申请各平台 API Key
+| Field | Provider | Console | Notes |
+|---|---|---|---|
+| `AMAP_KEY` | AMap Open Platform | [console.amap.com](https://console.amap.com) | Choose **"Web端 (JS API)"** key type |
+| `BAIDU_ASR_API_KEY` + `BAIDU_ASR_SECRET_KEY` | Baidu AI Cloud | [console.bce.baidu.com](https://console.bce.baidu.com) | Create an app under "Speech Technology" with **ASR (1537 Mandarin)** and **TTS** enabled |
+| `DASHSCOPE_API_KEY` | Alibaba DashScope | [dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | Create an API key under "API-KEY Management" |
 
-| 配置字段 | 平台 | 申请地址 | 申请注意事项 |
-|----------|------|----------|-------------|
-| `AMAP_KEY` | 高德开放平台 | [https://console.amap.com](https://console.amap.com) | 创建应用时选择 **「Web端 (JS API)」** Key，不要选「Web服务」或「移动端」 |
-| `BAIDU_ASR_API_KEY` + `BAIDU_ASR_SECRET_KEY` | 百度智能云 | [https://console.bce.baidu.com](https://console.bce.baidu.com) | 进入「人工智能→语音技术」，创建应用时勾选 **「语音识别(1537普通话)」+「语音合成」** 两个服务，获取 API Key 和 Secret Key 一对 |
-| `DASHSCOPE_API_KEY` | 阿里云 百炼(DashScope) | [https://dashscope.console.aliyun.com](https://dashscope.console.aliyun.com) | 左侧「API-KEY 管理」→ 创建新的 API-KEY，类型选 **「API」**，复制完整 Key（sk-ws- 开头） |
+**Step 2 — Where each key is consumed**
 
-#### 步骤 2：每个 Key 具体用在哪
+`AMAP_KEY` — [services/amap-service.js](services/amap-service.js): geocoding, reverse geocoding, POI text/around search, transit/driving/walking routing, bus & subway queries; [services/travel.js](services/travel.js): POI matching + ride distance estimates.
 
-##### `AMAP_KEY`（高德地图）
+`BAIDU_ASR_*` — [services/baidu-asr.js](services/baidu-asr.js): token + PCM speech recognition (home mic, voice input on ticket/ride pages); [services/baidu-tts.js](services/baidu-tts.js): token + text-to-speech (trip narration, AI replies, SOS alerts). Also proxied through `cloudfunctions/asr-proxy`.
 
-| 消费位置 | 调用接口 | 功能说明 |
-|----------|----------|----------|
-| `services/amap-service.js` | `geocode/geo` | 地址 → 坐标（票务/打车页输入地址时定位） |
-| `services/amap-service.js` | `geocode/regeo` | 坐标 → 地名（行程监控页显示父母位置） |
-| `services/amap-service.js` | `place/text` | 关键字 POI 搜索（火车站/景点/学校等） |
-| `services/amap-service.js` | `place/around` | 周边 POI 搜索（查附近站点） |
-| `services/amap-service.js` | `direction/transit/integrated` | 公交路线规划 |
-| `services/amap-service.js` | `direction/driving` | 驾车路线规划（打车价格估算） |
-| `services/amap-service.js` | `direction/walking` | 步行路线规划 |
-| `services/amap-service.js` | `bus/*`、`subway/*` | 公交、地铁站点及线路查询 |
-| `services/travel.js` | `place/text`、`direction/driving` | 行程规划页 POI 匹配 + 打车距离估算 |
+`DASHSCOPE_API_KEY` — [services/ai-service.js](services/ai-service.js): entity extraction, itinerary candidate generation, safety-alert second pass; [services/travel.js](services/travel.js): narration copy generation; [services/vision-service.js](services/vision-service.js): qwen-vl-max visual navigation.
 
-##### `BAIDU_ASR_API_KEY` / `BAIDU_ASR_SECRET_KEY`（百度语音）
-
-| 消费位置 | 调用接口 | 功能说明 |
-|----------|----------|----------|
-| `services/baidu-asr.js` | `oauth/2.0/token` | 获取百度 Access Token（先用 Key+Secret 换Token） |
-| `services/baidu-asr.js` | `server_api`（录音识别） | 把 PCM 音频文件 → 中文文字（首页大麦克风、票务/打车页语音输入） |
-| `services/baidu-tts.js` | `oauth/2.0/token` | 同上 |
-| `services/baidu-tts.js` | `text2audio`（语音合成） | 把文字 → mp3 音频（悬浮行程播报、AI 助手说话、SOS 提醒） |
-
-##### `DASHSCOPE_API_KEY`（阿里达摩院 AI）
-
-| 消费位置 | 调用接口 | 功能说明 |
-|----------|----------|----------|
-| `services/ai-service.js` | `text-generation/generation` | 用户自然语言 → 提取 时间/地点 实体（适老化 NLP 预处理 + 实体提取） |
-| `services/ai-service.js` | `text-generation/generation` | 生成 8-10 条行程候选方案 + 适老化推荐理由 |
-| `services/ai-service.js` | `text-generation/generation` | 预警系统 AI 二次分析：轨迹偏离/长时间静止/衔接紧张 → 生成人性化风险说明与处置建议 |
-| `services/travel.js` | `chat/completions` | 行程规划页 AI 功能介绍播报内容生成 |
-
-#### 步骤 3：配置 API Key
-
-打开 `config/api.js` 文件，替换对应字段（申请地址见上表）：
+**Step 3 — Fill in `config/api.js`**
 
 ```javascript
 module.exports = {
-  // ── 高德地图 API Key（Web端 JS API）──────────────
-  AMAP_KEY: '',  // 把这里改成你申请的
-
-  // ── 百度语音 API（ASR + TTS，两个 Key 成对出现）─
-  BAIDU_ASR_API_KEY: '',      // 改成你的 API Key
-  BAIDU_ASR_SECRET_KEY: '',   // 改成你的 Secret Key
-
-  // ── 阿里百炼 AI API Key（sk-ws- 开头）────────────
-  DASHSCOPE_API_KEY: '',
-
-  // ── 以下一般无需修改 ────────────────────────────
+  AMAP_KEY: '',
   AMAP_GEOCODE: 'https://restapi.amap.com/v3/geocode/geo',
   AMAP_TRANSIT: 'https://restapi.amap.com/v3/direction/transit/integrated',
+  BAIDU_ASR_API_KEY: '',
+  BAIDU_ASR_SECRET_KEY: '',
+  DASHSCOPE_API_KEY: '',
   MINI_PROGRAMS: {
     TRAIN_12306: 'wx79b6c2f37a00f5c3',
     AMAP: 'wx5597bf2c7d4c5c5c'
@@ -217,238 +156,147 @@ module.exports = {
 }
 ```
 
-> **安全提示**：如果要把代码上传到公开仓库，请先把以上 Key 替换为空字符串占位，防止被盗刷配额。
+**Step 4 — Verify**
 
-#### 步骤 4：验证配置
+1. **AMap**: trip monitor page shows a real place name instead of raw coordinates
+2. **ASR**: hold the home mic, speak, and text appears
+3. **TTS**: floating trip card → "play narration" produces audio
+4. **DashScope**: say "I want to go to Nanjing tomorrow" and the AI fills date + destination correctly
 
-无 API Key 时，小程序会自动降级为模拟数据，不影响基本功能演示。配置好 Key 后，按以下步骤验证：
-
-1. **高德 Key 验证**：打开行程监控页，刷新后看「当前位置」是否显示真实地名（如「太原南站」而非经纬度）
-2. **百度 ASR 验证**：首页按住麦克风说一句话，松开后看是否识别出中文文字
-3. **百度 TTS 验证**：悬浮行程卡点击「行进播报」，看是否有语音播放
-4. **达摩院 AI 验证**：行程规划页，语音输入「我明天想去南京」，看 AI 是否提取日期和地点正确回填
-
-每项都正常则配置成功。若失败，打开开发者工具「Console」面板查看报错（常见原因：域名白名单没加、Key 申请的类型不对、配额耗尽）。
+Everything still works without keys — the app degrades to mock data (see [Degradation](#12-graceful-degradation)).
 
 ---
 
-## 七、安装与运行
+## 6. Run the Project
 
-### 7.1 导入项目
+1. DevTools → **Import Project** → select the `Dream` folder
+2. Pick your AppID (or a test AppID)
+3. Click **Compile** — `lazyCodeLoading: "requiredComponents"` is already configured
+4. Test in the simulator: home (location, voice), tickets, ride-hailing, trip monitor, SOS
 
-1. 打开微信开发者工具
-2. 选择「导入项目」
-3. 项目目录：选择 `Dream` 文件夹
-4. AppID：使用已有或点击「测试号」
-5. 点击导入
+## 7. Release a Trial Version
 
-### 7.2 编译项目
+1. DevTools → **Upload**, set a version number
+2. WeChat admin console → **Management → Version Settings** → set as trial version
+3. **Members → Experience Members** → add testers by WeChat ID; they scan the QR code (up to 90 testers, no review needed)
 
-导入后点击开发者工具顶部的「编译」按钮。
-
-项目已配置 `lazyCodeLoading: "requiredComponents"` 按需注入，首次编译会自动注入所需组件。
-
-### 7.3 运行测试
-
-编译成功后即可在模拟器中运行测试：
-
-- **首页**：测试定位、语音输入
-- **票务页**：测试火车票查询
-- **打车页**：测试打车功能
-- **行程监控页**：测试实时位置追踪
-- **SOS页**：测试紧急求助功能
-
----
-
-## 八、发布体验版
-
-### 8.1 上传代码
-
-1. 在微信开发者工具中点击右上角「上传」
-2. 填写版本号（如 `1.0.0`）和备注
-3. 点击确定
-
-### 8.2 设为体验版
-
-1. 登录 [微信公众平台](https://mp.weixin.qq.com)
-2. 左侧菜单 → 管理 → 版本管理
-3. 在「开发版本」中找到刚上传的版本
-4. 点击「选为体验版」
-
-### 8.3 添加体验者
-
-1. 公众平台 → 管理 → 成员管理
-2. 在「体验成员」模块点击「添加」
-3. 输入体验者微信号并勾选权限
-4. 体验者扫码即可使用
-
-> 体验版不需要审核，上传即可用。最多可添加 90 名体验者。
-
----
-
-## 九、功能演示流程
-
-### 流程一：语音出行
+## 8. Demo Flows
 
 ```
-首页 → 按住「说话」按钮 → 说出目的地（如"我要去省人民医院"）
-     → AI识别语音 → 自动规划路线 → 展示出行方案
+Voice travel : Home → hold mic → "I'm going to the provincial hospital"
+             → AI recognizes → route planned → options displayed
+
+Ride-hailing : Ride page → auto locate → set destination
+             → fare estimate → call → driver accepts → live progress
+
+Ticketing    : Ticket page → train/coach → cities + date → search
+             → pick train & seat class → add passenger → booked
+
+SOS          : SOS page → one-tap 110/120 or emergency contact
+             → share location → pick emergency type → help sent
+
+Family assist: Home → switch to child mode → parent's location & trips
+             → book remotely → live monitoring
 ```
 
-### 流程二：打车
-
-```
-打车页 → 点击「我的位置」自动定位 → 输入目的地
-       → 查看预估费用 → 点击「呼叫」 → 司机接单
-       → 查看实时进度 → 到达目的地 → 订单完成
-```
-
-### 流程三：购票
-
-```
-票务页 → 选择火车票/汽车票 → 选择出发地和目的地 → 选择日期
-       → 点击「查票」 → 选择车次 → 选择座位类型
-       → 添加乘车人 → 确认预订 → 订单创建成功
-```
-
-### 流程四：紧急求助(SOS)
-
-```
-SOS页 → 一键拨打110/120 → 或选择紧急联系人拨打电话
-      → 发送位置分享 → 选择求助类型（迷路/摔倒/疾病/事故）
-      → 发送求助信息
-```
-
-### 流程五：子女远程协助
-
-```
-首页 → 切换为「子女端」→ 查看父母位置 → 查看父母行程
-     → 远程帮父母叫车/买票 → 行程监控
-```
-
----
-
-## 十、项目结构
+## 9. Project Structure
 
 ```
 Dream/
-├── app.js                    # 小程序入口
-├── app.json                  # 全局配置
-├── app.wxss                  # 全局样式
+├── app.js                    # Mini program entry
+├── app.json                  # Global config
+├── app.wxss                  # Global styles
 ├── config/
-│   └── api.js                # API密钥配置（需自行填入）
+│   └── api.js                # API keys (fill in your own)
 ├── services/
-│   ├── amap-service.js       # 高德地图服务
-│   ├── ai-service.js         # AI服务（达摩院）
-│   ├── baidu-asr.js          # 百度语音识别
-│   ├── baidu-tts.js          # 百度语音合成
-│   ├── doubao-realtime.js    # 豆包实时语音
-│   ├── vision-service.js     # 视觉导航服务
-│   ├── ranking.js            # 熵权法+TOPSIS 行程排序算法
-│   └── travel.js             # 出行规划服务
+│   ├── amap-service.js       # AMap suite wrapper
+│   ├── ai-service.js         # Qwen text AI (entities, plans, alerts)
+│   ├── vision-service.js     # qwen-vl-max visual navigation
+│   ├── baidu-asr.js          # Baidu speech recognition
+│   ├── baidu-tts.js          # Baidu speech synthesis
+│   ├── doubao-realtime.js    # Doubao realtime voice
+│   ├── ranking.js            # Entropy-weight + TOPSIS ranking
+│   ├── travel.js             # Trip planning service
+│   └── db-service.js         # Cloud DB access
 ├── cloudfunctions/
-│   ├── asr-proxy/            # 百度 ASR 云函数代理
-│   └── agent-proxy/          # AI Agent 云函数代理
-├── data/
-│   └── mock.js               # 模拟数据
-├── utils/
-│   └── index.js              # 工具函数
+│   ├── asr-proxy/            # Baidu ASR proxy (keys stay server-side)
+│   ├── agent-proxy/          # Qwen agent proxy
+│   ├── train-search/         # Train ticket search
+│   ├── parent-location/      # Parent location upload
+│   └── init-data/            # DB bootstrap
 ├── components/
-│   ├── custom-tabbar/        # 自定义底部导航
-│   ├── float-island/         # 悬浮行程卡片
-│   └── ai-assistant/         # AI语音助手
+│   ├── custom-tabbar/        # Custom bottom navigation
+│   ├── float-island/         # Floating trip card
+│   └── ai-assistant/         # Voice AI assistant
 ├── pages/
-│   ├── index/                # 首页（老人端）
-│   ├── agent/                # AI助手
-│   ├── vision-guide/         # 视觉导航
-│   ├── vision-live/          # 实时视觉导航
-│   ├── map-trip/             # 路线规划
-│   ├── ticket/               # 票务查询
-│   ├── taxi/                 # 打车
-│   ├── sos/                  # 紧急求助
-│   ├── address/              # 地址管理
-│   ├── child/                # 子女端首页
-│   ├── child-trips/          # 子女行程
-│   ├── trip-monitor/         # 行程监控
-│   └── volunteer/            # 志愿者
-└── images/                   # 图标资源
+│   ├── index/                # Home (senior side)
+│   ├── agent/                # AI assistant page
+│   ├── vision-live/          # Live visual navigation
+│   ├── vision-guide/         # Snap & ask navigation
+│   ├── map-trip/             # Route planning
+│   ├── ticket/               # Ticketing
+│   ├── taxi/                 # Ride-hailing
+│   ├── trip-monitor/         # Trip monitoring
+│   ├── child/                # Family (child) side
+│   ├── volunteer/            # Volunteer system
+│   └── sos/                  # Emergency help
+└── images/                   # Icons
 ```
 
+## 10. Tech Stack
+
+| Tech | Usage |
+|---|---|
+| WeChat Mini Program | Native framework, on-demand code injection |
+| Direct API calls | Third-party services called via `wx.request` / cloud function proxies |
+| AMap API | Geocoding, POI, transit/driving/walking routing |
+| Baidu Voice | ASR + TTS |
+| Qwen (DashScope) | NLU, itinerary planning, safety alerts, visual navigation |
+| Doubao Realtime Voice | Barge-in, end-to-end speech conversations |
+| Self-built algorithms | Entropy-weight + TOPSIS, frame-level VAD, elderly-speech NLP pipeline |
+| Local storage | Profiles, orders, trip records |
+
+## 11. Graceful Degradation
+
+Without any API keys the app still runs end-to-end:
+
+| Feature | Full mode | Degraded mode |
+|---|---|---|
+| Location | AMap live GPS | Simulated coordinates |
+| Geocoding | AMap reverse geocoding | Local coordinate mapping |
+| Speech recognition | Baidu ASR | Manual text input |
+| AI planning | Qwen | Local rule-based suggestions |
+| Visual navigation | qwen-vl-max scene understanding | GPS map navigation |
+| Route search | AMap live data | Mock data |
+
+Degradation is automatic — no manual switching.
+
+## 12. Notes
+
+1. Register request domains before release, or API calls fail online
+2. Location and microphone permissions must be granted on first use
+3. Network required for API features
+4. Free API tiers are quota-limited; buy capacity for production
+5. Declare location-data usage in the mini program's privacy guide
+6. **Never commit real API keys to a public repo**
+
+## 13. FAQ
+
+**Q: Pages report `request:fail`.**
+A: Register the request domains, or check "do not verify legal domains" in DevTools.
+
+**Q: Speech recognition does nothing.**
+A: Grant microphone permission; check the Baidu keys in `config/api.js`; check network.
+
+**Q: Location is inaccurate.**
+A: GPS is weak indoors; re-grant precise location permission in settings.
+
+**Q: AI planning hangs.**
+A: Verify `DASHSCOPE_API_KEY`; the app falls back to local suggestions when keys are absent.
+
+**Q: How do I check whether an API call succeeded?**
+A: Open the DevTools **Console** and look for success/degradation logs.
+
 ---
 
-## 十一、技术栈
-
-| 技术 | 说明 |
-|------|------|
-| 微信小程序 | 原生开发，按需注入 |
-| 前端直连 API | 所有第三方服务通过 `wx.request` 前端调用 |
-| 高德地图 API | 定位、逆地理编码、路线规划、POI搜索 |
-| 百度语音 API | ASR 语音转文字 + TTS 语音合成 |
-| 阿里通义千问（DashScope） | AI 自然语言理解、行程规划、视觉导航、智能对话 |
-| 豆包实时语音大模型 | 端到端打断式实时语音对话 |
-| 自研算法 | 熵权法+TOPSIS 多准则排序、帧级 VAD、适老化 NLP 预处理管道 |
-| 本地存储 | 用户信息、订单数据、行程记录 |
-
----
-
-## 十二、降级机制
-
-项目支持多级降级，即使没有 API Key 也能完整演示：
-
-| 功能 | 正常模式（有API Key） | 降级模式（无API Key） |
-|------|----------------------|----------------------|
-| 定位 | 高德实时定位 | 模拟定位坐标 |
-| 地理编码 | 高德逆地理编码 | 本地坐标映射 |
-| 语音识别 | 百度ASR识别 | 手动文字输入 |
-| AI规划 | 通义千问智能规划 | 本地规则推荐 |
-| 视觉导航 | qwen-vl-max 场景理解 | GPS 地图导航兜底 |
-| 路线搜索 | 高德实时查询 | 本地模拟数据 |
-
-降级均为自动触发，无需手动切换。
-
----
-
-## 十三、注意事项
-
-1. **域名白名单**：发布前必须在微信公众平台配置合法域名，否则线上 API 调用会失败
-2. **定位权限**：首次使用需授权位置权限，否则定位功能不可用
-3. **语音权限**：首次使用语音需授权录音权限
-4. **网络要求**：需联网使用，API 功能依赖网络
-5. **API 配额**：免费版 API 有调用次数限制，正式使用建议购买配额
-6. **隐私合规**：收集用户位置信息需在小程序《用户隐私保护指引》中声明
-7. **体验版**：发布体验版后，需添加体验者微信号才能扫码使用
-8. **密钥安全**：切勿将真实 API Key 提交到公开仓库
-
----
-
-## 十四、常见问题
-
-### Q: 打开页面提示"request:fail"错误？
-A: 检查是否在微信公众平台配置了合法域名，或在开发者工具中勾选「不校验合法域名」。
-
-### Q: 语音识别没有反应？
-A: 
-1. 检查是否授权了录音权限
-2. 检查 `config/api.js` 中的百度 API Key 是否正确
-3. 检查网络连接是否正常
-
-### Q: 定位不准确？
-A: 
-1. 确保在开阔环境使用，室内定位精度有限
-2. 检查是否授权了精确位置权限
-3. 可在设置中清除位置权限后重新授权
-
-### Q: AI 规划一直加载中？
-A: 
-1. 检查 `config/api.js` 中的达摩院 API Key 是否正确
-2. 检查网络连接
-3. 若无 API Key，会自动降级为本地推荐
-
-### Q: 如何切换为自己的 AppID？
-A: 
-1. 修改 `project.config.json` 中的 `appid` 字段
-2. 在微信公众平台注册小程序获取 AppID
-3. 重新导入项目
-
-### Q: 如何查看 API 调用是否成功？
-A: 打开开发者工具的「Console」面板，查看是否有 `成功` 或 `降级` 相关日志输出。
+*LeLing Travel — because getting from A to B should never require a manual.*
