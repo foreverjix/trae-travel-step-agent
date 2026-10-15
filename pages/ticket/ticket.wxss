@@ -1,377 +1,757 @@
-.ticket-tabs {
-  display: flex;
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 10rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+/* ===== 票务预订 - 沉浸式大卡片UI ===== */
+.page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F2F6FC 0%, #FFFFFF 30%);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
 }
 
-.tab-item {
-  flex: 1;
+/* 温馨提示条 */
+.guide-bar {
+  margin: 16rpx 32rpx 24rpx;
+  background: linear-gradient(135deg, #EEF4FC, #E6EFFB);
+  border-radius: 20rpx;
+  padding: 24rpx 32rpx;
+  border: 2rpx dashed #A8C3EF;
+  box-shadow: 0 2rpx 12rpx rgba(91,141,239,0.08);
+}
+.guide-text {
+  font-size: 30rpx;
+  color: #4A7AD9;
+  font-weight: 600;
+}
+
+/* 顶部安心栏 */
+.top-bar {
+  padding: calc(env(safe-area-inset-top) + 24rpx) 32rpx 16rpx;
+  display: flex;
+  align-items: center;
+}
+
+.back-btn {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 18rpx;
+  background: #FFFFFF;
+  box-shadow: 0 2rpx 12rpx rgba(91,141,239,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 26rpx;
-  border-radius: 18rpx;
+  flex-shrink: 0;
 }
 
-.tab-item.active {
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+.back-icon {
+  font-size: 48rpx;
+  color: #5B8DEF;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: -4rpx;
 }
 
-.tab-icon {
-  font-size: 40rpx;
-  margin-right: 12rpx;
+.reassure {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 16rpx;
 }
 
-.tab-text {
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #6B7280;
+.reassure-text {
+  font-size: 26rpx;
+  color: #7A8BA0;
+  background: #FFFFFF;
+  padding: 10rpx 24rpx;
+  border-radius: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
 }
 
-.tab-item.active .tab-text {
-  color: #ffffff;
-}
-
-.search-card {
-  background: #ffffff;
+/* 类型选择 */
+.type-seg {
+  margin: 16rpx 32rpx;
+  background: #FFFFFF;
   border-radius: 28rpx;
-  padding: 32rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  padding: 8rpx;
+  display: flex;
+  box-shadow: 0 4rpx 20rpx rgba(91,141,239,0.08);
 }
 
-.route-box {
+.seg-item {
+  flex: 1;
+  padding: 22rpx 0;
+  text-align: center;
+  border-radius: 22rpx;
+  transition: all 0.2s ease;
+}
+
+.seg-item.active {
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  box-shadow: 0 4rpx 16rpx rgba(91,141,239,0.25);
+}
+
+.seg-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #7A8BA0;
+}
+
+.seg-item.active .seg-text {
+  color: #FFFFFF;
+}
+
+/* 巨型麦克风 */
+.mic-card {
+  margin: 24rpx 32rpx;
+  padding: 48rpx 36rpx;
+  background: #FFFFFF;
+  border-radius: 36rpx;
+  box-shadow: 0 8rpx 32rpx rgba(91,141,239,0.12);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24rpx;
+  border: 2rpx solid #E8EFF8;
 }
 
-.route-station {
+.mic-btn-big {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  box-shadow: 0 12rpx 40rpx rgba(91,141,239,0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 36rpx;
+}
+
+.mic-btn-big.on {
+  background: linear-gradient(135deg, #E53935, #D32F2F);
+  box-shadow: 0 12rpx 40rpx rgba(229,57,53,0.45);
+}
+
+.mic-ring-s {
+  position: absolute;
+  top: 0; left: 0;
+  width: 200rpx; height: 200rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(229,57,53,0.5);
+  animation: mRing 1.2s ease-out infinite;
+}
+.mic-ring-s.r2 { animation-delay: 0.6s; }
+
+@keyframes mRing {
+  0%   { transform: scale(1);   opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.mic-emoji {
+  font-size: 88rpx;
+  line-height: 1;
+}
+
+.mic-card-info {
   flex: 1;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
 }
 
-.station-label {
-  font-size: 26rpx;
-  color: #6B7280;
-  display: block;
+.mic-card-title {
+  font-size: 44rpx;
+  color: #1F3252;
+  font-weight: 800;
   margin-bottom: 12rpx;
 }
 
-.station-input {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #2D3142;
-  text-align: center;
-  width: 100%;
+.mic-card-sub {
+  font-size: 30rpx;
+  color: #7A8BA0;
 }
 
-.swap-btn {
-  width: 72rpx;
-  height: 72rpx;
-  background: #FFF2E6;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #FF8C42;
-  font-size: 32rpx;
-  font-weight: bold;
-  margin: 0 20rpx;
+/* 路线卡片 */
+.route-card {
+  margin: 16rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 24rpx rgba(91,141,239,0.10);
+  padding: 8rpx 0;
+  border: 2rpx solid #E8EFF8;
 }
 
-.date-box {
+.route-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: #FFF9F2;
-  border-radius: 20rpx;
   padding: 24rpx 28rpx;
-  margin-bottom: 24rpx;
+  transition: all 0.3s ease;
+}
+
+/* AI视觉强化：字段高亮效果 */
+.ai-highlight {
+  background: linear-gradient(135deg, #FFF9E6, #FFF3CC);
+  border-radius: 20rpx;
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4rpx #FFD666, 0 8rpx 32rpx rgba(255,180,50,0.35);
+  animation: aiHighlightPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes aiHighlightPulse {
+  0%, 100% { box-shadow: 0 0 0 4rpx #FFD666, 0 8rpx 24rpx rgba(255,180,50,0.3); }
+  50% { box-shadow: 0 0 0 8rpx #FFC107, 0 12rpx 40rpx rgba(255,152,0,0.5); }
+}
+
+.route-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+
+.route-dot.from-dot {
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  box-shadow: 0 0 0 6rpx rgba(91,141,239,0.15);
+}
+
+.route-dot.to-dot {
+  background: linear-gradient(135deg, #E53935, #D32F2F);
+  box-shadow: 0 0 0 6rpx rgba(229,57,53,0.15);
+}
+
+.route-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.route-label {
+  font-size: 26rpx;
+  color: #B5C3D4;
+  margin-bottom: 6rpx;
+}
+
+.route-value {
+  font-size: 38rpx;
+  color: #1F3252;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.route-value.locating {
+  color: #7A8BA0;
+  font-weight: 500;
+  font-size: 34rpx;
+}
+
+.route-value.failed {
+  color: #E53935;
+  font-weight: 500;
+  font-size: 34rpx;
+}
+
+.route-value.placeholder {
+  color: #B5C3D4;
+  font-weight: 500;
+  font-size: 34rpx;
+}
+
+.route-arrow {
+  font-size: 40rpx;
+  color: #C5D0DE;
+  margin-left: 12rpx;
+  flex-shrink: 0;
+}
+
+.route-line {
+  height: 28rpx;
+  margin-left: 48rpx;
+  position: relative;
+}
+
+.route-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4rpx;
+  height: 100%;
+  background: linear-gradient(180deg, #7BA8F0, #E53935);
+  border-radius: 2rpx;
+}
+
+/* 日期卡片 */
+.date-card {
+  margin: 16rpx 32rpx;
+  padding: 28rpx;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 24rpx rgba(91,141,239,0.10);
+  display: flex;
+  align-items: center;
+  border: 2rpx solid #E8EFF8;
+}
+
+.date-icon {
+  font-size: 52rpx;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.date-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .date-label {
+  font-size: 26rpx;
+  color: #B5C3D4;
+  margin-bottom: 8rpx;
+}
+
+.date-value {
+  font-size: 38rpx;
+  color: #1F3252;
+  font-weight: 700;
+}
+
+.date-arrow {
+  font-size: 40rpx;
+  color: #C5D0DE;
+  flex-shrink: 0;
+}
+
+/* 热门车站 */
+.quick-section {
+  margin: 20rpx 32rpx;
+}
+
+.quick-title {
   font-size: 28rpx;
-  color: #6B7280;
-  font-weight: bold;
+  color: #7A8BA0;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 16rpx;
 }
 
-.date-display {
-  font-size: 34rpx;
-  color: #FF8C42;
-  font-weight: bold;
-}
-
-.search-btn {
-  border-radius: 50rpx;
-}
-
-.hot-stations {
-  margin-bottom: 24rpx;
-}
-
-.station-tags {
+.quick-scroll {
   display: flex;
   flex-wrap: wrap;
+  gap: 16rpx;
 }
 
-.station-tag {
-  background: #FFF9F2;
-  color: #2D3142;
-  padding: 18rpx 28rpx;
-  border-radius: 30rpx;
-  margin-right: 16rpx;
-  margin-bottom: 16rpx;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-.station-tag:active {
-  background: #FFF2E6;
-  color: #FF8C42;
-}
-
-.results-section {
-  margin-bottom: 24rpx;
-}
-
-.sort-options {
-  display: flex;
-}
-
-.sort-option {
-  font-size: 28rpx;
-  color: #6B7280;
-  margin-left: 24rpx;
-  padding: 8rpx 16rpx;
+.quick-chip {
+  background: #FFFFFF;
+  padding: 20rpx 28rpx;
   border-radius: 20rpx;
+  border: 2rpx solid #E8EFF8;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.04);
 }
 
-.sort-option.active {
-  color: #FF8C42;
-  background: #FFF2E6;
-  font-weight: bold;
+.chip-name {
+  font-size: 30rpx;
+  color: #5B8DEF;
+  font-weight: 600;
 }
 
-.ticket-list {
+/* 查车票按钮 */
+.search-btn-big {
+  margin: 24rpx 32rpx;
+  padding: 36rpx 0;
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  border-radius: 28rpx;
+  box-shadow: 0 8rpx 32rpx rgba(91,141,239,0.30);
+  text-align: center;
+}
+
+.search-text {
+  font-size: 38rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 结果区 */
+.results {
+  margin: 24rpx 32rpx;
+}
+
+.results-head {
+  margin-bottom: 20rpx;
+}
+
+.results-count {
+  font-size: 30rpx;
+  color: #7A8BA0;
+  font-weight: 500;
+}
+
+.ticket-cards {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
-.ticket-card {
-  background: #ffffff;
+/* 车次大卡片 */
+.tkt-card {
+  background: #FFFFFF;
   border-radius: 28rpx;
   padding: 28rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  box-shadow: 0 6rpx 24rpx rgba(91,141,239,0.10);
+  border: 2rpx solid #E8EFF8;
 }
 
-.ticket-top {
+.tkt-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 24rpx;
 }
 
-.ticket-name-row {
+.tkt-left {
   display: flex;
   align-items: center;
+  gap: 12rpx;
 }
 
-.ticket-name {
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
-  margin-right: 16rpx;
+.tkt-no {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1F3252;
 }
 
-.ticket-type {
-  background: #FFF2E6;
-  color: #FF8C42;
-  padding: 6rpx 16rpx;
-  border-radius: 16rpx;
+.tkt-tag {
   font-size: 24rpx;
-  font-weight: bold;
+  color: #5B8DEF;
+  background: #EEF4FC;
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
 }
 
-.ticket-price {
+.tkt-price {
   display: flex;
   align-items: baseline;
 }
 
-.ticket-price .price-unit {
+.price-sym {
+  font-size: 32rpx;
+  color: #5B8DEF;
+  font-weight: 700;
+}
+
+.price-num {
+  font-size: 56rpx;
+  color: #5B8DEF;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.price-unit {
   font-size: 26rpx;
-  color: #FF8C42;
-  font-weight: bold;
+  color: #7A8BA0;
+  margin-left: 6rpx;
 }
 
-.ticket-price .price-value {
-  font-size: 44rpx;
-  color: #FF8C42;
-  font-weight: bold;
-}
-
-.ticket-timeline {
+/* 路线 */
+.tkt-route {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: #F5F9FF;
+  border-radius: 20rpx;
+  padding: 24rpx 20rpx;
   margin-bottom: 24rpx;
 }
 
-.timeline-point {
-  text-align: center;
-  flex: 1;
-}
-
-.timeline-time {
-  font-size: 40rpx;
-  font-weight: bold;
-  color: #2D3142;
-  display: block;
-  margin-bottom: 8rpx;
-}
-
-.timeline-station {
-  font-size: 26rpx;
-  color: #6B7280;
-}
-
-.timeline-bar {
-  flex: 1.5;
+.tkt-from,
+.tkt-to {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  min-width: 120rpx;
 }
 
-.duration-text {
-  font-size: 24rpx;
-  color: #9CA3AF;
-  margin-bottom: 8rpx;
+.tkt-to {
+  align-items: center;
 }
 
-.timeline-line {
-  width: 100%;
-  height: 4rpx;
-  background: linear-gradient(90deg, #FF8C42 0%, #FFB627 100%);
-  position: relative;
+.tkt-time {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1F3252;
+  line-height: 1.2;
 }
 
-.timeline-line::before,
-.timeline-line::after {
-  content: '';
-  position: absolute;
+.tkt-st {
+  font-size: 28rpx;
+  color: #7A8BA0;
+  margin-top: 6rpx;
+}
+
+.tkt-line {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 0 16rpx;
+}
+
+.tkt-line-dot {
   width: 12rpx;
   height: 12rpx;
-  background: #FF8C42;
   border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
+  background: #C5D0DE;
 }
 
-.timeline-line::before {
-  left: 0;
+.tkt-dur {
+  font-size: 26rpx;
+  color: #7A8BA0;
+  white-space: nowrap;
 }
 
-.timeline-line::after {
-  right: 0;
-  background: #FFB627;
-}
-
-.ticket-action {
+/* 底部 */
+.tkt-foot {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.buy-btn {
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
-  color: #ffffff;
-  padding: 18rpx 40rpx;
-  border-radius: 30rpx;
-  font-size: 28rpx;
-  font-weight: bold;
-  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+.tkt-tags {
+  display: flex;
+  gap: 12rpx;
 }
 
-.station-picker {
+.tkt-tip {
+  font-size: 26rpx;
+  color: #7A8BA0;
+  background: #F2F6FC;
+  padding: 10rpx 20rpx;
+  border-radius: 12rpx;
+}
+
+.tkt-buy {
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  padding: 24rpx 48rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 6rpx 20rpx rgba(91,141,239,0.30);
+}
+
+.tkt-buy-text {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 弹窗 */
+.sheet {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
 }
 
-.picker-content {
-  background: #ffffff;
+.sheet-content {
   width: 100%;
-  max-height: 70vh;
+  background: #FFFFFF;
   border-radius: 40rpx 40rpx 0 0;
-  padding: 32rpx;
+  padding: 28rpx 28rpx calc(28rpx + env(safe-area-inset-bottom));
+  max-height: 80vh;
 }
 
-.picker-header {
+.sheet-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24rpx;
 }
 
-.picker-title {
+.sheet-title {
   font-size: 38rpx;
-  font-weight: bold;
-  color: #2D3142;
+  font-weight: 700;
+  color: #1F3252;
 }
 
-.picker-close {
-  font-size: 44rpx;
-  color: #9CA3AF;
+.sheet-close {
+  padding: 12rpx 24rpx;
+  background: #F2F6FC;
+  border-radius: 16rpx;
 }
 
-.picker-search {
-  background: #FFF9F2;
+.sheet-close-text {
+  font-size: 28rpx;
+  color: #7A8BA0;
+}
+
+.sheet-search {
+  background: #F5F9FF;
   border-radius: 20rpx;
-  padding: 8rpx 24rpx;
+  padding: 20rpx 28rpx;
   margin-bottom: 20rpx;
 }
 
-.picker-search-input {
-  width: 100%;
-  padding: 24rpx 0;
+.sheet-input {
   font-size: 32rpx;
+  color: #1F3252;
 }
 
-.picker-list {
+.sheet-list {
   max-height: 50vh;
 }
 
-.picker-item {
+.sheet-item {
+  display: flex;
+  align-items: center;
   padding: 28rpx 0;
-  border-bottom: 1rpx solid #F3E5D8;
+  border-bottom: 2rpx solid #F2F6FC;
 }
 
-.picker-item:last-child {
+.sheet-item:last-child {
   border-bottom: none;
 }
 
-.item-name {
-  font-size: 34rpx;
-  color: #2D3142;
-  display: block;
-  margin-bottom: 8rpx;
-  font-weight: bold;
+.sheet-item-info {
+  flex: 1;
 }
 
-.item-code,
-.item-address {
+.sheet-item-name {
+  font-size: 34rpx;
+  color: #1F3252;
+  font-weight: 600;
+  display: block;
+}
+
+.sheet-item-addr {
   font-size: 26rpx;
-  color: #9CA3AF;
-  margin-right: 16rpx;
+  color: #B5C3D4;
+  margin-top: 6rpx;
+  display: block;
+}
+
+.sheet-item-arrow {
+  font-size: 40rpx;
+  color: #C5D0DE;
+  margin-left: 16rpx;
+}
+
+/* 日期选择 */
+.date-picker-view {
+  height: 500rpx;
+  margin: 20rpx 0;
+}
+
+.date-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #1F3252;
+  padding: 20rpx 0;
+  font-weight: 600;
+}
+
+.date-confirm {
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  padding: 32rpx 0;
+  border-radius: 24rpx;
+  text-align: center;
+}
+
+.date-confirm-text {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* 语音弹窗 */
+.voice-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.voice-card {
+  width: 85%;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 48rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.voice-label {
+  font-size: 32rpx;
+  color: #7A8BA0;
+  margin-bottom: 24rpx;
+}
+
+.voice-status {
+  font-size: 36rpx;
+  color: #1F3252;
+  font-weight: 600;
+  margin-bottom: 24rpx;
+  text-align: center;
+  min-height: 50rpx;
+}
+
+.voice-result {
+  font-size: 32rpx;
+  color: #5B8DEF;
+  background: #EEF4FC;
+  padding: 24rpx 32rpx;
+  border-radius: 20rpx;
+  margin-bottom: 32rpx;
+}
+
+/* 说完了停止按钮 */
+.voice-stop-btn {
+  background: linear-gradient(135deg, #E53935, #D32F2F);
+  padding: 32rpx 80rpx;
+  border-radius: 60rpx;
+  margin: 16rpx 0 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(229,57,53,0.35);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.voice-stop-text {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.voice-btns {
+  display: flex;
+  gap: 20rpx;
+  width: 100%;
+}
+
+.voice-btn-cancel {
+  flex: 1;
+  background: #F2F6FC;
+  padding: 28rpx 0;
+  text-align: center;
+  border-radius: 20rpx;
+  font-size: 32rpx;
+  color: #7A8BA0;
+  font-weight: 500;
+}
+
+.voice-btn-ok {
+  flex: 1;
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  padding: 28rpx 0;
+  text-align: center;
+  border-radius: 20rpx;
+  font-size: 32rpx;
+  color: #FFFFFF;
+  font-weight: 700;
 }

@@ -7,88 +7,28 @@ Page({
     orders: [],
     filteredOrders: [],
     emptyText: '',
-    currentTrip: null
+    role: 'elder'
   },
 
   onLoad() {
+    this.setData({ role: app.globalData.role || 'elder' })
     this.loadOrders()
-    this.checkCurrentTrip()
   },
 
   onShow() {
+    this.setData({ role: app.globalData.role || 'elder' })
     this.loadOrders()
-    this.checkCurrentTrip()
-  },
-
-  onHide() {
-    this.showExitReminder()
-  },
-
-  showExitReminder() {
-    const trip = this.data.currentTrip
-    if (!trip) return
-
-    const now = new Date()
-    const today = now.toISOString().split('T')[0]
-    if (trip.date !== today) return
-
-    const key = 'exit_remind_' + trip.orderId + '_' + today
-    if (wx.getStorageSync(key)) return
-
-    wx.setStorageSync(key, true)
-
-    const firstStep = trip.steps && trip.steps[0]
-    const plate = trip.plate || (firstStep && firstStep.plate) || '请查看详情'
-
-    wx.showModal({
-      title: '📋 今日行程提醒',
-      content: trip.name + '\n' + trip.from + ' → ' + trip.to + '\n\n⏰ 出发时间：' + (trip.departureTime || '') + '\n💺 座位号：' + (trip.seat || '请查看详情') + '\n🚗 接站车牌：' + plate + '\n\n请提前做好出行准备！',
-      showCancel: true,
-      cancelText: '保存卡片',
-      confirmText: '我知道了',
-      success: (res) => {
-        if (!res.confirm) {
-          wx.navigateTo({
-            url: '/pages/order-detail/order-detail?orderId=' + trip.orderId
-          })
-        }
-      }
-    })
-  },
-
-  checkCurrentTrip() {
-    const orders = app.globalData.orders || []
-    const today = new Date().toISOString().split('T')[0]
-    
-    let currentTrip = orders.find(o => {
-      return o.date === today && ['booked', 'waiting', 'picking', 'onway'].includes(o.status)
-    })
-    
-    if (!currentTrip) {
-      const hasShownDemo = wx.getStorageSync('demoTripShown')
-      if (!hasShownDemo) {
-        currentTrip = {
-          orderId: 'DEMO001',
-          type: 'train',
-          status: 'booked',
-          date: today,
-          from: '太原',
-          to: '南京',
-          name: 'G1954',
-          departureTime: '08:30',
-          arrivalTime: '13:20',
-          seat: '二等座 05车 12A',
-          price: 590,
-          steps: [
-            { type: 'taxi', name: '网约车到太原南站', time: '07:30', status: 'pending', plate: '晋A·88888', driver: '王师傅' },
-            { type: 'train', name: '高铁 G1954', time: '08:30', status: 'pending', seat: '二等座 05车 12A', platform: '3站台' },
-            { type: 'taxi', name: '网约车到目的地', time: '13:30', status: 'pending', plate: '苏A·66666', driver: '李师傅' }
-          ]
-        }
-      }
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    // 设置AI页面上下文（丰富版）
+    app.globalData.aiPageContext = {
+      page: 'orders',
+      title: '行程',
+      summary: '我的行程列表',
+      actions: ['查看行程详情', '取消行程', '换时间', '问子女'],
+      formFields: [],
+      formData: {},
+      tips: '这里显示所有行程，点任意卡片查看详情'
     }
-    
-    this.setData({ currentTrip })
   },
 
   loadOrders() {
@@ -106,7 +46,7 @@ Page({
   updateFilteredOrders() {
     const { orders, currentTab } = this.data
     let filtered = orders
-    
+
     if (currentTab === 'pending') {
       filtered = orders.filter(o => ['booked', 'waiting', 'picking', 'onway'].includes(o.status))
     } else if (currentTab === 'completed') {
@@ -114,14 +54,14 @@ Page({
     } else if (currentTab === 'cancelled') {
       filtered = orders.filter(o => o.status === 'cancelled')
     }
-    
+
     const emptyTexts = {
       all: '暂无订单，快去预订吧',
       pending: '暂无进行中的订单',
       completed: '暂无已完成的订单',
       cancelled: '暂无已取消的订单'
     }
-    
+
     this.setData({
       filteredOrders: filtered,
       emptyText: emptyTexts[currentTab] || '暂无订单'
@@ -130,75 +70,93 @@ Page({
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab
-    this.setData({
-      currentTab: tab
-    })
+    this.setData({ currentTab: tab })
     this.updateFilteredOrders()
   },
 
   getOrderIcon(type) {
-    const icons = {
-      train: '🚄',
-      bus: '🚌',
-      taxi: '🚕'
-    }
+    const icons = { train: '🚄', bus: '🚌', taxi: '🚕' }
     return icons[type] || '📋'
   },
 
   getOrderTitle(order) {
-    if (order.type === 'train') {
-      return `${order.name} 火车票`
-    }
-    if (order.type === 'bus') {
-      return `${order.name || order.id} 汽车票`
-    }
-    if (order.type === 'taxi') {
-      return order.subType === 'remote' ? '偏远地区用车预约' : '网约车订单'
-    }
+    if (order.type === 'train') return (order.name || '火车票') + ' 火车票'
+    if (order.type === 'bus') return (order.name || order.id || '') + ' 汽车票'
+    if (order.type === 'taxi') return order.subType === 'remote' ? '偏远地区用车' : '网约车'
     return '出行订单'
   },
 
   goToDetail(e) {
     const order = e.currentTarget.dataset.order
     wx.navigateTo({
-      url: `/pages/order-detail/order-detail?orderId=${order.orderId}`
+      url: '/pages/order-detail/order-detail?orderId=' + order.orderId
     })
   },
 
   goBook() {
-    wx.reLaunch({
-      url: '/pages/index/index'
+    wx.reLaunch({ url: '/pages/index/index' })
+  },
+
+  quickContactChild() {
+    wx.showActionSheet({
+      itemList: ['📞 拨打电话给子女', '💬 微信发送消息', '📋 复制出行信息'],
+      success: function(res) {
+        if (res.tapIndex === 0) {
+          wx.makePhoneCall({
+            phoneNumber: '10086',
+            fail: function() {
+              wx.showToast({ title: '请手动拨打', icon: 'none' })
+            }
+          })
+        } else if (res.tapIndex === 1) {
+          wx.setClipboardData({
+            data: '【出行通知】您好，我正在使用乐龄出行安排行程，如有疑问请联系我。',
+            success: function() {
+              wx.showToast({ title: '已复制到剪贴板', icon: 'none' })
+            }
+          })
+        } else if (res.tapIndex === 2) {
+          const orders = this.data.filteredOrders
+          let text = '【我的出行行程】\n\n'
+          orders.slice(0, 3).forEach(function(o, i) {
+            text += (i + 1) + '. ' + (o.startStation || o.start) + ' → ' + (o.endStation || o.end) + '\n'
+          })
+          wx.setClipboardData({
+            data: text,
+            success: function() {
+              wx.showToast({ title: '已复制行程', icon: 'none' })
+            }
+          })
+        }
+      }.bind(this)
     })
   },
 
-  async handleAction(e) {
-    const { action, order } = e.currentTarget.dataset
-    
+  handleAction(e) {
+    const action = e.currentTarget.dataset.action
+    const order = e.currentTarget.dataset.order
+
     if (action === 'change') {
-      showToast('功能开发中')
+      wx.showModal({
+        title: '换时间',
+        content: '改签请联系客服：400-888-8888',
+        showCancel: false,
+        confirmText: '知道了'
+      })
     } else if (action === 'cancel') {
-      const confirmed = await showModal('取消订单', '确定要取消此订单吗？')
-      if (confirmed) {
-        app.updateOrder(order.orderId, { status: 'cancelled' })
-        showToast('订单已取消', 'success')
-        this.loadOrders()
-      }
+      wx.showModal({
+        title: '取消订单',
+        content: '确定要取消此订单吗？',
+        success: function(res) {
+          if (res.confirm) {
+            app.updateOrder(order.orderId, { status: 'cancelled' })
+            wx.showToast({ title: '订单已取消', icon: 'success' })
+            this.loadOrders()
+          }
+        }.bind(this)
+      })
     } else if (action === 'confirm') {
-      const confirmed = await showModal('确认完成', '确认此订单已完成？')
-      if (confirmed) {
-        showToast('感谢您的使用', 'success')
-      }
-    }
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
+      wx.showToast({ title: '感谢您的使用', icon: 'success' })
     }
   }
 })

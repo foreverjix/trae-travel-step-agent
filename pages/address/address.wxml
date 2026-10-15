@@ -1,56 +1,160 @@
 <view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">常用地址</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">设置您的常用目的地，一键出行</text>
-  </view>
-
-  <view class="address-list">
-    <view class="address-card">
-      <view class="address-icon home-icon">🏠</view>
-      <view class="address-info">
-        <text class="address-label">家庭地址</text>
-        <input 
-          class="address-input" 
-          placeholder="请输入家庭地址，例如：太原市小店区" 
-          value="{{homeAddress}}"
-          bindinput="onHomeAddressChange"
-        />
-      </view>
+  <!-- 头部 -->
+  <view class="page-header">
+    <view class="header-decoration-circle circle-1"></view>
+    <view class="header-decoration-circle circle-2"></view>
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
     </view>
-
-    <view class="address-card">
-      <view class="address-icon hospital-icon">🏥</view>
-      <view class="address-info">
-        <text class="address-label">就医地址</text>
-        <input 
-          class="address-input" 
-          placeholder="请输入常去医院，例如：太原市中心医院" 
-          value="{{hospitalAddress}}"
-          bindinput="onHospitalAddressChange"
-        />
+    <view class="header-content">
+      <view class="header-title-row">
+        <text class="header-emoji">📍</text>
+        <text class="page-title">常用地址</text>
       </view>
-    </view>
-
-    <view class="address-card">
-      <view class="address-icon station-icon">🚉</view>
-      <view class="address-info">
-        <text class="address-label">车站地址</text>
-        <input 
-          class="address-input" 
-          placeholder="请输入常去车站，例如：太原南站" 
-          value="{{stationAddress}}"
-          bindinput="onStationAddressChange"
-        />
-      </view>
+      <text class="page-subtitle">设置常用目的地，一键选择出行</text>
     </view>
   </view>
 
+  <!-- 输入表单 -->
+  <view class="form-area">
+    <view class="form-item">
+      <view class="form-item-left">
+        <view class="form-icon home-icon">🏠</view>
+        <view class="form-content">
+          <text class="form-label">家庭地址</text>
+          <input 
+            class="form-input" 
+            placeholder="点击搜索或在地图上选点" 
+            value="{{homeAddress}}"
+            bindinput="onHomeAddressChange"
+            bindtap="onFieldTap"
+            data-field="home"
+          />
+        </view>
+      </view>
+      <view class="pick-btn" catchtap="onFieldTap" data-field="home">选点</view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-item-left">
+        <view class="form-icon hospital-icon">🏥</view>
+        <view class="form-content">
+          <text class="form-label">就医地址</text>
+          <input 
+            class="form-input" 
+            placeholder="点击搜索或在地图上选点" 
+            value="{{hospitalAddress}}"
+            bindinput="onHospitalAddressChange"
+            bindtap="onFieldTap"
+            data-field="hospital"
+          />
+        </view>
+      </view>
+      <view class="pick-btn" catchtap="onFieldTap" data-field="hospital">选点</view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-item-left">
+        <view class="form-icon station-icon">🚄</view>
+        <view class="form-content">
+          <text class="form-label">车站地址</text>
+          <input 
+            class="form-input" 
+            placeholder="点击搜索或在地图上选点" 
+            value="{{stationAddress}}"
+            bindinput="onStationAddressChange"
+            bindtap="onFieldTap"
+            data-field="station"
+          />
+        </view>
+      </view>
+      <view class="pick-btn" catchtap="onFieldTap" data-field="station">选点</view>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="quick-actions">
+    <view class="quick-btn" bindtap="useCurrentLocation">
+      <text class="quick-icon">📍</text>
+      <text>使用当前位置</text>
+    </view>
+    <view class="quick-btn" bindtap="openMapPicker">
+      <text class="quick-icon">🗺️</text>
+      <text>打开地图选点</text>
+    </view>
+  </view>
+
+  <!-- 保存按钮 -->
   <view class="save-section">
     <view class="btn-primary" bindtap="saveAddresses">保存地址</view>
   </view>
 
-  <view class="safety-tip">
-    <text class="safety-tip-icon">💡</text>
-    <text class="safety-tip-text">设置好常用地址后，首页可以直接点击"回家"、"就医"、"车站"快速规划行程</text>
+  <view class="tip-box">
+    <text class="tip-icon">💡</text>
+    <text class="tip-text">设置好常用地址后，首页可以直接点击"回家"、"就医"、"车站"快速规划行程</text>
   </view>
+
+  <!-- 搜索面板 -->
+  <view class="search-panel {{showSearchPanel ? 'show' : ''}}" catchtap="">
+    <view class="search-header">
+      <input 
+        class="search-input" 
+        placeholder="输入地址、医院、车站..." 
+        value="{{searchKeyword}}"
+        bindinput="onKeywordInput"
+        focus="{{showSearchPanel}}"
+      />
+      <view class="search-close" bindtap="closeSearchPanel">✕</view>
+    </view>
+    <view class="search-actions">
+      <view class="action-item" bindtap="openMapPicker">
+        <text class="action-icon">🗺️</text>
+        <text>地图选点</text>
+      </view>
+      <view class="action-item" bindtap="useCurrentLocation">
+        <text class="action-icon">📍</text>
+        <text>当前位置</text>
+      </view>
+    </view>
+    <scroll-view class="search-results" scroll-y="{{true}}" wx:if="{{searchResults.length > 0}}">
+      <view class="search-result-item" wx:for="{{searchResults}}" wx:key="id" bindtap="selectSearchResult" data-poi="{{item}}">
+        <view class="result-name">{{item.name}}</view>
+        <view class="result-address">{{item.address || item.district}}</view>
+      </view>
+    </scroll-view>
+    <view class="search-loading" wx:if="{{isSearching}}">
+      <text>搜索中...</text>
+    </view>
+    <view class="search-empty" wx:if="{{!isSearching && searchResults.length === 0 && searchKeyword.length > 0}}">
+      <text>未找到相关地点</text>
+    </view>
+  </view>
+
+  <!-- 地图选点面板 -->
+  <view class="map-panel {{showMapPicker ? 'show' : ''}}" catchtap="">
+    <view class="map-header">
+      <text class="map-title">在地图上选择位置</text>
+      <view class="map-close" bindtap="cancelMapPick">✕</view>
+    </view>
+    <map 
+      class="map-container"
+      latitude="{{mapCenter.latitude}}"
+      longitude="{{mapCenter.longitude}}"
+      scale="{{mapScale}}"
+      markers="{{markers}}"
+      bindtap="onMapTap"
+      bindregionchange="onRegionChange"
+      show-location="{{true}}"
+    ></map>
+    <view class="map-pin-hint" wx:if="{{selectedAddress}}">
+      <text class="pin-icon">📍</text>
+      <text class="pin-address">{{selectedAddress}}</text>
+    </view>
+    <view class="map-actions">
+      <view class="map-btn map-btn-cancel" bindtap="cancelMapPick">取消</view>
+      <view class="map-btn map-btn-confirm" bindtap="confirmMapPick">确认选择</view>
+    </view>
+  </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

@@ -1,43 +1,481 @@
 const app = getApp()
-const { formatDate } = require('../../utils/index')
+const { formatDate, getDistance } = require('../../utils/index')
+const travelService = require('../../services/travel.js')
+const amapService = require('../../services/amap-service.js')
+const apiConfig = require('../../config/api.js')
+const ttsService = require('../../services/baidu-tts.js')
 
 Page({
   data: {
     from: '太原',
     to: '',
+    scene: '',
     date: formatDate(new Date()),
     today: formatDate(new Date()),
-    distance: 0,
+
+    loadingPlans: false,
     plans: [],
-    selectedPlan: null,
-    centerLng: 116.407395,
-    centerLat: 39.904211,
+    plansError: '',
+
+    transitMode: {},
+    confirmedSegments: {},
+    processingSegment: '',
+    expandedPlanId: '',
+    savedPlanIds: [],
+    taxiInfo: {},
+
+    distance: 0,
+    centerLng: 112.549248,
+    centerLat: 37.857014,
     mapScale: 6,
     markers: [],
-    polyline: []
+    polyline: [],
+    hasSearched: false,
+
+    searchResults: [],
+    showSearchResults: false,
+    searchKeyword: '',
+    isSearching: false,
+    
+    isTtsPlaying: false,
+    isTtsLoop: false,
+    currentTtsPlanId: '',
+
+    role: 'elder',
+    aiAssistantEnabled: false
+  },
+
+  goBack() {
+    var pages = getCurrentPages()
+    if (pages.length > 1) {
+      wx.navigateBack()
+    } else {
+      wx.reLaunch({ url: '/pages/index/index' })
+    }
   },
 
   onLoad(options) {
-    const today = formatDate(new Date())
-    this.setData({
-      date: today,
-      today
-    })
+    var today = formatDate(new Date())
+    var role = app.globalData.role || 'elder'
+    this.setData({ date: today, today: today, role: role })
 
-    if (options.from === 'voice') {
-      this.setData({ to: '南京' })
-      this.generatePlans('太原', '南京')
+    if (options.scene) {
+      this.setData({ scene: options.scene })
     }
+
+    if (options.date) {
+      var dateVal = decodeURIComponent(options.date)
+      if (dateVal === '明天') {
+        var tomorrow = new Date()
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        this.setData({ date: formatDate(tomorrow) })
+      } else if (dateVal === '后天') {
+        var dayAfter = new Date()
+        dayAfter.setDate(dayAfter.getDate() + 2)
+        this.setData({ date: formatDate(dayAfter) })
+      }
+    }
+
+    if (options.time) {
+      this.setData({ time: decodeURIComponent(options.time) })
+    }
+
+    if (options.to) {
+      this.setData({ to: decodeURIComponent(options.to) })
+      this.autoLocateAndSearch()
+    } else if (options.from === 'voice' && options.voiceText) {
+      var rawText = decodeURIComponent(options.voiceText)
+      var dest = this.extractDestination(rawText)
+      var dateVal = this.extractDateFromText(rawText)
+      var timeVal = this.extractTimeFromText(rawText)
+      console.log('语音识别原文:', rawText, '提取目的地:', dest, '日期:', dateVal, '时间:', timeVal)
+      this.setData({ to: dest || '南京' })
+      if (dateVal) {
+        if (dateVal === '明天') {
+          var tomorrow = new Date()
+          tomorrow.setDate(tomorrow.getDate() + 1)
+          this.setData({ date: formatDate(tomorrow) })
+        } else if (dateVal === '后天') {
+          var dayAfter = new Date()
+          dayAfter.setDate(dayAfter.getDate() + 2)
+          this.setData({ date: formatDate(dayAfter) })
+        } else if (dateVal === '今天') {
+          this.setData({ date: today })
+        }
+      }
+      if (timeVal) {
+        this.setData({ time: timeVal })
+      }
+      this.autoLocateAndSearch()
+    } else {
+      this.autoLocate()
+    }
+  },
+
+  onShow() {
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    // 行程规划页：AI助手只播报页面介绍，不进入监听（用页面大麦克风代替）
+    app.globalData.aiPageListenDisabled = true
+    app.globalData.aiPageContext = {
+      page: 'map-trip',
+      title: '行程规划',
+      summary: 'AI帮您规划出行方案',
+      actions: ['出发地输入', '目的地输入', '选择出发时间', '开始规划', '查看方案'],
+      formFields: ['出发地', '目的地', '出发时间'],
+      formData: {
+        '出发地': this.data.from || '',
+        '目的地': this.data.to || '',
+        '出发时间': this.data.departTime || ''
+      },
+      tips: '输入出发地和目的地，选好时间，点开始规划就能看到多种出行方案'
+    }
+  },
+
+  onHide() {
+    // 离开页面时恢复监听模式
+    app.globalData.aiPageListenDisabled = false
+  },
+
+  autoLocate() {
+    var self = this
+    amapService.getCurrentLocation().then(function(result) {
+      if (result.success) {
+        self.setData({
+          from: result.address,
+          fromCoord: { lng: result.longitude, lat: result.latitude }
+        })
+      }
+    }).catch(function() {})
+  },
+
+  autoLocateAndSearch() {
+    var self = this
+    amapService.getCurrentLocation().then(function(result) {
+      if (result.success) {
+        self.setData({
+          from: result.address,
+          fromCoord: { lng: result.longitude, lat: result.latitude }
+        })
+      }
+      self.searchPlans()
+    }).catch(function() {
+      self.searchPlans()
+    })
+  },
+
+  extractDestination(text) {
+    if (!text) return ''
+
+    // 强净化：先去掉意图词、语气词、订票/打车语义，只留下地址/地名
+    var cleanText = text
+      .replace(/(我想|我要|我打算|想|要|打算|计划|准备|希望|想让|想请|想叫|想打|想买|想订|想走|想起|想去|想到|帮我|麻烦|请|劳烦|能不能|可以|给我|安排|一下|一趟|一会|一会儿|吧|嘛|呢|呐|啊|嗯|哦|呀|哎|喂|哈喽|你好|您好)/g, '')
+      .replace(/(买票|购票|订票|火车票|车票|高铁|动车|火车|打车|叫车|出租车|快车|约车|拦车|滴滴|网约车|接人|送人|接|送|去接|去送|订一张|买一张|换乘|转车|改签|退票)/g, '')
+      .replace(/(早上|上午|下午|晚上|中午|凌晨|天亮|明早|明晚|一早|一晚|现在|马上|立刻|赶紧|几点|什么时候|时间)/g, '')
+      .replace(/(明天|后天|大后天|今天|这两天|周末|周日|周六|周一|周二|周三|周四|周五|下周|下周一|下星期)/g, '')
+      .replace(/[，。、,.;:：；!！?？\s"'"'（）()《》【】\[\]]/g, '')
+      .trim()
+    if (!cleanText) cleanText = text
+    
+    var dest = ''
+    
+    var actionWords = '看|找|玩|办事|办点事|拿药|取|办|坐|看孙子|看病|复查|接人|接|送人|送|看望|探望|吃饭|买|逛|去|一趟'
+    
+    var patterns = [
+      new RegExp('去(.+?)(?:' + actionWords + '|$)'),
+      new RegExp('到(.+?)(?:' + actionWords + '|$)'),
+      new RegExp('去(.+)'),
+      new RegExp('到(.+)')
+    ]
+    
+    for (var i = 0; i < patterns.length; i++) {
+      var m = cleanText.match(patterns[i])
+      if (m && m[1]) {
+        dest = m[1].trim()
+        break
+      }
+    }
+    
+    if (!dest || dest === cleanText) {
+      if (cleanText.indexOf('回家') >= 0) {
+        dest = '家'
+      } else if (cleanText.indexOf('回') >= 0) {
+        var homeMatch = cleanText.match(/回(.+)/)
+        if (homeMatch && homeMatch[1]) {
+          dest = homeMatch[1].trim()
+        } else {
+          dest = '家'
+        }
+      }
+    }
+    
+    var cityNames = ['太原南站','太原站','北京西站','北京南站','北京站','上海虹桥站','上海站',
+      '南京南站','南京站','杭州东站','广州南站','深圳北站','成都东站','重庆北站','西安北站',
+      '武汉站','郑州东站','长沙南站','天津站','合肥南站','福州南站','厦门北站',
+      '太原','北京','上海','南京','杭州','广州','深圳','成都','重庆','西安','武汉','郑州',
+      '长沙','天津','合肥','沈阳','哈尔滨','石家庄','济南','青岛','大连','苏州','无锡',
+      '宁波','厦门','福州','南昌','昆明','贵阳','南宁','兰州','银川','西宁','拉萨',
+      '呼和浩特','乌鲁木齐','长春','火车站','高铁站','机场','县医院','省人民医院',
+      '社区医院','中心医院','中医院','银行','超市','菜市场','人民公园','市政府',
+      '老干部活动中心','地铁','地铁站','公司','单位','学校','幼儿园','小学','中学']
+    
+    var sortedCities = cityNames.sort(function(a, b) { return b.length - a.length })
+    
+    if (!dest || dest === cleanText) {
+      for (var j = 0; j < sortedCities.length; j++) {
+        if (cleanText.indexOf(sortedCities[j]) >= 0) {
+          dest = sortedCities[j]
+          break
+        }
+      }
+    } else {
+      for (var k = 0; k < sortedCities.length; k++) {
+        if (dest.indexOf(sortedCities[k]) >= 0) {
+          dest = sortedCities[k]
+          break
+        }
+      }
+    }
+    
+    // 如果还没有，用净化后的整段（再做一轮替换）
+    if (!dest || dest === cleanText) {
+      dest = cleanText.replace(/我要|帮我|明天|后天|今天|下周|上午|下午|去|到|坐|从|高铁|火车|打车|叫个车|接人|接|送人|送|一下|一趟/g, '').trim()
+    }
+
+    // 最后兜底：如果 dest 还包含"我想/嗯/啊"这类不干净的词，直接置空，避免错误POI
+    var badWords = /^(我想|我想嗯|我想啊|我想去|我要|嗯|啊|哦|呀|呢|吧|的|去|到|走|去去|去去去|打|打打|打车|叫|叫车|买|买票|订|订票|高铁|火车)$/
+    if (dest && (badWords.test(dest) || dest.length <= 1)) {
+      dest = ''
+    }
+    
+    if (dest.length > 10) {
+      var idx = -1
+      for (var n = 0; n < sortedCities.length; n++) {
+        var p = dest.indexOf(sortedCities[n])
+        if (p >= 0 && (idx === -1 || p < idx)) {
+          idx = p
+          dest = sortedCities[n]
+        }
+      }
+    }
+    
+    return dest
+  },
+
+  // 从语音文本提取日期
+  extractDateFromText: function(text) {
+    if (!text) return ''
+    var dateMatch = text.match(/(大后天|大后日|后天|后日|后儿个|后儿|明天|明日|明儿个|明儿|明个|今天|今日|今儿个|今儿|今个)/)
+    if (dateMatch) {
+      var d = dateMatch[1]
+      if (d === '明儿个' || d === '明儿' || d === '明个' || d === '明日') return '明天'
+      if (d === '后儿个' || d === '后儿' || d === '后日') return '后天'
+      if (d === '今儿个' || d === '今儿' || d === '今个' || d === '今日') return '今天'
+      if (d === '大后日') return '大后天'
+      return d
+    }
+    return ''
+  },
+
+  // 从语音文本提取时间
+  extractTimeFromText: function(text) {
+    if (!text) return ''
+    // 支持阿拉伯数字和中文数字（一二三四五六七八九十百）
+    // 先找 "早上八点" "下午三点半" "上午10点" 这种
+    var match = text.match(/(上午|下午|晚上|早晨|中午|早上|凌晨|半夜)\s*([一二三四五六七八九十百\d]+点半|[一二三四五六七八九十百\d]+点\d{1,2}分|[一二三四五六七八九十百\d]+点半|[一二三四五六七八九十百\d]+点|\d+:\d+)/)
+    if (match) {
+      return match[1] + match[2]
+    }
+    // 只有数字时间 "8点" "3点半" "八点半"
+    match = text.match(/([一二三四五六七八九十百\d]+点半|[一二三四五六七八九十百\d]+点\d{1,2}分|[一二三四五六七八九十百\d]+点半|[一二三四五六七八九十百\d]+点|\d+:\d+)/)
+    if (match) return match[1]
+    // 只有时段
+    var periodMatch = text.match(/(上午|下午|晚上|早晨|中午|早上|凌晨|半夜)/)
+    if (periodMatch) return periodMatch[1]
+    return ''
   },
 
   onFromInput(e) {
     this.setData({ from: e.detail.value })
-    this.tryGeneratePlans()
   },
 
   onToInput(e) {
-    this.setData({ to: e.detail.value })
-    this.tryGeneratePlans()
+    var value = e.detail.value
+    this.setData({ to: value, searchKeyword: value })
+    if (value.length >= 2) {
+      this.searchScenicSpot(value)
+    } else {
+      this.setData({ showSearchResults: false, searchResults: [] })
+    }
+  },
+
+  searchScenicSpot(keyword) {
+    if (!keyword || keyword.length < 2) {
+      this.setData({ showSearchResults: false, searchResults: [] })
+      return
+    }
+
+    if (this.searchTimer) clearTimeout(this.searchTimer)
+    this.searchTimer = setTimeout(() => {
+      this.setData({ isSearching: true })
+      
+      amapService.searchPOI(keyword).then((result) => {
+        console.log('高德POI搜索结果:', JSON.stringify(result))
+        if (result.success && result.data.length > 0) {
+          this.setData({
+            searchResults: result.data,
+            showSearchResults: true,
+            isSearching: false
+          })
+        } else {
+          console.log('POI搜索失败或无结果:', result.error)
+          this.setData({ showSearchResults: false, searchResults: [], isSearching: false })
+        }
+      }).catch((err) => {
+        console.error('POI搜索异常:', err)
+        this.setData({ showSearchResults: false, searchResults: [], isSearching: false })
+      })
+    }, 300)
+  },
+
+  selectSearchResult(e) {
+    var result = e.currentTarget.dataset.result
+    this.setData({
+      to: result.name,
+      showSearchResults: false,
+      searchResults: []
+    })
+  },
+
+  getCurrentLocation() {
+    var self = this
+    var role = this.data.role
+
+    // 子女端：优先使用父母共享位置
+    if (role === 'family') {
+      var parentLoc = app.getParentLocation()
+      if (parentLoc && parentLoc.latitude && parentLoc.longitude) {
+        wx.showLoading({ title: '获取父母位置...', mask: true })
+        // 反向地理编码获取地址
+        amapService.reverseGeocode(parentLoc.longitude + ',' + parentLoc.latitude).then(function(result) {
+          wx.hideLoading()
+          if (result.success && result.data) {
+            var address = result.data.address || '父母当前位置'
+            self.setData({
+              from: address,
+              centerLng: parentLoc.longitude,
+              centerLat: parentLoc.latitude,
+              mapScale: 16
+            })
+            wx.showToast({ title: '已定位到父母位置', icon: 'success', duration: 2000 })
+            var newMarkers = [{
+              id: 3,
+              longitude: parentLoc.longitude,
+              latitude: parentLoc.latitude,
+              width: 32,
+              height: 32,
+              callout: {
+                content: '父母位置',
+                color: '#ffffff',
+                fontSize: 12,
+                borderRadius: 8,
+                padding: 6,
+                display: 'ALWAYS',
+                bgColor: '#06D6A0'
+              }
+            }]
+            self.setData({ markers: newMarkers })
+          } else {
+            // 反向地理编码失败，使用坐标兜底
+            var coordAddress = '父母当前位置(' + parentLoc.latitude.toFixed(4) + ',' + parentLoc.longitude.toFixed(4) + ')'
+            self.setData({
+              from: coordAddress,
+              centerLng: parentLoc.longitude,
+              centerLat: parentLoc.latitude,
+              mapScale: 15
+            })
+            wx.showToast({ title: '已获取父母位置', icon: 'success', duration: 2000 })
+          }
+        }).catch(function() {
+          wx.hideLoading()
+          var coordAddress = '父母当前位置(' + parentLoc.latitude.toFixed(4) + ',' + parentLoc.longitude.toFixed(4) + ')'
+          self.setData({
+            from: coordAddress,
+            centerLng: parentLoc.longitude,
+            centerLat: parentLoc.latitude,
+            mapScale: 15
+          })
+          wx.showToast({ title: '已获取父母位置', icon: 'success', duration: 2000 })
+        })
+        return
+      } else {
+        wx.showModal({
+          title: '未获取到父母位置',
+          content: '父母尚未开启位置共享，是否使用您的当前位置？',
+          confirmText: '用我的位置',
+          cancelText: '取消',
+          confirmColor: '#FF8C42',
+          success: function(res) {
+            if (res.confirm) {
+              self._locateSelf()
+            }
+          }
+        })
+        return
+      }
+    }
+
+    // 老人端：使用自己的定位
+    self._locateSelf()
+  },
+
+  _locateSelf() {
+    var self = this
+    wx.showLoading({ title: '定位中...', mask: true })
+    amapService.getCurrentLocation().then((result) => {
+      wx.hideLoading()
+      console.log('定位结果:', JSON.stringify(result))
+      if (result.success) {
+        var address = result.address || '当前位置'
+        var isCoordFallback = address.indexOf('当前位置(') >= 0
+        self.setData({
+          from: address,
+          centerLng: result.longitude,
+          centerLat: result.latitude,
+          mapScale: isCoordFallback ? 15 : 16
+        })
+        
+        var accuracyMsg = result.accuracy ? '（精度' + Math.round(result.accuracy) + '米）' : ''
+        if (isCoordFallback) {
+          wx.showToast({ title: '定位成功' + accuracyMsg + '，地址解析中...', icon: 'none', duration: 2500 })
+        } else {
+          wx.showToast({ title: '定位成功' + accuracyMsg, icon: 'success', duration: 2000 })
+        }
+        
+        var newMarkers = [{
+          id: 3,
+          longitude: result.longitude,
+          latitude: result.latitude,
+          width: 32,
+          height: 32,
+          callout: {
+            content: '当前位置',
+            color: '#ffffff',
+            fontSize: 12,
+            borderRadius: 8,
+            padding: 6,
+            display: 'ALWAYS',
+            bgColor: '#111111'
+          }
+        }]
+        self.setData({ markers: newMarkers })
+      } else {
+        wx.showToast({ title: result.error || '定位失败', icon: 'none', duration: 2500 })
+      }
+    }).catch((err) => {
+      wx.hideLoading()
+      console.error('定位失败:', err)
+      wx.showToast({ title: '定位失败，请检查权限设置', icon: 'none', duration: 2500 })
+    })
   },
 
   onDateChange(e) {
@@ -45,506 +483,396 @@ Page({
   },
 
   swapAddress() {
-    const { from, to } = this.data
-    this.setData({
-      from: to,
-      to: from
+    var from = this.data.from
+    var to = this.data.to
+    this.setData({ from: to, to: from })
+  },
+
+  switchTransitMode(e) {
+    var planId = e.currentTarget.dataset.planId
+    var segmentIndex = e.currentTarget.dataset.segmentIndex
+    var mode = e.currentTarget.dataset.mode
+
+    var transitMode = this.data.transitMode
+    if (!transitMode[planId]) {
+      transitMode[planId] = {}
+    }
+    transitMode[planId][segmentIndex] = mode
+
+    var plans = this.data.plans
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].id === planId) {
+        var plan = plans[i]
+        var newTotalCost = 0
+        
+        for (var j = 0; j < plan.segments.length; j++) {
+          var seg = plan.segments[j]
+          var segMode = (transitMode[planId] && transitMode[planId][j]) || 'taxi'
+          
+          if (seg.type === 'train') {
+            if (seg.train && seg.train.minPrice !== undefined) {
+              newTotalCost += Number(seg.train.minPrice) || 0
+            } else if (seg.taxi && seg.taxi.cost) {
+              newTotalCost += Number(seg.taxi.cost) || 0
+            }
+          } else if (seg.type === 'local') {
+            if (segMode === 'bus' && seg.bus) {
+              newTotalCost += Number(seg.bus.cost) || 0
+            } else if (segMode === 'subway' && seg.subway) {
+              newTotalCost += Number(seg.subway.cost) || 0
+            } else if (seg.taxi) {
+              newTotalCost += Number(seg.taxi.cost) || 0
+            } else if (seg.bus) {
+              newTotalCost += Number(seg.bus.cost) || 0
+            } else if (seg.subway) {
+              newTotalCost += Number(seg.subway.cost) || 0
+            }
+          } else if (seg.type === 'walk') {
+            newTotalCost += 0
+          } else {
+            if (seg.taxi && seg.taxi.cost) {
+              newTotalCost += Number(seg.taxi.cost) || 0
+            }
+          }
+        }
+        
+        plan.totalCost = newTotalCost
+        plan.taxiTotalCost = newTotalCost
+        break
+      }
+    }
+
+    this.setData({ 
+      transitMode: transitMode,
+      plans: this.preprocessPlans(plans)
     })
-    this.tryGeneratePlans()
   },
 
-  tryGeneratePlans() {
-    const { from, to } = this.data
-    if (from && to && from !== to) {
-      this.generatePlans(from, to)
-    } else {
-      this.setData({ plans: [], distance: 0 })
+  preprocessPlans(plans) {
+    var self = this
+    var confirmedSegments = self.data.confirmedSegments || {}
+    var transitMode = self.data.transitMode || {}
+    var processingSegment = self.data.processingSegment || ''
+    var result = []
+
+    for (var i = 0; i < plans.length; i++) {
+      var plan = plans[i]
+      if (!plan.segments) {
+        result.push(plan)
+        continue
+      }
+
+      var newSegments = []
+      for (var j = 0; j < plan.segments.length; j++) {
+        var seg = plan.segments[j]
+        var segKey = plan.id + '_' + j
+        var segConfirmed = confirmedSegments[segKey]
+        var segMode = (transitMode[plan.id] && transitMode[plan.id][j]) || ''
+
+        var displayLabel = ''
+        if (segConfirmed) {
+          displayLabel = '已完成'
+        } else if (seg.type === 'train') {
+          displayLabel = '火车'
+        } else if (seg.type === 'walk') {
+          displayLabel = '步行'
+        } else if (seg.type === 'bus') {
+          displayLabel = '公交'
+        } else if (seg.type === 'taxi') {
+          displayLabel = '打车'
+        } else {
+          if (segMode === 'bus') {
+            displayLabel = '公交'
+          } else if (segMode === 'subway') {
+            displayLabel = '地铁'
+          } else {
+            displayLabel = '打车'
+          }
+        }
+
+        var isLocalSegment = (seg.type !== 'train' && seg.type !== 'walk' && seg.type !== 'bus' && seg.type !== 'taxi')
+
+        var isTaxiActive = false
+        var isBusActive = false
+        var isSubwayActive = false
+        if (isLocalSegment) {
+          if (!segMode || segMode === 'taxi') isTaxiActive = true
+          if (segMode === 'bus') isBusActive = true
+          if (segMode === 'subway') isSubwayActive = true
+        }
+
+        var showDoneBtn = !!segConfirmed
+        var showLoadingBtn = (processingSegment === segKey)
+        var showTrainBtn = (!showDoneBtn && !showLoadingBtn && seg.type === 'train')
+        var showTaxiBtn = false
+        var showBusBtn = false
+        var showSubwayBtn = false
+
+        if (!showDoneBtn && !showLoadingBtn) {
+          if (seg.type === 'taxi') {
+            showTaxiBtn = true
+          } else if (seg.type === 'bus') {
+            showBusBtn = true
+          } else if (isLocalSegment) {
+            if (!segMode || segMode === 'taxi') showTaxiBtn = true
+            if (segMode === 'bus') showBusBtn = true
+            if (segMode === 'subway') showSubwayBtn = true
+          }
+        }
+
+        var newSeg = {}
+        for (var k in seg) {
+          newSeg[k] = seg[k]
+        }
+        newSeg.displayLabel = displayLabel
+        newSeg.isLocalSegment = isLocalSegment
+        newSeg.isTaxiActive = isTaxiActive
+        newSeg.isBusActive = isBusActive
+        newSeg.isSubwayActive = isSubwayActive
+        newSeg.showDoneBtn = showDoneBtn
+        newSeg.showLoadingBtn = showLoadingBtn
+        newSeg.showTrainBtn = showTrainBtn
+        newSeg.showTaxiBtn = showTaxiBtn
+        newSeg.showBusBtn = showBusBtn
+        newSeg.showSubwayBtn = showSubwayBtn
+
+        newSegments.push(newSeg)
+      }
+
+      plan.segments = newSegments
+      result.push(plan)
     }
+
+    return result
   },
 
-  generatePlans(from, to) {
-    const cityDistances = {
-      '太原-南京': 980,
-      '南京-太原': 980,
-      '北京-上海': 1318,
-      '上海-北京': 1318,
-      '广州-深圳': 140,
-      '深圳-广州': 140,
-      '成都-重庆': 300,
-      '重庆-成都': 300
+  togglePlanExpand(e) {
+    var planId = e.currentTarget.dataset.planId
+    var current = this.data.expandedPlanId
+    this.setData({
+      expandedPlanId: current === planId ? '' : planId
+    })
+  },
+
+  searchAll() {
+    this.searchPlans()
+  },
+
+  searchPlans() {
+    var from = this.data.from
+    var to = this.data.to
+    var scene = this.data.scene
+
+    if (!from || !to) {
+      wx.showToast({ title: '请输入出发地和目的地', icon: 'none' })
+      return
+    }
+    if (from === to) {
+      wx.showToast({ title: '出发地和目的地不能相同', icon: 'none' })
+      return
     }
 
-    const cityCoords = {
-      '太原': '112.549248,37.857014',
-      '南京': '118.796875,32.060253',
-      '北京': '116.407395,39.904211',
-      '上海': '121.473701,31.230416',
-      '广州': '113.264385,23.129110',
-      '深圳': '114.057868,22.543099',
-      '成都': '104.066801,30.572816',
-      '重庆': '106.551556,29.563009',
-      '杭州': '120.155151,30.274084',
-      '西安': '108.948024,34.263161',
-      '武汉': '114.305469,30.592845',
-      '长沙': '112.938820,28.228024',
-      '乌鲁木齐': '87.616882,43.825592',
-      '兰州': '103.834341,36.061131',
-      '昆明': '102.712251,24.881134',
-      '贵阳': '106.643673,26.653319',
-      '南宁': '108.398939,22.817924',
-      '海口': '110.359467,20.044029',
-      '福州': '119.296497,26.074499',
-      '厦门': '118.089421,24.479833',
-      '南昌': '115.855043,28.682689',
-      '合肥': '117.227279,31.820671',
-      '济南': '117.120148,36.651216',
-      '青岛': '120.382683,36.067106',
-      '郑州': '113.624247,34.746610',
-      '石家庄': '114.502464,38.045474',
-      '天津': '117.200899,39.084158',
-      '沈阳': '123.432862,41.805684',
-      '大连': '121.614662,38.914076',
-      '长春': '125.323516,43.817071',
-      '哈尔滨': '126.642464,45.803775',
-      '呼和浩特': '111.651545,40.842309',
-      '银川': '106.230625,38.486445',
-      '西宁': '101.778194,36.617071',
-      '拉萨': '91.134269,29.654516',
-      '苏州': '120.619585,31.325152',
-      '无锡': '120.311943,31.491165',
-      '宁波': '121.554885,29.870411',
-      '温州': '120.694834,28.019967',
-      '佛山': '113.116449,23.021533',
-      '东莞': '113.759031,23.020680',
-      '中山': '113.388889,22.524060',
-      '珠海': '113.576620,22.275366',
-      '常州': '119.959952,31.818021',
-      '南通': '120.893055,32.011567',
-      '徐州': '117.224432,34.222340',
-      '绍兴': '120.589343,30.007727',
-      '嘉兴': '120.751773,30.761707',
-      '金华': '119.644772,29.088120',
-      '台州': '121.423069,28.658335',
-      '湖州': '120.118636,30.867714',
-      '扬州': '119.436644,32.394551',
-      '镇江': '119.445794,32.207314',
-      '盐城': '120.139743,33.339435',
-      '淮安': '119.198609,33.500853',
-      '连云港': '119.161073,34.592192',
-      '宿迁': '118.316851,33.960665',
-      '泰州': '119.944963,32.492510',
-      '芜湖': '118.430264,31.358246',
-      '蚌埠': '117.344699,32.925824',
-      '淮南': '116.983447,32.622169',
-      '马鞍山': '118.497039,31.578602',
-      '淮北': '116.786148,33.947884',
-      '铜陵': '117.820766,30.930648',
-      '安庆': '117.051696,30.514722',
-      '黄山': '118.186841,29.716472',
-      '滁州': '118.316948,32.305091',
-      '阜阳': '115.813109,32.892365',
-      '宿州': '116.915472,33.633959',
-      '六安': '116.493794,31.747521',
-      '亳州': '115.756723,33.870633',
-      '池州': '117.480837,30.663030',
-      '宣城': '118.743649,30.947556',
-      '唐山': '118.193577,39.637974',
-      '秦皇岛': '119.589051,39.943451',
-      '邯郸': '114.477738,36.617281',
-      '邢台': '114.499339,37.066366',
-      '保定': '115.481526,38.861345',
-      '张家口': '114.885553,40.823472',
-      '承德': '117.938758,40.967684',
-      '沧州': '116.828666,38.310449',
-      '廊坊': '116.652042,39.521385',
-      '衡水': '115.677954,37.711469',
-      '大同': '113.304992,39.942999',
-      '阳泉': '113.678709,37.890782',
-      '长治': '113.135579,36.189237',
-      '晋城': '112.864853,35.509316',
-      '朔州': '112.454373,39.318688',
-      '晋中': '112.746853,37.688365',
-      '运城': '110.963566,35.021447',
-      '忻州': '112.742389,38.411132',
-      '临汾': '111.504657,36.081336',
-      '吕梁': '111.107849,37.509107',
-      '呼和浩特': '111.651545,40.842309',
-      '包头': '109.833187,40.669576',
-      '乌海': '106.827132,39.668040',
-      '赤峰': '118.922577,42.274848',
-      '通辽': '122.272881,43.617049',
-      '鄂尔多斯': '109.787831,39.618055',
-      '呼伦贝尔': '119.748217,49.217923',
-      '巴彦淖尔': '107.413509,40.758008',
-      '乌兰察布': '113.106716,41.008464',
-      '兴安盟': '122.078659,46.091286',
-      '锡林郭勒盟': '116.065720,43.936707',
-      '阿拉善盟': '105.683001,40.552956',
-      '沈阳': '123.432862,41.805684',
-      '大连': '121.614662,38.914076',
-      '鞍山': '122.998733,41.111093',
-      '抚顺': '123.905479,41.853329',
-      '本溪': '123.767852,41.288026',
-      '丹东': '124.386183,40.137763',
-      '锦州': '121.151554,41.136480',
-      '营口': '122.216731,40.652304',
-      '阜新': '121.664584,42.013068',
-      '辽阳': '123.196777,41.283279',
-      '盘锦': '122.063159,41.116588',
-      '铁岭': '123.854928,42.326276',
-      '朝阳': '120.450620,41.575665',
-      '葫芦岛': '120.843849,40.759493',
-      '长春': '125.323516,43.817071',
-      '吉林': '126.543182,43.831493',
-      '四平': '124.376977,43.171569',
-      '辽源': '125.117306,42.875440',
-      '通化': '125.927154,41.782946',
-      '白山': '126.474732,41.932627',
-      '松原': '124.827023,45.137490',
-      '白城': '122.834393,45.629507',
-      '延边州': '129.513633,42.893141',
-      '哈尔滨': '126.642464,45.803775',
-      '齐齐哈尔': '123.943795,47.353799',
-      '鸡西': '131.025273,45.308505',
-      '鹤岗': '130.354830,47.322777',
-      '双鸭山': '131.175793,46.641339',
-      '大庆': '125.032287,46.562311',
-      '伊春': '128.922565,47.734626',
-      '佳木斯': '130.366774,46.804958',
-      '七台河': '131.036715,45.770776',
-      '牡丹江': '129.566324,44.550456',
-      '黑河': '127.532739,50.249265',
-      '绥化': '126.995676,46.632949',
-      '大兴安岭': '124.151896,52.031871',
-      '南京': '118.796875,32.060253',
-      '苏州': '120.619585,31.325152',
-      '无锡': '120.311943,31.491165',
-      '常州': '119.959952,31.818021',
-      '镇江': '119.445794,32.207314',
-      '扬州': '119.436644,32.394551',
-      '泰州': '119.944963,32.492510',
-      '南通': '120.893055,32.011567',
-      '盐城': '120.139743,33.339435',
-      '淮安': '119.198609,33.500853',
-      '连云港': '119.161073,34.592192',
-      '宿迁': '118.316851,33.960665',
-      '杭州': '120.155151,30.274084',
-      '宁波': '121.554885,29.870411',
-      '温州': '120.694834,28.019967',
-      '嘉兴': '120.751773,30.761707',
-      '湖州': '120.118636,30.867714',
-      '绍兴': '120.589343,30.007727',
-      '金华': '119.644772,29.088120',
-      '衢州': '118.877726,28.964426',
-      '舟山': '122.204369,30.005228',
-      '台州': '121.423069,28.658335',
-      '丽水': '119.921438,28.451391',
-      '合肥': '117.227279,31.820671',
-      '福州': '119.296497,26.074499',
-      '厦门': '118.089421,24.479833',
-      '泉州': '118.589253,24.914799',
-      '漳州': '117.649939,24.616409',
-      '莆田': '119.014198,25.466060',
-      '宁德': '119.524816,26.650360',
-      '南平': '118.167630,26.656682',
-      '三明': '117.618746,26.254686',
-      '龙岩': '117.009448,24.801051',
-      '赣州': '114.939971,25.831199',
-      '南昌': '115.855043,28.682689',
-      '九江': '115.986329,29.714250',
-      '景德镇': '117.224450,29.260690',
-      '萍乡': '113.855139,27.614770',
-      '新余': '114.921857,27.801595',
-      '鹰潭': '117.034716,28.239176',
-      '赣州': '114.939971,25.831199',
-      '吉安': '114.948097,27.114758',
-      '宜春': '114.387718,27.823087',
-      '抚州': '116.371496,28.019655',
-      '上饶': '117.976799,28.454560',
-      '济南': '117.120148,36.067106',
-      '青岛': '120.382683,36.067106',
-      '淄博': '117.853997,36.803981',
-      '枣庄': '117.531748,34.802127',
-      '东营': '118.501495,37.466444',
-      '烟台': '121.434578,37.460266',
-      '潍坊': '119.149895,36.706817',
-      '济宁': '116.587180,35.372439',
-      '泰安': '117.120148,36.194602',
-      '威海': '122.154710,37.503763',
-      '日照': '119.524816,35.428128',
-      '莱芜': '117.676237,36.221731',
-      '临沂': '118.316851,35.054891',
-      '德州': '116.206457,37.431660',
-      '聊城': '115.986329,36.411771',
-      '滨州': '117.976799,37.366444',
-      '菏泽': '115.423027,35.232071',
-      '郑州': '113.624247,34.746610',
-      '开封': '114.354345,34.796056',
-      '洛阳': '112.454373,34.623023',
-      '平顶山': '113.287696,33.740241',
-      '安阳': '114.354345,36.162266',
-      '鹤壁': '114.136716,35.737281',
-      '新乡': '113.855139,35.312570',
-      '焦作': '113.287696,35.232071',
-      '濮阳': '115.090501,35.737281',
-      '许昌': '113.855139,34.026276',
-      '漯河': '114.073399,33.575260',
-      '三门峡': '111.219997,34.746610',
-      '南阳': '112.528789,33.000492',
-      '商丘': '115.677954,34.440871',
-      '信阳': '114.073399,32.156997',
-      '周口': '114.644772,33.633959',
-      '驻马店': '114.073399,32.925824',
-      '武汉': '114.305469,30.592845',
-      '黄石': '115.090501,30.206802',
-      '十堰': '110.787831,32.622169',
-      '宜昌': '111.312042,30.663030',
-      '襄阳': '112.177479,32.076187',
-      '鄂州': '114.885553,30.381493',
-      '荆门': '112.240798,30.930648',
-      '孝感': '113.989539,30.930648',
-      '荆州': '112.240798,30.274084',
-      '黄冈': '114.885553,30.486445',
-      '咸宁': '114.203010,29.870411',
-      '随州': '113.428627,31.747521',
-      '恩施州': '109.483228,30.274084',
-      '长沙': '112.938820,28.228024',
-      '株洲': '113.135579,27.823087',
-      '湘潭': '112.938820,27.823087',
-      '衡阳': '112.617281,26.915472',
-      '邵阳': '111.486445,27.239176',
-      '岳阳': '113.002102,29.364802',
-      '常德': '111.651545,29.088120',
-      '张家界': '110.472389,29.186841',
-      '益阳': '112.304168,28.557479',
-      '郴州': '113.065472,25.773659',
-      '永州': '111.651545,26.254686',
-      '怀化': '109.945794,27.543099',
-      '娄底': '111.977831,27.765529',
-      '湘西州': '109.787831,28.316851',
-      '广州': '113.264385,23.129110',
-      '深圳': '114.057868,22.543099',
-      '珠海': '113.576620,22.275366',
-      '汕头': '116.686771,23.355049',
-      '佛山': '113.116449,23.021533',
-      '韶关': '113.624247,24.881134',
-      '湛江': '110.359467,21.271780',
-      '肇庆': '112.454373,23.021533',
-      '江门': '113.002102,22.543099',
-      '茂名': '110.963566,21.664097',
-      '惠州': '114.477738,23.129110',
-      '东莞': '113.759031,23.020680',
-      '中山': '113.388889,22.524060',
-      '潮州': '116.686771,23.664097',
-      '揭阳': '116.371496,23.526276',
-      '云浮': '112.044656,22.988279',
-      '南宁': '108.398939,22.817924',
-      '柳州': '109.483228,24.317071',
-      '桂林': '110.299344,25.274084',
-      '梧州': '111.219997,23.489140',
-      '北海': '109.128989,21.491165',
-      '防城港': '108.398939,21.664097',
-      '钦州': '108.698243,21.991165',
-      '贵港': '109.483228,23.129110',
-      '玉林': '110.097783,22.634341',
-      '百色': '106.551556,23.817071',
-      '贺州': '111.504657,24.479833',
-      '河池': '108.099661,24.717071',
-      '来宾': '109.483228,23.664097',
-      '崇左': '107.380174,22.341707',
-      '海口': '110.359467,20.044029',
-      '三亚': '109.509841,18.252758',
-      '成都': '104.066801,30.572816',
-      '绵阳': '104.738756,31.468756',
-      '自贡': '104.738756,29.364802',
-      '攀枝花': '101.778194,26.551556',
-      '泸州': '105.381493,28.964426',
-      '德阳': '104.267014,31.014722',
-      '广元': '105.986329,32.492510',
-      '遂宁': '105.504657,30.592845',
-      '内江': '105.090501,29.563009',
-      '乐山': '103.784778,29.563009',
-      '南充': '106.189987,30.867714',
-      '眉山': '103.834341,30.007727',
-      '宜宾': '104.611377,28.764802',
-      '广安': '106.643673,30.486445',
-      '达州': '107.520321,31.230416',
-      '雅安': '103.001866,30.007727',
-      '巴中': '106.827132,31.820671',
-      '资阳': '104.611377,30.007727',
-      '阿坝州': '102.267014,32.892365',
-      '甘孜州': '101.977831,30.007727',
-      '凉山州': '102.267014,27.823087',
-      '重庆': '106.551556,29.563009',
-      '贵阳': '106.643673,26.653319',
-      '遵义': '106.926438,27.765529',
-      '安顺': '105.986329,26.254686',
-      '毕节': '105.205518,27.239176',
-      '铜仁': '109.128989,27.765529',
-      '黔西南州': '104.926438,25.274084',
-      '黔东南州': '108.099661,26.254686',
-      '黔南州': '107.380174,26.254686',
-      '昆明': '102.712251,24.881134',
-      '曲靖': '103.834341,25.466060',
-      '玉溪': '102.514308,24.274084',
-      '保山': '99.178687,25.167071',
-      '昭通': '103.784778,27.239176',
-      '丽江': '100.252758,26.823087',
-      '普洱': '101.097783,22.988279',
-      '临沧': '99.477979,23.817071',
-      '德宏州': '98.579522,24.479833',
-      '怒江州': '98.778217,26.551556',
-      '迪庆州': '99.776509,27.765529',
-      '大理州': '100.252758,25.664097',
-      '楚雄州': '101.579522,25.066060',
-      '红河州': '103.101111,23.355049',
-      '文山州': '104.366225,23.355049',
-      '西双版纳州': '100.750682,22.024060',
-      '西安': '108.948024,34.263161',
-      '宝鸡': '107.140923,34.326276',
-      '咸阳': '108.744836,34.326276',
-      '铜川': '109.128989,35.054891',
-      '渭南': '109.509841,34.440871',
-      '延安': '109.483228,36.617281',
-      '汉中': '107.077604,33.000492',
-      '榆林': '109.787831,38.274084',
-      '安康': '108.948024,32.792365',
-      '商洛': '110.196071,33.870633',
-      '兰州': '103.834341,36.061131',
-      '嘉峪关': '98.276509,39.776509',
-      '金昌': '102.168756,38.575260',
-      '白银': '104.167852,36.526276',
-      '天水': '105.787831,34.592192',
-      '酒泉': '98.579522,39.776509',
-      '张掖': '100.451493,38.964426',
-      '武威': '102.613109,37.914076',
-      '定西': '104.512251,35.509316',
-      '陇南': '105.381493,33.633959',
-      '平凉': '106.643673,35.232071',
-      '庆阳': '107.898344,35.737281',
-      '临夏州': '103.200899,35.637281',
-      '甘南州': '102.903137,34.026276',
-      '西宁': '101.778194,36.617071',
-      '海东': '102.267014,36.526276',
-      '海北州': '100.850049,37.890782',
-      '黄南州': '101.778194,35.232071',
-      '海南州': '100.550781,36.061131',
-      '果洛州': '100.977831,33.870633',
-      '玉树州': '97.078687,33.206802',
-      '海西州': '95.677954,37.890782',
-      '银川': '106.230625,38.486445',
-      '石嘴山': '106.329934,39.084158',
-      '吴忠': '106.230625,37.914076',
-      '固原': '106.230625,36.061131',
-      '中卫': '105.106866,37.466444',
-      '乌鲁木齐': '87.616882,43.825592',
-      '克拉玛依': '84.973866,45.592192',
-      '吐鲁番': '89.189987,42.964426',
-      '哈密': '93.592192,42.893141',
-      '昌吉州': '87.317578,44.026276',
-      '博尔塔拉州': '82.078687,44.964426',
-      '巴音郭楞州': '86.078687,41.782946',
-      '阿克苏地区': '80.276509,41.167071',
-      '克孜勒苏州': '76.078687,39.776509',
-      '喀什地区': '75.979522,39.477979',
-      '和田地区': '79.977831,37.167071',
-      '伊犁州': '81.379522,43.893141',
-      '塔城地区': '83.078687,46.526276',
-      '阿勒泰地区': '88.178687,47.893141',
-      '石河子': '85.979522,44.326276',
-      '阿拉尔': '81.179522,40.552956',
-      '图木舒克': '79.179522,39.776509',
-      '五家渠': '87.517578,44.226276',
-      '拉萨': '91.134269,29.654516',
-      '日喀则': '88.878311,29.186841',
-      '昌都': '97.179522,31.230416',
-      '林芝': '94.379522,29.563009',
-      '山南': '91.778311,29.186841',
-      '那曲': '92.078687,31.820671',
-      '阿里': '80.179522,32.622169'
-    }
+    this.setData({ hasSearched: true, loadingPlans: true, plansError: '', plans: [] })
 
-    const key = `${from}-${to}`
-    const distance = cityDistances[key] || Math.floor(Math.random() * 800 + 200)
+    var self = this
 
-    const fromCoord = cityCoords[from] || '112.549248,37.857014'
-    const toCoord = cityCoords[to] || '118.796875,32.060253'
-
-    const getColor = (icon) => {
-      const colors = {
-        '🚕': '#FFB627',
-        '🚌': '#06D6A0',
-        '🚄': '#FF8C42',
-        '🚂': '#FF8C42',
-        '✈️': '#EF476F'
+    var searchTimeout = setTimeout(function() {
+      if (self.data.loadingPlans) {
+        self.setData({ loadingPlans: false, plansError: '查询超时，请重试' })
       }
-      return colors[icon] || '#FF8C42'
+    }, 20000)
+
+    Promise.all([self.getCityFromName(from), self.getCityFromName(to)]).then(function(cities) {
+      var fromCity = cities[0]
+      var toCity = cities[1]
+      
+      travelService.getLocalPlans(from, to, self.data.time).then(function(plans) {
+        travelService.getDrivingRoute(from, to, fromCity, toCity).then(function(route) {
+          var fromCoord = { lng: route.fromGeo.lng, lat: route.fromGeo.lat }
+          var toCoord = { lng: route.toGeo.lng, lat: route.toGeo.lat }
+
+          var polylinePoints = route.success && route.points.length > 0 ? route.points : [
+            { longitude: fromCoord.lng, latitude: fromCoord.lat },
+            { longitude: toCoord.lng, latitude: toCoord.lat }
+          ]
+
+          self.updateMapWithCoords(from, to, fromCoord, toCoord, polylinePoints)
+
+          plans.forEach(function(plan) {
+            plan.mapMarkers = [
+              {
+                id: 1,
+                longitude: fromCoord.lng,
+                latitude: fromCoord.lat,
+                width: 40,
+                height: 40,
+                callout: {
+                  content: '起点',
+                  color: '#ffffff',
+                  fontSize: 14,
+                  borderRadius: 8,
+                  padding: 8,
+                  display: 'ALWAYS',
+                  bgColor: '#FF8C42'
+                }
+              },
+              {
+                id: 2,
+                longitude: toCoord.lng,
+                latitude: toCoord.lat,
+                width: 40,
+                height: 40,
+                callout: {
+                  content: '终点',
+                  color: '#ffffff',
+                  fontSize: 14,
+                  borderRadius: 8,
+                  padding: 8,
+                  display: 'ALWAYS',
+                  bgColor: '#06D6A0'
+                }
+              }
+            ]
+
+            plan.mapPolyline = [{
+              points: polylinePoints,
+              color: '#FF8C42',
+              width: 12,
+              dottedLine: false,
+              arrowLine: true,
+              borderColor: '#FFB627',
+              borderWidth: 4
+            }]
+          })
+
+          self.setData({
+            plans: self.preprocessPlans(plans),
+            loadingPlans: false,
+            expandedPlanId: plans.length > 0 ? plans[0].id : ''
+          })
+        }).catch(function() {
+          travelService.geocode(from).then(function(fromGeo) {
+            travelService.geocode(to).then(function(toGeo) {
+              var fromCoord = { lng: fromGeo.lng, lat: fromGeo.lat }
+              var toCoord = { lng: toGeo.lng, lat: toGeo.lat }
+
+              self.updateMapWithCoords(from, to, fromCoord, toCoord)
+
+              plans.forEach(function(plan) {
+                plan.mapMarkers = [
+                  {
+                    id: 1,
+                    longitude: fromCoord.lng,
+                    latitude: fromCoord.lat,
+                    width: 40,
+                    height: 40,
+                    callout: {
+                      content: '起点',
+                      color: '#ffffff',
+                      fontSize: 14,
+                      borderRadius: 8,
+                      padding: 8,
+                      display: 'ALWAYS',
+                      bgColor: '#FF8C42'
+                    }
+                  },
+                  {
+                    id: 2,
+                    longitude: toCoord.lng,
+                    latitude: toCoord.lat,
+                    width: 40,
+                    height: 40,
+                    callout: {
+                      content: '终点',
+                      color: '#ffffff',
+                      fontSize: 14,
+                      borderRadius: 8,
+                      padding: 8,
+                      display: 'ALWAYS',
+                      bgColor: '#06D6A0'
+                    }
+                  }
+                ]
+
+                plan.mapPolyline = [{
+                  points: [
+                    { longitude: fromCoord.lng, latitude: fromCoord.lat },
+                    { longitude: toCoord.lng, latitude: toCoord.lat }
+                  ],
+                  color: '#FF8C42',
+                  width: 12,
+                  dottedLine: false,
+                  arrowLine: true,
+                  borderColor: '#FFB627',
+                  borderWidth: 4
+                }]
+              })
+
+              self.setData({
+                plans: self.preprocessPlans(plans),
+                loadingPlans: false,
+                expandedPlanId: plans.length > 0 ? plans[0].id : ''
+              })
+            }).catch(function() {
+              self.setData({ plans: self.preprocessPlans(plans), loadingPlans: false, expandedPlanId: plans.length > 0 ? plans[0].id : '' })
+            })
+          }).catch(function() {
+            self.setData({ plans: self.preprocessPlans(plans), loadingPlans: false, expandedPlanId: plans.length > 0 ? plans[0].id : '' })
+          })
+        })
+      }).catch(function(err) {
+        self.setData({
+          plansError: err.message || '查询失败',
+          loadingPlans: false
+        })
+      })
+    }).catch(function(err) {
+      self.setData({
+        plansError: err.message || '查询失败',
+        loadingPlans: false
+      })
+    })
+  },
+
+  updateMapWithCity(from, to) {
+    var fromCoord = this.getCityCoord(from)
+    var toCoord = this.getCityCoord(to)
+    this.updateMapWithCoords(from, to, fromCoord, toCoord)
+  },
+
+  updateMapWithCoords(from, to, fromCoord, toCoord, polylinePoints) {
+    var fromLng = fromCoord.lng
+    var fromLat = fromCoord.lat
+    var toLng = toCoord.lng
+    var toLat = toCoord.lat
+
+    if (!Number.isFinite(fromLng) || !Number.isFinite(fromLat) ||
+        !Number.isFinite(toLng) || !Number.isFinite(toLat)) {
+      wx.showToast({ title: '坐标无效，无法显示地图', icon: 'none' })
+      return
     }
 
-    const plans = [
-      {
-        id: 'plan1',
-        recommended: true,
-        totalTime: '约6小时30分',
-        totalPrice: 720,
-        provider: '12306',
-        steps: [
-          { icon: '🚕', name: '花小猪打车', detail: `出发地 → ${from}南站 · 约20分钟 · ¥30`, color: '#FFB627', provider: 'huaxiaozhu' },
-          { icon: '🚄', name: '高铁 G1954', detail: `${from}南站 → ${to}南站 · 约4小时50分 · ¥590`, color: '#FF8C42', provider: '12306' },
-          { icon: '🚕', name: '花小猪打车', detail: `${to}南站 → 目的地 · 约40分钟 · ¥100`, color: '#FFB627', provider: 'huaxiaozhu' }
-        ]
-      },
-      {
-        id: 'plan2',
-        recommended: false,
-        totalTime: '约9小时',
-        totalPrice: 350,
-        provider: '12306',
-        steps: [
-          { icon: '🚌', name: '公交', detail: `出发地 → ${from}站 · 约40分钟 · ¥2`, color: '#06D6A0', provider: 'bus' },
-          { icon: '🚂', name: '普通火车 K1808', detail: `${from}站 → ${to}站 · 约7小时 · ¥248`, color: '#FF8C42', provider: '12306' },
-          { icon: '🚕', name: '花小猪打车', detail: `${to}站 → 目的地 · 约1小时 · ¥100`, color: '#FFB627', provider: 'huaxiaozhu' }
-        ]
-      },
-      {
-        id: 'plan3',
-        recommended: false,
-        totalTime: '约3小时40分',
-        totalPrice: 1060,
-        provider: 'qunar',
-        steps: [
-          { icon: '🚕', name: '高德打车', detail: `出发地 → ${from}机场 · 约50分钟 · ¥80`, color: '#FFB627', provider: 'amap' },
-          { icon: '✈️', name: '航班 MU2750', detail: `${from}机场 → ${to}机场 · 约2小时 · ¥880`, color: '#EF476F', provider: 'qunar' },
-          { icon: '🚕', name: '高德打车', detail: `${to}机场 → 目的地 · 约30分钟 · ¥100`, color: '#FFB627', provider: 'amap' }
-        ]
-      },
-      {
-        id: 'plan4',
-        recommended: false,
-        totalTime: '约7小时',
-        totalPrice: 680,
-        provider: '12306',
-        steps: [
-          { icon: '🚕', name: '花小猪打车', detail: `出发地 → ${from}西站 · 约30分钟 · ¥40`, color: '#FFB627', provider: 'huaxiaozhu' },
-          { icon: '🚄', name: '动车 D1234', detail: `${from}西站 → ${to}站 · 约5小时 · ¥540`, color: '#FF8C42', provider: '12306' },
-          { icon: '🚌', name: '公交', detail: `${to}站 → 目的地 · 约40分钟 · ¥2`, color: '#06D6A0', provider: 'bus' }
-        ]
-      }
-    ]
+    var centerLng = (fromLng + toLng) / 2
+    var centerLat = (fromLat + toLat) / 2
 
-    const mapUrl = `https://restapi.amap.com/v3/staticmap?location=${toCoord}&zoom=6&size=750x400&markers=mid,0xFF8C42,A:${fromCoord}|mid,0x06D6A0,B:${toCoord}&key=32afe03fc046cfcb68a7161a195271ab`
+    var distance = Math.floor(getDistance(fromLat, fromLng, toLat, toLng))
+    
+    var mapScale = 15
+    if (distance > 1000) {
+      mapScale = 5
+    } else if (distance > 500) {
+      mapScale = 6
+    } else if (distance > 200) {
+      mapScale = 7
+    } else if (distance > 100) {
+      mapScale = 8
+    } else if (distance > 50) {
+      mapScale = 10
+    } else if (distance > 20) {
+      mapScale = 12
+    }
 
-    const fromParts = fromCoord.split(',')
-    const toParts = toCoord.split(',')
-    const fromLng = Number(fromParts[0])
-    const fromLat = Number(fromParts[1])
-    const toLng = Number(toParts[0])
-    const toLat = Number(toParts[1])
-
-    const centerLng = (fromLng + toLng) / 2
-    const centerLat = (fromLat + toLat) / 2
-
-    const markers = [
+    var markers = [
       {
         id: 1,
         longitude: fromLng,
@@ -552,7 +880,7 @@ Page({
         width: 32,
         height: 32,
         callout: {
-          content: `起点 · ${from}`,
+          content: '起点 · ' + from,
           color: '#ffffff',
           fontSize: 12,
           borderRadius: 8,
@@ -568,7 +896,7 @@ Page({
         width: 32,
         height: 32,
         callout: {
-          content: `终点 · ${to}`,
+          content: '终点 · ' + to,
           color: '#ffffff',
           fontSize: 12,
           borderRadius: 8,
@@ -579,139 +907,558 @@ Page({
       }
     ]
 
-    const polyline = [{
-      points: [
-        { longitude: fromLng, latitude: fromLat },
-        { longitude: toLng, latitude: toLat }
-      ],
+    var linePoints = polylinePoints || [
+      { longitude: fromLng, latitude: fromLat },
+      { longitude: toLng, latitude: toLat }
+    ]
+
+    var polyline = [{
+      points: linePoints,
       color: '#FF8C42',
-      width: 6,
+      width: 12,
       dottedLine: false,
       arrowLine: true,
       borderColor: '#FFB627',
-      borderWidth: 2
+      borderWidth: 4
     }]
 
     this.setData({
-      distance,
-      plans,
-      selectedPlan: plans[0],
-      mapUrl,
-      centerLng,
-      centerLat,
-      markers,
-      polyline
+      distance: distance,
+      centerLng: centerLng,
+      centerLat: centerLat,
+      mapScale: mapScale,
+      markers: markers,
+      polyline: polyline
     })
   },
 
-  selectPlan(e) {
-    const plan = e.currentTarget.dataset.plan
-    this.setData({ selectedPlan: plan })
-    const { from, to, date } = this.data
-    wx.navigateTo({
-      url: `/pages/step-confirm/step-confirm?from=${from}&to=${to}&date=${date}&planId=${plan.id}`
-    })
+  getCityCoord(city) {
+    var cityCoords = {
+      '太原': { lng: 112.549248, lat: 37.857014 },
+      '南京': { lng: 118.796875, lat: 32.060255 },
+      '北京': { lng: 116.407395, lat: 39.904211 },
+      '上海': { lng: 121.473701, lat: 31.230416 },
+      '杭州': { lng: 120.153576, lat: 30.287459 },
+      '广州': { lng: 113.264385, lat: 23.129110 },
+      '深圳': { lng: 114.057964, lat: 22.543099 },
+      '成都': { lng: 104.066801, lat: 30.572816 },
+      '重庆': { lng: 106.551556, lat: 29.563009 },
+      '沈阳': { lng: 123.432894, lat: 41.805643 },
+      '西安': { lng: 108.948024, lat: 34.261894 },
+      '武汉': { lng: 114.305469, lat: 30.593168 },
+      '天津': { lng: 117.200755, lat: 39.084158 },
+      '苏州': { lng: 120.619585, lat: 31.299379 },
+      '郑州': { lng: 113.625346, lat: 34.746644 },
+      '青岛': { lng: 120.333566, lat: 36.067121 },
+      '大连': { lng: 121.614761, lat: 38.914063 },
+      '厦门': { lng: 118.089425, lat: 24.479833 },
+      '长沙': { lng: 112.938828, lat: 28.228024 },
+      '哈尔滨': { lng: 126.642464, lat: 45.803756 },
+      '长春': { lng: 125.324521, lat: 43.817071 },
+      '合肥': { lng: 117.227219, lat: 31.820651 },
+      '济南': { lng: 117.000923, lat: 36.675807 },
+      '石家庄': { lng: 114.514896, lat: 38.042309 },
+      '昆明': { lng: 102.712251, lat: 24.881168 },
+      '贵阳': { lng: 106.630465, lat: 26.647535 },
+      '南宁': { lng: 108.371797, lat: 22.817029 },
+      '福州': { lng: 119.296475, lat: 26.075302 },
+      '南昌': { lng: 115.859484, lat: 28.682866 },
+      '兰州': { lng: 103.834341, lat: 36.061122 },
+      '太原南站': { lng: 112.606739, lat: 37.775063 },
+      '沈阳站': { lng: 123.424628, lat: 41.808980 }
+    }
+    return cityCoords[city] || { lng: 116.407395, lat: 39.904211 }
   },
 
-  goToProvider(e) {
-    const provider = e.currentTarget.dataset.provider
-    const plan = e.currentTarget.dataset.plan
-    const { from, to, date } = this.data
-
-    const providerMap = {
-      '12306': {
-        appId: 'wx79b6c2f37a00f5c3',
-        path: `pages/index/index?from_station=${encodeURIComponent(from)}&to_station=${encodeURIComponent(to)}&date=${date}`
-      },
-      'huaxiaozhu': {
-        appId: 'wx0f1d8a7c8a8c8a8c',
-        path: `pages/index/index?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
-      },
-      'amap': {
-        appId: 'wx5597bf2c7d4c5c5c',
-        path: `pages/index/index?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
-      },
-      'qunar': {
-        appId: 'wxbfb6c8d1a8b8c8c8',
-        path: `pages/index/index?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}`
-      },
-      'bus': {
-        appId: 'wx1234567890abcdef',
-        path: `pages/index/index?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`
+  getCityFromNameSync(name) {
+    var cityMap = {
+      '太原': '太原', '北京': '北京', '上海': '上海', '南京': '南京', '武汉': '武汉',
+      '杭州': '杭州', '西安': '西安', '广州': '广州', '深圳': '深圳', '成都': '成都',
+      '重庆': '重庆', '天津': '天津', '苏州': '苏州', '郑州': '郑州', '长沙': '长沙',
+      '青岛': '青岛', '沈阳': '沈阳', '大连': '大连', '合肥': '合肥', '福州': '福州',
+      '厦门': '厦门', '南昌': '南昌', '昆明': '昆明', '贵阳': '贵阳', '南宁': '南宁',
+      '兰州': '兰州', '西宁': '西宁', '银川': '银川', '呼和浩特': '呼和浩特',
+      '乌鲁木齐': '乌鲁木齐', '哈尔滨': '哈尔滨', '长春': '长春', '石家庄': '石家庄',
+      '济南': '济南', '黄鹤楼': '武汉', '西湖': '杭州', '故宫': '北京', '天安门': '北京',
+      '兵马俑': '西安', '长城': '北京', '东方明珠': '上海', '夫子庙': '南京',
+      '东方明珠广播电视塔': '上海', '西湖风景名胜区': '杭州', '张家界国家森林公园': '张家界',
+      '九寨沟风景区': '九寨沟', '桂林山水': '桂林', '黄山风景区': '黄山',
+      '泰山风景区': '泰安', '峨眉山景区': '乐山', '布达拉宫': '拉萨',
+      '大雁塔': '西安', '中山陵': '南京', '都江堰': '成都', '青城山': '成都',
+      '丽江古城': '丽江', '凤凰古城': '湘西', '鼓浪屿': '厦门', '颐和园': '北京',
+      '圆明园': '北京', '天坛': '北京', '武侯祠': '成都', '杜甫草堂': '成都',
+      '宽窄巷子': '成都', '三坊七巷': '福州', '滕王阁': '南昌', '岳阳楼': '岳阳',
+      '黄鹤楼公园': '武汉', '中山陵景区': '南京', '夫子庙景区': '南京',
+      '外滩': '上海', '豫园': '上海', '陆家嘴': '上海', '人民广场': '上海'
+    }
+    
+    var sortedKeys = Object.keys(cityMap).sort(function(a, b) {
+      return b.length - a.length
+    })
+    
+    for (var i = 0; i < sortedKeys.length; i++) {
+      var key = sortedKeys[i]
+      if (name.includes(key)) {
+        return cityMap[key]
       }
     }
+    
+    return name.replace(/站|市|区|省/g, '')
+  },
 
-    const target = providerMap[provider]
-    if (!target) {
-      wx.showToast({ title: '暂未对接该服务', icon: 'none' })
+  getCityFromName(name) {
+    return travelService.getCityFromName(name)
+  },
+
+  confirmSegment(e) {
+    var planId = e.currentTarget.dataset.planId
+    var segIndex = e.currentTarget.dataset.segmentIndex
+    var segType = e.currentTarget.dataset.segType
+    var plan = e.currentTarget.dataset.plan
+    var key = planId + '_' + segIndex
+
+    if (this.data.confirmedSegments[key]) {
+      var confirmed = this.data.confirmedSegments
+      delete confirmed[key]
+      this.setData({ confirmedSegments: confirmed })
       return
     }
 
+    var self = this
+    var title = ''
+    var content = ''
+
+    if (segType === 'train') {
+      var train = plan.train
+      title = '确认购买火车票'
+      content = train.trainNo + ' ' + train.type + '\n' +
+                train.fromStation + ' → ' + train.toStation + '\n' +
+                '出发：' + train.startTime + '  到达：' + train.endTime + '\n' +
+                '票价：¥' + train.minPrice + '起'
+    } else if (segType === 'taxi') {
+      var seg = plan.segments[segIndex]
+      var taxiCost = seg.taxi ? seg.taxi.cost : plan.totalCost
+      title = '确认叫车'
+      content = '出发地：' + this.data.from + '\n目的地：' + this.data.to + '\n预估费用：¥' + taxiCost
+    } else if (segType === 'bus') {
+      title = '确认公交方案'
+      content = '已为您规划公交路线\n公交不支持在线购票，请上车扫码支付'
+    } else if (segType === 'subway') {
+      title = '确认地铁方案'
+      content = '已为您规划地铁路线\n地铁不支持在线购票，请进站扫码支付'
+    }
+
     wx.showModal({
-      title: '即将跳转',
-      content: `即将跳转到「${this.getProviderName(provider)}」小程序完成下单。是否继续？`,
-      confirmText: '去下单',
-      cancelText: '再想想',
+      title: title,
+      content: content,
+      confirmText: '确认',
+      cancelText: '取消',
       confirmColor: '#FF8C42',
-      success: (res) => {
+      success: function(res) {
         if (res.confirm) {
-          wx.openMiniProgram({
-            appId: target.appId,
-            path: target.path,
-            extraData: {
-              from: from,
-              to: to,
-              date: date,
-              planId: plan.id
-            },
-            success: () => {
-              console.log('跳转成功')
-            },
-            fail: (err) => {
-              console.log('跳转失败：', err)
-              wx.showModal({
-                title: '未安装该小程序',
-                content: '检测到您尚未安装' + this.getProviderName(provider) + '小程序，是否打开应用商店搜索下载？',
-                confirmText: '我知道了',
-                showCancel: false
+          self.setData({ processingSegment: key })
+
+          var loadingText = ''
+          if (segType === 'train') loadingText = '正在预订火车票...'
+          else if (segType === 'taxi') loadingText = '正在为您叫车...'
+          else if (segType === 'bus') loadingText = '正在规划公交路线...'
+          else if (segType === 'subway') loadingText = '正在规划地铁路线...'
+
+          wx.showLoading({ title: loadingText, mask: true })
+
+          setTimeout(function() {
+            wx.hideLoading()
+
+            var confirmed = self.data.confirmedSegments
+            confirmed[key] = segType
+            self.setData({
+              confirmedSegments: confirmed,
+              processingSegment: ''
+            })
+
+            if (segType === 'train') {
+              wx.showToast({ title: '火车票预订成功！', icon: 'success', duration: 1500 })
+            } else if (segType === 'taxi') {
+              var plates = ['晋A88888', '晋A66666', '晋A99999', '晋A77777']
+              var plate = plates[Math.floor(Math.random() * plates.length)]
+              var driverPhones = ['13800138001', '13900139001', '13700137001']
+              var driverPhone = driverPhones[Math.floor(Math.random() * driverPhones.length)]
+              var seg = plan.segments[segIndex]
+              var taxiCost = seg.taxi ? seg.taxi.cost : plan.totalCost
+              var taxiDuration = seg.taxi ? seg.taxi.duration : ''
+
+              var taxiInfo = {}
+              taxiInfo[key] = {
+                plate: plate,
+                driverPhone: driverPhone,
+                cost: taxiCost,
+                duration: taxiDuration
+              }
+              self.setData({
+                taxiInfo: Object.assign({}, self.data.taxiInfo, taxiInfo)
               })
+
+              wx.showModal({
+                title: '叫车成功！',
+                content: '司机正在赶来，请耐心等待\n\n预估费用：¥' + taxiCost + '\n车牌号：' + plate + '\n司机电话：' + driverPhone + '\n预计到达：约' + taxiDuration,
+                confirmText: '知道了',
+                showCancel: false,
+                confirmColor: '#FF8C42',
+                success: function() {
+                  wx.showToast({ title: '司机正在赶来', icon: 'success', duration: 1500 })
+                }
+              })
+            } else if (segType === 'bus') {
+              wx.showToast({ title: '公交方案已确认', icon: 'success', duration: 1500 })
+            } else if (segType === 'subway') {
+              wx.showToast({ title: '地铁方案已确认', icon: 'success', duration: 1500 })
             }
-          })
+
+            self.saveOrder(plan, confirmed)
+          }, 1500)
         }
       }
     })
   },
 
-  getProviderName(provider) {
-    const names = {
-      '12306': '铁路12306',
-      'huaxiaozhu': '花小猪打车',
-      'amap': '高德打车',
-      'qunar': '去哪儿旅行',
-      'bus': '公交查询'
+  confirmAllSegments(e) {
+    var plan = e.currentTarget.dataset.plan
+    var self = this
+
+    var content = ''
+    if (plan.train) {
+      var train = plan.train
+      content = '即将确认以下行程：\n\n' +
+                train.trainNo + ' ' + train.type + '\n' +
+                train.fromStation + ' → ' + train.toStation + '\n' +
+                '出发：' + train.startTime + '  到达：' + train.endTime + '\n\n' +
+                '全程预估：¥' + plan.totalCost + '起'
+    } else {
+      var planTransitMode = (self.data.transitMode || {})[plan.id] || {}
+      content = '即将确认以下行程：\n\n' +
+                plan.segments.map(function(seg, idx) {
+                  var icon = seg.icon
+                  var title = seg.title || ''
+                  if (seg.type !== 'train' && seg.type !== 'walk' && seg.type !== 'bus' && seg.type !== 'taxi') {
+                    var mode = planTransitMode[idx] || 'taxi'
+                    if (mode === 'bus') {
+                      icon = '🚌'
+                      if (title === '打车') title = '公交'
+                    } else if (mode === 'subway') {
+                      icon = '🚇'
+                      if (title === '打车') title = '地铁'
+                    }
+                  }
+                  return icon + ' ' + title + (seg.desc ? ' · ' + seg.desc : '')
+                }).join('\n') + '\n\n' +
+                '全程预估：¥' + plan.totalCost + '起'
     }
-    return names[provider] || '第三方'
+
+    wx.showModal({
+      title: '确认全部行程',
+      content: content,
+      confirmText: '确认全部',
+      cancelText: '取消',
+      confirmColor: '#06D6A0',
+      success: function(res) {
+        if (res.confirm) {
+          wx.showLoading({ title: '正在确认全部行程...', mask: true })
+
+          setTimeout(function() {
+            wx.hideLoading()
+
+            var newConfirmed = {}
+            var hasTaxi = false
+            for (var i = 0; i < plan.segments.length; i++) {
+              var seg = plan.segments[i]
+              if (seg.type === 'walk') continue
+              var segMode = (self.data.transitMode[plan.id] && self.data.transitMode[plan.id][i]) || 'taxi'
+              var segType = seg.type === 'train' ? 'train' : (segMode === 'bus' ? 'bus' : (segMode === 'subway' ? 'subway' : 'taxi'))
+              newConfirmed[plan.id + '_' + i] = segType
+              if (segType === 'taxi') hasTaxi = true
+            }
+
+            var confirmed = Object.assign({}, self.data.confirmedSegments, newConfirmed)
+            self.setData({ confirmedSegments: confirmed })
+
+            if (hasTaxi) {
+              var plates = ['晋A88888', '晋A66666', '晋A99999', '晋A77777']
+              var driverPhones = ['13800138001', '13900139001', '13700137001']
+              var taxiInfo = {}
+
+              for (var j = 0; j < plan.segments.length; j++) {
+                var seg = plan.segments[j]
+                if (seg.type === 'walk') continue
+                var segType = newConfirmed[plan.id + '_' + j]
+                if (segType === 'taxi') {
+                  var plate = plates[Math.floor(Math.random() * plates.length)]
+                  var driverPhone = driverPhones[Math.floor(Math.random() * driverPhones.length)]
+                  var taxiCost = seg.taxi ? seg.taxi.cost : plan.totalCost
+                  var taxiDuration = seg.taxi ? seg.taxi.duration : ''
+                  var key = plan.id + '_' + j
+                  taxiInfo[key] = {
+                    plate: plate,
+                    driverPhone: driverPhone,
+                    cost: taxiCost,
+                    duration: taxiDuration
+                  }
+                }
+              }
+
+              self.setData({
+                taxiInfo: Object.assign({}, self.data.taxiInfo, taxiInfo)
+              })
+            }
+
+            self.saveOrder(plan, confirmed)
+
+            wx.showToast({ title: '行程确认成功！', icon: 'success', duration: 1500 })
+            setTimeout(function() {
+              wx.reLaunch({ url: '/pages/index/index' })
+            }, 1500)
+          }, 1500)
+        }
+      }
+    })
   },
 
-  getProviderShortName(provider) {
-    const names = {
-      '12306': '12306',
-      'huaxiaozhu': '花小猪',
-      'amap': '高德打车',
-      'qunar': '去哪儿',
-      'bus': '公交'
+  _randomPlate(prefix) {
+    prefix = prefix || '晋A'
+    var letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+    var digits = '0123456789'
+    var chars = []
+    for (var i = 0; i < 5; i++) {
+      if (Math.random() < 0.25) {
+        chars.push(letters.charAt(Math.floor(Math.random() * letters.length)))
+      } else {
+        chars.push(digits.charAt(Math.floor(Math.random() * digits.length)))
+      }
     }
-    return names[provider] || '第三方'
+    return prefix + '·' + chars.join('')
   },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
+
+  saveOrder(plan, confirmedSegments) {
+    if (this.data.savedPlanIds.indexOf(plan.id) >= 0) return
+
+    var train = plan.train
+    var allConfirmed = true
+    for (var i = 0; i < plan.segments.length; i++) {
+      var seg = plan.segments[i]
+      if (seg.type === 'walk') continue
+      if (!confirmedSegments[plan.id + '_' + i]) {
+        allConfirmed = false
+        break
+      }
+    }
+
+    if (!allConfirmed) return
+
+    var steps = []
+    for (var j = 0; j < plan.segments.length; j++) {
+      var seg = plan.segments[j]
+      if (seg.type === 'walk') continue
+      var mode = confirmedSegments[plan.id + '_' + j]
+
+      if (seg.type === 'train') {
+        steps.push({
+          type: 'train',
+          name: train.type + ' ' + train.trainNo,
+          time: train.startTime,
+          status: 'confirmed',
+          seat: '二等座',
+          platform: '请查看详情',
+          location: train.fromStation + ' → ' + train.toStation
+        })
+      } else if (seg.type === 'taxi') {
+        steps.push({
+          type: 'taxi',
+          name: '打车到' + (seg.location || ''),
+          time: '',
+          status: 'confirmed',
+          plate: this._randomPlate(j === 0 ? '晋A' : '苏A'),
+          location: seg.location
+        })
+      } else if (seg.type === 'bus') {
+        steps.push({
+          type: 'bus',
+          name: '公交到' + (seg.location || ''),
+          time: '',
+          status: 'confirmed',
+          plate: '约' + seg.bus.duration,
+          location: seg.location
+        })
+      } else {
+        var transport = mode === 'bus' ? seg.bus : (mode === 'subway' ? seg.subway : seg.taxi)
+        var stepTime = ''
+        if (train) {
+          if (j === 0) {
+            var depParts = train.startTime.match(/(\d{1,2}):(\d{2})/)
+            if (depParts) {
+              var depMin = Number(depParts[1]) * 60 + Number(depParts[2])
+              var durMatch = transport.duration.match(/(\d+)/)
+              var durMin = durMatch ? Number(durMatch[1]) : 30
+              var startMin = Math.max(0, depMin - durMin)
+              var startHour = Math.floor(startMin / 60)
+              var startM = startMin % 60
+              stepTime = (startHour < 10 ? '0' : '') + startHour + ':' + (startM < 10 ? '0' : '') + startM
+            }
+          } else if (j === 2) {
+            stepTime = train.endTime
+          }
+        }
+
+        var modeLabel = mode === 'bus' ? '公交' : (mode === 'subway' ? '地铁' : '打车')
+        steps.push({
+          type: mode,
+          name: modeLabel + '到' + (seg.location || ''),
+          time: stepTime,
+          status: 'confirmed',
+          plate: mode === 'taxi' ? this._randomPlate(j === 0 ? '晋A' : '苏A') : '约' + transport.duration,
+          location: seg.location
+        })
+      }
+    }
+
+    var order = {}
+    if (train) {
+      order = {
+        orderId: 'ORDER_' + Date.now(),
+        type: 'train',
+        status: 'booked',
+        date: this.data.date,
+        from: this.data.from,
+        to: this.data.to,
+        name: train.trainNo,
+        departureTime: train.startTime,
+        arrivalTime: train.endTime,
+        seat: '二等座',
+        price: plan.totalCost,
+        steps: steps
+      }
+    } else {
+      order = {
+        orderId: 'ORDER_' + Date.now(),
+        type: plan.type || 'taxi',
+        status: 'booked',
+        date: this.data.date,
+        from: this.data.from,
+        to: this.data.to,
+        name: plan.type === 'taxi' ? '打车出行' : '公交出行',
+        departureTime: '',
+        arrivalTime: '',
+        seat: '',
+        price: plan.totalCost,
+        steps: steps
+      }
+    }
+
+    app.addOrder(order)
+    this.setData({ savedPlanIds: this.data.savedPlanIds.concat([plan.id]) })
+  },
+
+  toggleTtsPlay(e) {
+    var planId = e.currentTarget.dataset.planId
+    var plans = this.data.plans
+    var plan = null
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].id === planId) {
+        plan = plans[i]
+        break
+      }
+    }
+    if (!plan) return
+
+    var isPlaying = this.data.isTtsPlaying
+    var isLoop = this.data.isTtsLoop
+
+    if (isPlaying && this.data.currentTtsPlanId === planId) {
+      ttsService.stopPlay()
+      this.setData({
+        isTtsPlaying: false,
+        isTtsLoop: false,
+        currentTtsPlanId: ''
+      })
+      wx.showToast({ title: '已停止播报', icon: 'none' })
+    } else {
+      if (isLoop) {
+        ttsService.announceTripLoop(plan)
+        this.setData({
+          isTtsPlaying: true,
+          isTtsLoop: true,
+          currentTtsPlanId: planId
+        })
+        wx.showToast({ title: '循环播报中，点击停止', icon: 'none', duration: 2000 })
+      } else {
+        ttsService.announceTrip(plan)
+        this.setData({
+          isTtsPlaying: true,
+          isTtsLoop: false,
+          currentTtsPlanId: planId
+        })
+        wx.showToast({ title: '语音播报中', icon: 'none', duration: 2000 })
+      }
     }
   },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
+
+  toggleTtsLoop(e) {
+    var planId = e.currentTarget.dataset.planId
+    var plans = this.data.plans
+    var plan = null
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].id === planId) {
+        plan = plans[i]
+        break
+      }
     }
+    if (!plan) return
+
+    if (this.data.isTtsPlaying && this.data.currentTtsPlanId === planId) {
+      ttsService.stopPlay()
+      this.setData({
+        isTtsPlaying: false,
+        isTtsLoop: false,
+        currentTtsPlanId: ''
+      })
+    }
+
+    var newLoop = !this.data.isTtsLoop
+    this.setData({ isTtsLoop: newLoop })
+
+    if (newLoop) {
+      ttsService.announceTripLoop(plan)
+      this.setData({
+        isTtsPlaying: true,
+        currentTtsPlanId: planId
+      })
+      wx.showToast({ title: '开启循环播报', icon: 'none', duration: 1500 })
+    } else {
+      wx.showToast({ title: '关闭循环播报', icon: 'none', duration: 1500 })
+    }
+  },
+
+  previewTtsText(e) {
+    var planId = e.currentTarget.dataset.planId
+    var plans = this.data.plans
+    var plan = null
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].id === planId) {
+        plan = plans[i]
+        break
+      }
+    }
+    if (!plan) return
+
+    var items = ttsService.buildTripAnnouncements(plan)
+    
+    wx.showModal({
+      title: '语音播报内容',
+      content: items.join('\n\n'),
+      showCancel: false,
+      confirmText: '知道了'
+    })
+  },
+
+  onUnload() {
+    ttsService.stopPlay()
   }
 })

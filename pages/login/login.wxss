@@ -1,12 +1,21 @@
-/* 登录页输入框，覆盖全局样式 */
+page {
+  background-color: #F8FAFE;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 24rpx;
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+}
+
 page .container .form-input,
 page .container .form-item .form-input {
-  background: #FFF9F2;
-  border-radius: 20rpx;
+  background: #ffffff;
+  border-radius: 8rpx;
   padding: 0 24rpx;
   font-size: 34rpx;
-  color: #2D3142;
-  border: 2rpx solid #F3E5D8;
+  color: #2C3E5A;
+  border: 1rpx solid #E8ECF2;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -17,44 +26,61 @@ page .container .form-item .form-input {
 
 .login-header {
   text-align: center;
-  padding: 60rpx 20rpx 50rpx;
+  padding: calc(env(safe-area-inset-top) + 44rpx) 32rpx 48rpx;
+  background: linear-gradient(135deg, #7BA8F0 0%, #5B8DEF 100%);
 }
 
-.logo-ring {
+.login-header .logo-box {
+  background: rgba(255,255,255,0.25);
+  border: 3rpx solid rgba(255,255,255,0.5);
+}
+
+.login-header .app-name {
+  color: #ffffff;
+}
+
+.login-header .app-slogan {
+  color: rgba(255,255,255,0.9);
+}
+
+.logo-box {
   width: 180rpx;
   height: 180rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 28rpx;
-  box-shadow: 0 16rpx 40rpx rgba(255, 140, 66, 0.3);
+  border: 1rpx solid #5B8DEF;
 }
 
-.logo-icon {
-  font-size: 96rpx;
+.logo-text {
+  font-size: 100rpx;
+  color: #ffffff;
+  font-weight: bold;
 }
 
 .app-name {
   font-size: 52rpx;
   font-weight: bold;
-  color: #2D3142;
+  color: #2C3E5A;
   display: block;
   margin-bottom: 12rpx;
 }
 
 .app-slogan {
   font-size: 30rpx;
-  color: #6B7280;
+  color: #7A8BA0;
 }
 
 .form-card {
   background: #ffffff;
-  border-radius: 28rpx;
+  box-shadow: 0 6rpx 24rpx rgba(91, 141, 239, 0.08);
+  border-radius: 20rpx;
   padding: 40rpx 32rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  margin: 0 0 24rpx;
+  border: 1rpx solid #E8ECF2;
   width: 100%;
   box-sizing: border-box;
 }
@@ -62,22 +88,22 @@ page .container .form-item .form-input {
 .form-title {
   font-size: 40rpx;
   font-weight: bold;
-  color: #2D3142;
+  color: #2C3E5A;
   display: block;
   margin-bottom: 32rpx;
   text-align: center;
 }
 
 .form-item {
-  margin-bottom: 28rpx;
+  margin-bottom: 32rpx;
   width: 100%;
   box-sizing: border-box;
 }
 
 .form-label {
-  font-size: 30rpx;
-  color: #4A4E5A;
-  margin-bottom: 16rpx;
+  font-size: 32rpx;
+  color: #7A8BA0;
+  margin-bottom: 20rpx;
   display: block;
   font-weight: bold;
   width: 100%;
@@ -85,7 +111,7 @@ page .container .form-item .form-input {
 
 .code-input-group {
   display: flex;
-  gap: 16rpx;
+  gap: 20rpx;
   width: 100%;
   align-items: stretch;
 }
@@ -99,60 +125,63 @@ page .container .form-item .form-input {
 }
 
 .send-code-btn {
-  padding: 0 28rpx;
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
-  border-radius: 20rpx;
-  font-size: 28rpx;
+  padding: 0 36rpx;
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  border-radius: 8rpx;
+  font-size: 30rpx;
   color: #ffffff;
   white-space: nowrap;
   font-weight: bold;
-  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   height: 96rpx;
+  flex-shrink: 0;
+  border: 1rpx solid #5B8DEF;
 }
 
 .send-code-btn.disabled {
-  background: #E5E7EB;
-  box-shadow: none;
-  color: #9CA3AF;
+  background: #E8ECF2;
+  color: #B5C3D4;
+  border: 1rpx solid #E8ECF2;
 }
 
 .agreement-row {
   display: flex;
   align-items: center;
   margin-bottom: 32rpx;
+  flex-wrap: wrap;
 }
 
 .checkbox {
   width: 44rpx;
   height: 44rpx;
-  border: 2rpx solid #F3E5D8;
-  border-radius: 10rpx;
+  border-radius: 4rpx;
+  border: 1rpx solid #E8ECF2;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 16rpx;
   font-size: 26rpx;
-  color: #FF8C42;
-  background: #FFF9F2;
+  color: #2C3E5A;
+  background: #ffffff;
+  flex-shrink: 0;
 }
 
 .checkbox.checked {
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
-  border-color: #FF8C42;
+  background: #5B8DEF;
+  border-color: #5B8DEF;
   color: #ffffff;
 }
 
 .agreement-text {
-  font-size: 28rpx;
-  color: #6B7280;
+  font-size: 30rpx;
+  color: #7A8BA0;
 }
 
 .agreement-link {
-  font-size: 28rpx;
-  color: #FF8C42;
+  font-size: 30rpx;
+  color: #5B8DEF;
   font-weight: bold;
 }
 
@@ -162,31 +191,30 @@ page .container .form-item .form-input {
 }
 
 .assist-card {
-  background: #FFF9F2;
-  border-radius: 28rpx;
+  background: #ffffff;
+  box-shadow: 0 6rpx 24rpx rgba(91, 141, 239, 0.08);
+  border-radius: 20rpx;
   padding: 32rpx;
   text-align: center;
-  border: 2rpx solid #FFE4D1;
+  border: 1rpx solid #E8ECF2;
 }
 
-.assist-icon {
-  font-size: 64rpx;
-  margin-bottom: 12rpx;
+.assist-header {
+  margin-bottom: 16rpx;
 }
 
 .assist-title {
   font-size: 34rpx;
   font-weight: bold;
-  color: #2D3142;
+  color: #2C3E5A;
   display: block;
-  margin-bottom: 12rpx;
 }
 
 .assist-desc {
-  font-size: 28rpx;
-  color: #6B7280;
+  font-size: 30rpx;
+  color: #7A8BA0;
   display: block;
-  margin-bottom: 24rpx;
+  margin-bottom: 28rpx;
   line-height: 1.5;
 }
 

@@ -16,7 +16,8 @@ Page({
     currentStep: 0,
     isLastStep: false,
     currentStepData: {},
-    confirmedSteps: []
+    confirmedSteps: [],
+    aiAssistantEnabled: false
   },
 
   onLoad(options) {
@@ -37,6 +38,15 @@ Page({
       currentStepData,
       isLastStep: plan.steps.length === 1
     })
+  },
+
+  onShow() {
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    app.globalData.aiPageContext = {
+      page: 'step-confirm',
+      title: '确认行程',
+      summary: '确认您的行程信息'
+    }
   },
 
   getPlan(planId, from, to) {
@@ -74,8 +84,12 @@ Page({
     if (!step) return {}
 
     const isTransport = step.icon === '🚄' || step.icon === '✈️'
+    const type = step.icon === '🚄' ? 'train' : (step.icon === '✈️' ? 'flight' : 'taxi')
+    const typeLabel = type === 'train' ? '火车票' : (type === 'taxi' ? '打车' : '飞机')
     return {
       icon: step.icon,
+      type: type,
+      typeLabel: typeLabel,
       title: isTransport ? '确认大交通' : '确认接驳车',
       subtitle: step.name,
       route: step.detail.split('·')[0].trim(),
@@ -190,88 +204,16 @@ Page({
 
     wx.showModal({
       title: '预订成功',
-      content: '您的全程出行方案已预订成功，订单号：' + order.orderId + '。\n\n小提示：点击右上角「···」添加到「我的小程序」，以后微信下拉就能快速找到我！',
-      showCancel: true,
-      cancelText: '保存卡片',
-      confirmText: '查看行程',
-      success: (res) => {
-        if (res.confirm) {
-          wx.navigateTo({ url: '/pages/orders/orders' })
-        } else {
-          // 保存卡片
-          wx.navigateTo({ url: '/pages/order-detail/order-detail?orderId=' + order.orderId })
-        }
+      content: '您的全程出行方案已预订成功，订单号：' + order.orderId,
+      showCancel: false,
+      confirmText: '返回首页',
+      success: () => {
+        wx.switchTab({ url: '/pages/index/index' })
       }
     })
-
-    setTimeout(() => {
-      wx.showModal({
-        title: '🔔 开启微信提醒',
-        content: '开启后，出发前微信会提醒您，再也不怕忘啦！\n\n点击「去开启」→ 选择「总是保持以上选择」→ 「允许」',
-        showCancel: true,
-        cancelText: '不用了',
-        confirmText: '去开启',
-        success: (r) => {
-          if (r.confirm) {
-            wx.requestSubscribeMessage({
-              tmplIds: ['trip_reminder_demo'],
-              success: () => {
-                showToast('已开启提醒', 'success')
-              },
-              fail: () => {
-                wx.showModal({
-                  title: '手动开启',
-                  content: '点击右上角「···」→「设置」→「订阅消息」→ 打开接收',
-                  showCancel: false,
-                  confirmText: '知道了'
-                })
-              }
-            })
-          }
-        }
-      })
-    }, 1000)
-
-    setTimeout(() => {
-      wx.showModal({
-        title: '添加到手机桌面',
-        content: '把「乐龄出行」添加到手机桌面，一键就能打开，更方便！',
-        showCancel: true,
-        cancelText: '不用了',
-        confirmText: '去添加',
-        success: (r) => {
-          if (r.confirm) {
-            wx.saveAppToDesktop && wx.saveAppToDesktop({
-              success: () => {
-                showToast('已添加到桌面', 'success')
-              },
-              fail: () => {
-                wx.showModal({
-                  title: '手动添加',
-                  content: '请点击右上角「···」→「添加到桌面」',
-                  showCancel: false,
-                  confirmText: '知道了'
-                })
-              }
-            })
-          }
-        }
-      })
-    }, 3000)
   },
 
   goBack() {
     wx.navigateBack()
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
-    }
   }
 })

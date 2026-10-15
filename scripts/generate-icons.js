@@ -73,6 +73,9 @@ const icons = [
   { name: 'order-active.png', color: [30, 144, 255] },
   { name: 'profile.png', color: [102, 102, 102] },
   { name: 'profile-active.png', color: [30, 144, 255] },
+  { name: 'map-start.png', color: [230, 57, 70] },
+  { name: 'map-station.png', color: [255, 182, 39] },
+  { name: 'map-end.png', color: [6, 214, 160] },
 ];
 
 icons.forEach(icon => {

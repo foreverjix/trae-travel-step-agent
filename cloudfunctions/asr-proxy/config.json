@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "openapi": []
+  },
+  "envVariables": {
+    "BAIDU_ASR_API_KEY": "",
+    "BAIDU_ASR_SECRET_KEY": ""
+  }
+}

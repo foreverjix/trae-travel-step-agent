@@ -1,0 +1,242 @@
+/* ===== AI语音助手悬浮球（极简版） ===== */
+.ai-ball {
+  position: fixed;
+  width: 120rpx;
+  height: 120rpx;
+  z-index: 9998;
+}
+
+.ai-ball-inner {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  box-shadow: 0 6rpx 24rpx rgba(91, 141, 239, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.ai-ball.dragging .ai-ball-inner {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+/* 工作中状态的悬浮球（呼吸+微缩） */
+.ai-ball.working .ai-ball-inner {
+  animation: aiWorking 1.6s ease-in-out infinite;
+}
+
+/* 录音中：球变红色 */
+.ai-ball.listening .ai-ball-inner {
+  background: linear-gradient(135deg, #EF5350, #E53935);
+  box-shadow: 0 6rpx 24rpx rgba(229, 57, 53, 0.5);
+}
+
+@keyframes aiWorking {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.ai-ball-icon {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
+/* 录音中的麦克风动画条 */
+.ai-mic-icon {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4rpx;
+  height: 44rpx;
+}
+
+.mic-bar {
+  width: 6rpx;
+  background: #FFFFFF;
+  border-radius: 3rpx;
+  animation: micBar 0.8s ease-in-out infinite;
+}
+
+.mic-bar:nth-child(1) { height: 16rpx; animation-delay: 0s; }
+.mic-bar:nth-child(2) { height: 28rpx; animation-delay: 0.1s; }
+.mic-bar:nth-child(3) { height: 40rpx; animation-delay: 0.2s; }
+.mic-bar:nth-child(4) { height: 28rpx; animation-delay: 0.3s; }
+.mic-bar:nth-child(5) { height: 16rpx; animation-delay: 0.4s; }
+
+@keyframes micBar {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.2); }
+}
+
+/* 悬浮球默认脉冲提示（idle时） */
+.ai-ball-pulse {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(91, 141, 239, 0.4);
+  animation: aiBallPulse 2s ease-out infinite;
+}
+
+@keyframes aiBallPulse {
+  0%   { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* 录音中的环形波纹（第一层） */
+.ai-ball-ring {
+  position: absolute;
+  top: -12rpx;
+  left: -12rpx;
+  width: 144rpx;
+  height: 144rpx;
+  border-radius: 50%;
+  border: 6rpx solid rgba(229, 57, 53, 0.55);
+  animation: aiRingPulse 1.1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* 录音中的环形波纹（第二层，更大更慢） */
+.ai-ball-ring2 {
+  position: absolute;
+  top: -24rpx;
+  left: -24rpx;
+  width: 168rpx;
+  height: 168rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(229, 57, 53, 0.3);
+  animation: aiRingPulse2 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes aiRingPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.9; border-color: rgba(229, 57, 53, 0.55); }
+  50%      { transform: scale(1.12); opacity: 0.4; border-color: rgba(229, 57, 53, 0.25); }
+}
+
+@keyframes aiRingPulse2 {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* ===== 迷你回复卡片 ===== */
+.ai-mini-card {
+  position: fixed;
+  z-index: 9999;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 28rpx rgba(0, 0, 0, 0.12);
+  padding: 24rpx 28rpx 20rpx;
+  box-sizing: border-box;
+  max-width: 480rpx;
+  animation: miniCardIn 0.2s ease-out;
+}
+
+/* 录音中卡片加红色左边框 */
+.ai-mini-card.card-listening {
+  border-left: 6rpx solid #E53935;
+}
+
+@keyframes miniCardIn {
+  from { transform: translateY(16rpx) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0) scale(1);        opacity: 1; }
+}
+
+.mini-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.mini-status-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 录音中的红点 */
+.rec-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #E53935;
+  animation: recDotBlink 0.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes recDotBlink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(0.7); }
+}
+
+.mini-status {
+  font-size: 28rpx;
+  color: #7A8BA0;
+  line-height: 1.5;
+}
+
+/* 录音中状态文字放大变红 */
+.mini-status.status-recording {
+  font-size: 34rpx;
+  color: #E53935;
+  font-weight: 600;
+}
+
+.mini-user {
+  font-size: 26rpx;
+  color: #5B8DEF;
+  font-weight: 500;
+  line-height: 1.5;
+  padding: 6rpx 12rpx;
+  background: #EEF4FC;
+  border-radius: 8rpx;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+.mini-reply {
+  font-size: 32rpx;
+  color: #2C3E5A;
+  font-weight: 500;
+  line-height: 1.55;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.mini-card-actions {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mini-close {
+  padding: 10rpx 24rpx;
+  background: #F2F6FC;
+  color: #5B8DEF;
+  font-size: 28rpx;
+  font-weight: 500;
+  border-radius: 28rpx;
+}
+
+/* 指向悬浮球的小三角 */
+.mini-card-arrow {
+  position: absolute;
+  left: 50%;
+  bottom: -18rpx;
+  width: 0;
+  height: 0;
+  margin-left: -18rpx;
+  border-left: 18rpx solid transparent;
+  border-right: 18rpx solid transparent;
+  border-top: 20rpx solid #FFFFFF;
+  filter: drop-shadow(0 4rpx 4rpx rgba(0, 0, 0, 0.06));
+}

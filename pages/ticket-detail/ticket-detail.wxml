@@ -38,7 +38,7 @@
           <text class="price-unit">¥</text>
           <text class="price-value">{{seat.price}}</text>
         </view>
-        <view class="seat-check" wx:if="{{selectedSeat === seat.type}}">✓</view>
+        <view class="seat-check" wx:if="{{selectedSeat === seat.type}}">已选</view>
       </view>
     </view>
   </view>

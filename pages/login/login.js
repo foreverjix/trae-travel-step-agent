@@ -99,16 +99,5 @@ Page({
     wx.navigateTo({
       url: '/pages/bind-assist/bind-assist'
     })
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
-    }
   }
 })

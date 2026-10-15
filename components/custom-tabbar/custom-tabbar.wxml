@@ -6,9 +6,6 @@
     bindtap="switchTab"
     data-path="{{item.path}}"
   >
-    <view class="tab-icon">
-      <text class="icon-emoji">{{item.icon}}</text>
-    </view>
     <text class="tab-text">{{item.text}}</text>
   </view>
 </view>

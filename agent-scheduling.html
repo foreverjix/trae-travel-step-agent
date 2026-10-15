@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能体调度选择逻辑 - 乐龄出行</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF8C42;
+            --primary-dark: #E67A30;
+            --secondary: #FFB627;
+            --danger: #EF476F;
+            --success: #06D6A0;
+            --warning: #FFD166;
+            --info: #1976D2;
+            --bg-dark: #1A1A2E;
+            --bg-card: #16213E;
+            --bg-card-hover: #0F3460;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B8B8D0;
+            --text-muted: #6B7280;
+            --border-color: rgba(255, 140, 66, 0.2);
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0F3460 0%, #1A1A2E 50%, #16213E 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        header h1 {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: 4px;
+        }
+
+        header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .overview-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .overview-section h2 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .overview-section h2::before {
+            content: '🔮';
+            font-size: 32px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            padding: 40px 20px;
+        }
+
+        .flow-node {
+            background: linear-gradient(135deg, var(--bg-card-hover), var(--bg-card));
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 28px 40px;
+            text-align: center;
+            min-width: 180px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .flow-node:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 140, 66, 0.3);
+            border-color: var(--secondary);
+        }
+
+        .flow-node.start {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), var(--bg-card));
+        }
+
+        .flow-node.decision {
+            border-color: var(--warning);
+            background: linear-gradient(135deg, rgba(255, 209, 102, 0.2), var(--bg-card));
+            min-width: 220px;
+        }
+
+        .flow-node.end {
+            border-color: var(--danger);
+            background: linear-gradient(135deg, rgba(239, 71, 111, 0.2), var(--bg-card));
+        }
+
+        .flow-node .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .flow-node .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .flow-node .desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .flow-arrow {
+            font-size: 48px;
+            color: var(--primary);
+            animation: arrowPulse 2s infinite;
+        }
+
+        @keyframes arrowPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .logic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .logic-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .logic-card:hover::before {
+            opacity: 1;
+        }
+
+        .logic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(255, 140, 66, 0.2);
+            border-color: var(--primary);
+        }
+
+        .logic-card h3 {
+            font-size: 22px;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logic-card .card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logic-card .card-icon.taxi { background: rgba(255, 140, 66, 0.2); }
+        .logic-card .card-icon.train { background: rgba(230, 57, 70, 0.2); }
+        .logic-card .card-icon.bus { background: rgba(6, 214, 160, 0.2); }
+        .logic-card .card-icon.volunteer { background: rgba(255, 209, 102, 0.2); }
+        .logic-card .card-icon.sos { background: rgba(239, 71, 111, 0.2); }
+        .logic-card .card-icon.family { background: rgba(25, 118, 210, 0.2); }
+
+        .condition-list {
+            list-style: none;
+        }
+
+        .condition-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .condition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .condition-list .check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(6, 214, 160, 0.2);
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .condition-list .input {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 140, 66, 0.2);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .condition-list .output {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .condition-list .arrow {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .priority-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .priority-section h2 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .priority-section h2::before {
+            content: '⚡';
+            font-size: 32px;
+        }
+
+        .priority-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .priority-table th,
+        .priority-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .priority-table th {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .priority-table td {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        .priority-table tbody tr:hover {
+            background: rgba(255, 140, 66, 0.05);
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .priority-badge.p1 { background: rgba(239, 71, 111, 0.2); color: var(--danger); }
+        .priority-badge.p2 { background: rgba(255, 140, 66, 0.2); color: var(--primary); }
+        .priority-badge.p3 { background: rgba(255, 209, 102, 0.2); color: var(--warning); }
+        .priority-badge.p4 { background: rgba(6, 214, 160, 0.2); color: var(--success); }
+
+        .mechanism-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mechanism-section h2 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mechanism-section h2::before {
+            content: '🔄';
+            font-size: 32px;
+        }
+
+        .mechanism-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .mechanism-card {
+            background: var(--bg-card-hover);
+            border-radius: 16px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .mechanism-card:hover {
+            transform: scale(1.03);
+            box-shadow: 0 12px 32px rgba(255, 140, 66, 0.2);
+        }
+
+        .mechanism-card .number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+
+        .mechanism-card h4 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .mechanism-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .scenario-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+        }
+
+        .scenario-section h2 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .scenario-section h2::before {
+            content: '🎯';
+            font-size: 32px;
+        }
+
+        .scenario-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .scenario-tab {
+            padding: 12px 32px;
+            border-radius: 30px;
+            background: rgba(255, 140, 66, 0.1);
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            color: var(--text-secondary);
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scenario-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-color: transparent;
+            color: white;
+            font-weight: bold;
+        }
+
+        .scenario-tab:hover {
+            background: rgba(255, 140, 66, 0.2);
+            border-color: var(--primary);
+        }
+
+        .scenario-content {
+            background: var(--bg-card-hover);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        .scenario-content .voice-input {
+            background: rgba(255, 140, 66, 0.1);
+            border: 2px dashed rgba(255, 140, 66, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .scenario-content .voice-input .mic-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .scenario-content .voice-input .text {
+            font-size: 20px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .scenario-steps {
+            list-style: none;
+        }
+
+        .scenario-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .scenario-steps li:last-child {
+            border-bottom: none;
+        }
+
+        .scenario-steps li::before {
+            content: '';
+            position: absolute;
+            left: 39px;
+            top: 60px;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 140, 66, 0.3);
+        }
+
+        .scenario-steps li:last-child::before {
+            display: none;
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: rgba(255, 140, 66, 0.1);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-icon.intent { background: rgba(25, 118, 210, 0.2); color: var(--info); }
+        .step-icon.analyze { background: rgba(6, 214, 160, 0.2); color: var(--success); }
+        .step-icon.dispatch { background: rgba(255, 140, 66, 0.2); color: var(--primary); }
+        .step-icon.execute { background: rgba(255, 209, 102, 0.2); color: var(--warning); }
+        .step-icon.notify { background: rgba(239, 71, 111, 0.2); color: var(--danger); }
+
+        .step-icon .label {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content h4 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .step-result {
+            background: rgba(6, 214, 160, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 12px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-top: 12px;
+        }
+
+        .step-result span {
+            font-size: 13px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        footer .brand {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 32px;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .priority-table {
+                font-size: 14px;
+            }
+
+            .priority-table th,
+            .priority-table td {
+                padding: 12px 8px;
+            }
+
+            .scenario-tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>智能体调度选择逻辑</h1>
+            <p>乐龄出行平台通过智能体调度系统，根据老人的语音输入、实时位置、紧急程度等多维信息，自动匹配最优出行方案，实现"一句话，剩下不用管"的闭环服务</p>
+        </header>
+
+        <div class="overview-section">
+            <h2>整体调度流程</h2>
+            <div class="flow-diagram">
+                <div class="flow-node start">
+                    <div class="icon">🎙️</div>
+                    <div class="title">语音输入</div>
+                    <div class="desc">老人说出目的地</div>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-node">
+                    <div class="icon">🧠</div>
+                    <div class="title">意图识别</div>
+                    <div class="desc">NLP解析目的地</div>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-node decision">
+                    <div class="icon">🤔</div>
+                    <div class="title">调度决策</div>
+                    <div class="desc">多维度匹配方案</div>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-node">
+                    <div class="icon">🚀</div>
+                    <div class="title">执行调度</div>
+                    <div class="desc">叫车/订票/通知</div>
+                </div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-node end">
+                    <div class="icon">✅</div>
+                    <div class="title">服务完成</div>
+                    <div class="desc">行程监控+安全预警</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="logic-grid">
+            <div class="logic-card">
+                <h3><span class="card-icon taxi">🚕</span>网约车调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>目的地识别为具体地点</li>
+                    <li><span class="check">✓</span>老人开启位置共享</li>
+                    <li><span class="arrow">→</span>聚合多平台运力呼叫</li>
+                    <li><span class="output">📤</span>返回司机信息+预计费用</li>
+                </ul>
+            </div>
+            <div class="logic-card">
+                <h3><span class="card-icon train">🚄</span>火车票调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>意图包含城市/车站名称</li>
+                    <li><span class="check">✓</span>日期解析成功</li>
+                    <li><span class="arrow">→</span>查询12306余票+智能选座</li>
+                    <li><span class="output">📤</span>自动生成打车+火车行程链</li>
+                </ul>
+            </div>
+            <div class="logic-card">
+                <h3><span class="card-icon bus">🚌</span>公交地铁调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>短距离出行需求</li>
+                    <li><span class="check">✓</span>公共交通可达</li>
+                    <li><span class="arrow">→</span>规划最优换乘路线</li>
+                    <li><span class="output">📤</span>实时到站信息+步行导航</li>
+                </ul>
+            </div>
+            <div class="logic-card">
+                <h3><span class="card-icon volunteer">🤝</span>志愿者调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>偏远地区/无自理能力</li>
+                    <li><span class="check">✓</span>附近有志愿者在线</li>
+                    <li><span class="arrow">→</span>匹配最近志愿者接单</li>
+                    <li><span class="output">📤</span>线下协助+实时定位跟踪</li>
+                </ul>
+            </div>
+            <div class="logic-card">
+                <h3><span class="card-icon sos">🆘</span>SOS紧急调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>触发紧急求助按钮</li>
+                    <li><span class="check">✓</span>检测到异常状态</li>
+                    <li><span class="arrow">→</span>同时通知子女+120+志愿者</li>
+                    <li><span class="output">📤</span>实时位置共享+救援跟进</li>
+                </ul>
+            </div>
+            <div class="logic-card">
+                <h3><span class="card-icon family">👨‍👩‍👧</span>子女远程调度</h3>
+                <ul class="condition-list">
+                    <li><span class="input">📥</span>子女端发起代订请求</li>
+                    <li><span class="check">✓</span>已绑定长辈账号</li>
+                    <li><span class="arrow">→</span>使用父母实时位置下单</li>
+                    <li><span class="output">📤</span>订单同步+费用代付</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="priority-section">
+            <h2>优先级调度规则</h2>
+            <table class="priority-table">
+                <thead>
+                    <tr>
+                        <th>优先级</th>
+                        <th>触发条件</th>
+                        <th>调度策略</th>
+                        <th>响应时效</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="priority-badge p1">P1</span></td>
+                        <td>SOS紧急求助、检测到危险状态、长时间未移动</td>
+                        <td>立即通知子女+120+附近志愿者，开启实时位置跟踪</td>
+                        <td>&lt; 1分钟</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-badge p2">P2</span></td>
+                        <td>医疗出行、赶火车/飞机、偏远地区叫车</td>
+                        <td>优先匹配最快运力，跳过排队直接派单，同步通知子女</td>
+                        <td>&lt; 3分钟</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-badge p3">P3</span></td>
+                        <td>日常出行、回家、购物、普通叫车</td>
+                        <td>聚合多平台比价，选择性价比最高方案，可选通知子女</td>
+                        <td>&lt; 5分钟</td>
+                    </tr>
+                    <tr>
+                        <td><span class="priority-badge p4">P4</span></td>
+                        <td>预约出行、非紧急查询、地址管理</td>
+                        <td>后台异步处理，结果保存至行程列表，不触发即时通知</td>
+                        <td>按需执行</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mechanism-section">
+            <h2>智能调度机制</h2>
+            <div class="mechanism-grid">
+                <div class="mechanism-card">
+                    <div class="number">1</div>
+                    <h4>多平台运力聚合</h4>
+                    <p>整合滴滴、花小猪、高德打车等主流平台，智能选择最快响应、最低价格的运力，提升叫车成功率</p>
+                </div>
+                <div class="mechanism-card">
+                    <div class="number">2</div>
+                    <h4>位置感知调度</h4>
+                    <p>基于老人实时位置自动规划最优上车点，无需手动输入地址，特别适合偏远地区和定位困难场景</p>
+                </div>
+                <div class="mechanism-card">
+                    <div class="number">3</div>
+                    <h4>上下文感知</h4>
+                    <p>结合老人历史出行记录、常去地点、时间习惯，智能推荐最合适的出行方案和时间</p>
+                </div>
+                <div class="mechanism-card">
+                    <div class="number">4</div>
+                    <h4>异常检测与自动干预</h4>
+                    <p>实时监控行程状态，检测轨迹偏离、长时间静止、超时未达等异常，自动触发预警和援助</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="scenario-section">
+            <h2>场景演示</h2>
+            <div class="scenario-tabs">
+                <div class="scenario-tab active" data-scenario="home">回家场景</div>
+                <div class="scenario-tab" data-scenario="hospital">就医场景</div>
+                <div class="scenario-tab" data-scenario="train">火车出行</div>
+                <div class="scenario-tab" data-scenario="emergency">紧急求助</div>
+            </div>
+            <div class="scenario-content" id="scenario-content">
+                <div class="voice-input">
+                    <div class="mic-icon">🎙️</div>
+                    <div class="text">"我要回家"</div>
+                </div>
+                <ul class="scenario-steps" id="scenario-steps">
+                    <li>
+                        <div class="step-icon intent">
+                            🔍<div class="label">意图识别</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>解析语音意图</h4>
+                            <p>通过NLP自然语言处理，识别用户意图为"回家"，从常去地点数据库中匹配家庭地址："府西街25号"</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-icon analyze">
+                            📊<div class="label">方案分析</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>多维度匹配方案</h4>
+                            <p>检测到老人当前位置在"省人民医院"，距离家约5公里。评估出行方式：网约车（预计15分钟，约15元）、公交（预计40分钟，2元）、步行（预计60分钟）</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-icon dispatch">
+                            🚀<div class="label">智能调度</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>执行最优方案</h4>
+                            <p>根据老人历史偏好和当前时间（下午5点，晚高峰），选择网约车方案。调用多平台聚合接口，匹配最快响应司机</p>
+                            <div class="step-result"><span>✅ 已匹配司机：王师傅，车牌晋A·88888，预计5分钟到达</span></div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-icon execute">
+                            📱<div class="label">行程执行</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>实时行程监控</h4>
+                            <p>司机接单后，实时推送车辆位置和预计到达时间。开启行程监控，检测异常状态</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-icon notify">
+                            💬<div class="label">通知同步</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>子女通知</h4>
+                            <p>自动向绑定子女发送行程通知："您的父亲已预约网约车回家，司机王师傅，车牌晋A·88888，预计17:15到达"</p>
+                            <div class="step-result"><span>✅ 子女已收到通知，费用由子女代付</span></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <div class="brand">乐龄出行 - 跨越数字鸿沟，让银发一族从容出行</div>
+            <p>© 2026 乐龄出行团队 | 智能体调度系统 v1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        const scenarios = {
+            home: {
+                voice: '"我要回家"',
+                steps: [
+                    { icon: 'intent', title: '解析语音意图', desc: '通过NLP自然语言处理，识别用户意图为"回家"，从常去地点数据库中匹配家庭地址："府西街25号"', result: null },
+                    { icon: 'analyze', title: '多维度匹配方案', desc: '检测到老人当前位置在"省人民医院"，距离家约5公里。评估出行方式：网约车（预计15分钟，约15元）、公交（预计40分钟，2元）、步行（预计60分钟）', result: null },
+                    { icon: 'dispatch', title: '执行最优方案', desc: '根据老人历史偏好和当前时间（下午5点，晚高峰），选择网约车方案。调用多平台聚合接口，匹配最快响应司机', result: '✅ 已匹配司机：王师傅，车牌晋A·88888，预计5分钟到达' },
+                    { icon: 'execute', title: '实时行程监控', desc: '司机接单后，实时推送车辆位置和预计到达时间。开启行程监控，检测异常状态', result: null },
+                    { icon: 'notify', title: '子女通知', desc: '自动向绑定子女发送行程通知："您的父亲已预约网约车回家，司机王师傅，车牌晋A·88888，预计17:15到达"', result: '✅ 子女已收到通知，费用由子女代付' }
+                ]
+            },
+            hospital: {
+                voice: '"我要去省人民医院看病"',
+                steps: [
+                    { icon: 'intent', title: '解析医疗出行意图', desc: '识别关键词"省人民医院"和"看病"，判定为紧急医疗出行场景，自动提升至P2优先级', result: null },
+                    { icon: 'analyze', title: '紧急方案评估', desc: '检测到老人当前位置在家，距离医院约8公里。评估：网约车（预计20分钟）、急救车（非紧急情况不建议）', result: null },
+                    { icon: 'dispatch', title: '紧急调度', desc: '触发P2优先级调度，跳过排队直接派单，同时查询医院科室号源', result: '✅ 已匹配紧急用车，司机李师傅，车牌晋A·66666，预计8分钟到达' },
+                    { icon: 'execute', title: '医疗协助', desc: '同步推送医院地址和科室信息，开启实时位置共享，子女可全程跟踪', result: null },
+                    { icon: 'notify', title: '紧急通知', desc: '向子女发送紧急通知："您的母亲正在前往省人民医院，请尽快确认就诊信息"', result: '✅ 子女已收到紧急通知' }
+                ]
+            },
+            train: {
+                voice: '"明天去南京看孙子"',
+                steps: [
+                    { icon: 'intent', title: '解析跨城出行意图', desc: '识别目的地"南京"，时间"明天"，判定为火车票出行需求，自动查询合适车次', result: null },
+                    { icon: 'analyze', title: '行程链规划', desc: '查询12306余票：G1954次（太原南-南京南，08:30发车）有余票。规划完整行程链：网约车→高铁→网约车', result: null },
+                    { icon: 'dispatch', title: '多段调度', desc: '同时完成：1.预订火车票（二等座）；2.预约去车站网约车（07:30）；3.预约南京南站网约车（13:30）', result: '✅ G1954次已预订，二等座05车12A，两段网约车已预约' },
+                    { icon: 'execute', title: '智能选座提醒', desc: '根据老人偏好选择靠窗座位，推送乘车提醒：携带身份证、提前到站候车', result: null },
+                    { icon: 'notify', title: '全链路通知', desc: '向子女发送完整行程通知，包含车次、座位、司机信息，支持全程监控', result: '✅ 子女已收到完整行程通知，可远程监控' }
+                ]
+            },
+            emergency: {
+                voice: '"我摔倒了，快来帮忙！"',
+                steps: [
+                    { icon: 'intent', title: '检测紧急意图', desc: '识别关键词"摔倒"、"帮忙"，触发SOS紧急模式，自动提升至P1最高优先级', result: null },
+                    { icon: 'analyze', title: '危险评估', desc: '检测老人位置在小区花园，开启实时位置共享，评估周边救援资源', result: null },
+                    { icon: 'dispatch', title: '紧急调度', desc: '同时触发：1.拨打120急救电话；2.通知最近志愿者；3.通知绑定子女；4.发送精确位置给急救中心', result: '✅ 120已派车，附近志愿者张阿姨正在赶来，预计3分钟到达' },
+                    { icon: 'execute', title: '救援跟进', desc: '持续更新救护车位置和预计到达时间，志愿者到达后实时反馈现场情况', result: null },
+                    { icon: 'notify', title: '持续通知', desc: '向子女持续推送救援进展：救护车已到达、老人已送往医院、正在急诊治疗', result: '✅ 子女全程掌握救援进展，已前往医院' }
+                ]
+            }
+        };
+
+        const tabs = document.querySelectorAll('.scenario-tab');
+        const voiceInput = document.querySelector('.voice-input .text');
+        const stepsContainer = document.getElementById('scenario-steps');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const scenarioKey = tab.dataset.scenario;
+                const scenario = scenarios[scenarioKey];
+                
+                voiceInput.textContent = scenario.voice;
+                
+                stepsContainer.innerHTML = scenario.steps.map((step, index) => `
+                    <li>
+                        <div class="step-icon ${step.icon}">
+                            ${index === 0 ? '🔍' : index === 1 ? '📊' : index === 2 ? '🚀' : index === 3 ? '📱' : '💬'}<div class="label">${step.icon === 'intent' ? '意图识别' : step.icon === 'analyze' ? '方案分析' : step.icon === 'dispatch' ? '智能调度' : step.icon === 'execute' ? '行程执行' : '通知同步'}</div>
+                        </div>
+                        <div class="step-content">
+                            <h4>${step.title}</h4>
+                            <p>${step.desc}</p>
+                            ${step.result ? `<div class="step-result"><span>${step.result}</span></div>` : ''}
+                        </div>
+                    </li>
+                `).join('');
+            });
+        });
+    </script>
+</body>
+</html>

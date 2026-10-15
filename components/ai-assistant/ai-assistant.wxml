@@ -1,0 +1,44 @@
+<!-- AI语音助手悬浮球（极简模式，无全屏页面） -->
+<view wx:if="{{aiEnabled}}">
+  <!-- 悬浮球（可拖动） -->
+  <view
+    class="ai-ball {{isDragging ? 'dragging' : ''}} {{isWorking ? 'working' : ''}} {{workStatus === 'listening' ? 'listening' : ''}}"
+    style="left:{{ballLeft}}rpx;top:{{ballTop}}rpx;"
+    catchtouchstart="onBallTouchStart"
+    catchtouchmove="onBallTouchMove"
+    catchtouchend="onBallTouchEnd"
+  >
+    <view class="ai-ball-inner">
+      <text class="ai-ball-icon" wx:if="{{workStatus === 'idle'}}">AI</text>
+      <view class="ai-mic-icon" wx:elif="{{workStatus === 'listening'}}">
+        <view class="mic-bar"></view>
+        <view class="mic-bar"></view>
+        <view class="mic-bar"></view>
+        <view class="mic-bar"></view>
+        <view class="mic-bar"></view>
+      </view>
+      <text class="ai-ball-icon" wx:elif="{{workStatus === 'thinking'}}">…</text>
+      <text class="ai-ball-icon" wx:elif="{{workStatus === 'speaking'}}">♪</text>
+    </view>
+    <view class="ai-ball-pulse" wx:if="{{workStatus === 'idle'}}"></view>
+    <view class="ai-ball-ring" wx:if="{{workStatus === 'listening'}}"></view>
+    <view class="ai-ball-ring2" wx:if="{{workStatus === 'listening'}}"></view>
+  </view>
+
+  <!-- 迷你提示卡片（悬浮球上方/侧边） -->
+  <view class="ai-mini-card {{workStatus === 'listening' ? 'card-listening' : ''}}" wx:if="{{showCard && (replyText || statusTip)}}" style="{{cardStyle}}">
+    <view class="mini-card-body">
+      <view class="mini-status-row" wx:if="{{statusTip && !replyText}}">
+        <view class="rec-dot" wx:if="{{workStatus === 'listening'}}"></view>
+        <text class="mini-status {{workStatus === 'listening' ? 'status-recording' : ''}}">{{statusTip}}</text>
+      </view>
+      <text class="mini-user" wx:if="{{userText}}">您：{{userText}}</text>
+      <text class="mini-reply" wx:if="{{replyText}}">{{replyText}}</text>
+    </view>
+    <view class="mini-card-actions" wx:if="{{workStatus === 'idle' && replyText}}">
+      <text class="mini-close" catchtap="closeCard">知道了</text>
+    </view>
+    <!-- 小三角指向悬浮球 -->
+    <view class="mini-card-arrow"></view>
+  </view>
+</view>

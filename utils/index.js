@@ -58,19 +58,35 @@ const showToast = (title, icon = 'none', duration = 2000) => {
 
 const showModal = (title, content, confirmText = '确定', cancelText = '取消') => {
   return new Promise((resolve) => {
-    wx.showModal({
-      title,
-      content,
-      confirmText,
-      cancelText,
-      success: (res) => {
-        resolve(res.confirm)
-      }
-    })
+    // 页面切换/销毁时调用 wx.showModal 会导致 __subPageFrameEndTime__ of null 错误
+    if (getCurrentPages().length === 0) {
+      resolve(false)
+      return
+    }
+    try {
+      wx.showModal({
+        title,
+        content,
+        confirmText,
+        cancelText,
+        success: (res) => {
+          resolve(res.confirm)
+        },
+        fail: () => {
+          resolve(false)
+        }
+      })
+    } catch (e) {
+      resolve(false)
+    }
   })
 }
 
 const getDistance = (lat1, lng1, lat2, lng2) => {
+  if (!Number.isFinite(lat1) || !Number.isFinite(lng1) ||
+      !Number.isFinite(lat2) || !Number.isFinite(lng2)) {
+    return 0
+  }
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
   const dLng = (lng2 - lng1) * Math.PI / 180
@@ -106,6 +122,9 @@ const getLocation = () => {
   return new Promise((resolve, reject) => {
     wx.getLocation({
       type: 'gcj02',
+      isHighAccuracy: true,
+      highAccuracyExpireTime: 8000,
+      timeout: 12000,
       success: (res) => {
         resolve(res)
       },
@@ -150,23 +169,23 @@ const getOrderStatusText = (status) => {
 
 const getOrderStatusColor = (status) => {
   const map = {
-    'pending': '#faad14',
-    'confirmed': '#FF8C42',
-    'processing': '#FF8C42',
-    'completed': '#06D6A0',
-    'cancelled': '#9CA3AF',
-    'refunded': '#9CA3AF',
-    'booked': '#FF8C42',
-    'checked': '#FF8C42',
-    'boarding': '#FFB627',
-    'arrived': '#06D6A0',
-    'waiting': '#FFB627',
-    'picking': '#FF8C42',
-    'onway': '#FF8C42',
-    'paid': '#06D6A0',
-    'unpaid': '#EF476F'
+    'pending': '#5B8DEF',
+    'confirmed': '#4A7AD9',
+    'processing': '#4A7AD9',
+    'completed': '#6B9BCE',
+    'cancelled': '#7A8BA0',
+    'refunded': '#7A8BA0',
+    'booked': '#5B8DEF',
+    'checked': '#5B8DEF',
+    'boarding': '#5B8DEF',
+    'arrived': '#6B9BCE',
+    'waiting': '#5B8DEF',
+    'picking': '#3A6BC4',
+    'onway': '#3A6BC4',
+    'paid': '#6B9BCE',
+    'unpaid': '#A5B5CE'
   }
-  return map[status] || '#999999'
+  return map[status] || '#7A8BA0'
 }
 
 module.exports = {

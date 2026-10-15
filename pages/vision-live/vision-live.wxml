@@ -1,0 +1,80 @@
+<view class="vl-page">
+
+  <!-- 摄像头预览（全屏） -->
+  <camera 
+    wx:if="{{isStreaming}}"
+    class="vl-camera" 
+    device-position="back"
+    flash="off"
+    binderror="onCameraError"
+  ></camera>
+
+  <!-- 待机画面 -->
+  <view class="vl-idle" wx:else>
+    <view class="vl-idle-top">
+      <text class="vl-idle-title">实时问路</text>
+      <text class="vl-idle-desc">开启后 AI 看着画面，主动告诉你怎么走</text>
+    </view>
+
+    <view class="vl-idle-trip" wx:if="{{tripContext}}">
+      <text class="vl-idle-trip-no">{{tripContext.trainNo || tripContext.flightNo || ''}}</text>
+      <text class="vl-idle-trip-line">{{tripContext.from || '—'}} → {{tripContext.to || '—'}}</text>
+      <text class="vl-idle-trip-gate" wx:if="{{tripContext.gate}}">{{tripContext.gate}}</text>
+    </view>
+
+    <view class="vl-idle-btn" bindtap="toggleStreaming">
+      <text class="vl-idle-btn-icon">●</text>
+      <text class="vl-idle-btn-text">开启实时问路</text>
+    </view>
+    <text class="vl-idle-btn-hint">点击后举起手机对准前方</text>
+  </view>
+
+  <!-- ===== 以下全部用 cover-view 才能覆盖在 camera 原生组件上 ===== -->
+
+  <!-- 顶部状态条 -->
+  <cover-view class="vl-topbar" wx:if="{{isStreaming}}">
+    <cover-view class="vl-topbar-left">
+      <cover-view class="vl-dot {{isAnalyzing ? 'on' : ''}}"></cover-view>
+      <cover-view class="vl-topbar-text">{{statusMsg || (isAnalyzing ? 'AI 正在看...' : '举着手机往前走')}}</cover-view>
+    </cover-view>
+    <cover-view class="vl-topbar-close" bindtap="goBack">
+      <cover-view class="vl-topbar-close-icon">×</cover-view>
+    </cover-view>
+  </cover-view>
+
+  <!-- 错误提示（屏幕中间） -->
+  <cover-view class="vl-error" wx:if="{{isStreaming && errorMsg}}">
+    <cover-view class="vl-error-text">{{errorMsg}}</cover-view>
+  </cover-view>
+
+  <!-- 行程标签（顶部右侧） -->
+  <cover-view class="vl-trip-tag" wx:if="{{isStreaming && tripContext && tripContext.gate}}">
+    <cover-view class="vl-trip-tag-text">{{tripContext.gate}}</cover-view>
+  </cover-view>
+
+  <!-- AI回答浮层（底部） -->
+  <cover-view class="vl-answer" wx:if="{{isStreaming && lastAnswer && lastAnswer.sections && lastAnswer.sections.length > 0}}">
+    <cover-view class="vl-answer-item" wx:for="{{lastAnswer.sections}}" wx:key="key">
+      <cover-view class="vl-answer-num">{{index + 1}}</cover-view>
+      <cover-view class="vl-answer-text">{{item.content}}</cover-view>
+    </cover-view>
+  </cover-view>
+
+  <cover-view class="vl-answer vl-answer-unclear" wx:if="{{isStreaming && lastAnswer && lastAnswer.unclear}}">
+    <cover-view class="vl-answer-unclear-text">画面不太清楚，慢慢转一下手机</cover-view>
+  </cover-view>
+
+  <!-- 底部控制 -->
+  <cover-view class="vl-bottom" wx:if="{{isStreaming}}">
+    <cover-view class="vl-btn-circle {{isAnalyzing ? 'active' : ''}}" bindtap="toggleStreaming">
+      <cover-view class="vl-btn-circle-icon">{{isAnalyzing ? '●' : '■'}}</cover-view>
+    </cover-view>
+    <cover-view class="vl-bottom-hint">{{isAnalyzing ? 'AI分析中...' : '点一下结束'}}</cover-view>
+  </cover-view>
+
+  <!-- 手动选图测试按钮 -->
+  <cover-view class="vl-album-btn" wx:if="{{isStreaming}}" bindtap="pickFromAlbum">
+    <cover-view class="vl-album-btn-text">点此从相册选图测试</cover-view>
+  </cover-view>
+
+</view>

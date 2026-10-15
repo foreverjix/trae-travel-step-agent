@@ -1,0 +1,353 @@
+<view class="volunteer-container">
+  <view class="page-header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-left">
+      <text class="page-title">志愿者帮助</text>
+      <text class="page-desc">为父母寻求附近志愿者帮助</text>
+    </view>
+    <view class="love-points-card" bindtap="goToRank">
+      <text class="love-count">{{lovePoints}}</text>
+    </view>
+  </view>
+
+  <view class="radar-section">
+    <view class="radar-header">
+      <text class="radar-title">附近志愿者</text>
+      <text class="radar-count">{{nearbyCount}} 位在线</text>
+    </view>
+    
+    <view class="radar-container">
+      <view class="radar-bg">
+        <view class="radar-ring" style="width: 60rpx; height: 60rpx;"></view>
+        <view class="radar-ring" style="width: 140rpx; height: 140rpx;"></view>
+        <view class="radar-ring" style="width: 220rpx; height: 220rpx;"></view>
+        <view class="radar-ring" style="width: 300rpx; height: 300rpx;"></view>
+        
+        <view class="radar-center">
+          <text class="center-label">父母位置</text>
+        </view>
+        
+        <view 
+          class="radar-volunteer {{item.isOnline ? 'online' : 'offline'}}"
+          wx:for="{{volunteers}}"
+          wx:key="id"
+          style="left: {{item.left}}%; top: {{item.top}}%;"
+          data-volunteer="{{item}}"
+          bindtap="selectVolunteer"
+        >
+          <view class="volunteer-dot"></view>
+          <text class="volunteer-name">{{item.name}}</text>
+          <text class="volunteer-distance">{{item.distance}}km</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="radar-legend">
+      <view class="legend-item">
+        <view class="legend-dot online"></view>
+        <text>在线</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-dot offline"></view>
+        <text>离线</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="volunteer-list">
+    <view class="list-header">
+      <text class="list-title">志愿者列表</text>
+      <text class="list-count">共 {{volunteers.length}} 位</text>
+    </view>
+    
+    <view 
+      class="volunteer-card {{selectedVolunteer && selectedVolunteer.id === item.id ? 'selected' : ''}}" 
+      wx:for="{{volunteers}}" 
+      wx:key="id"
+      data-volunteer="{{item}}"
+      bindtap="selectVolunteer"
+    >
+      <view class="volunteer-avatar">
+        <text>{{item.avatar}}</text>
+        <view class="online-dot {{item.isOnline ? 'online' : ''}}"></view>
+      </view>
+      <view class="volunteer-info">
+        <view class="volunteer-name-row">
+          <text class="volunteer-name">{{item.name}}</text>
+          <text class="volunteer-distance">{{item.distance}}km</text>
+        </view>
+        <text class="volunteer-address">{{item.address}}</text>
+        <view class="volunteer-tags">
+          <text class="tag" wx:for="{{item.serviceType}}" wx:key="index">{{item}}</text>
+        </view>
+        <view class="volunteer-stats">
+          <text class="stat">{{item.rating}} 分</text>
+          <text class="stat">{{item.completedCount}}次服务</text>
+        </view>
+      </view>
+      <view class="volunteer-action">
+        <text class="action-btn primary" bindtap="callVolunteer">联系</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="achievements-section">
+    <view class="achievements-header">
+      <text class="achievements-title">成就勋章</text>
+      <text class="achievements-subtitle">完成成就获得额外爱心值</text>
+    </view>
+    <scroll-view class="achievements-scroll" scroll-x>
+      <view class="achievements-list">
+        <view 
+          class="achievement-item {{item.unlocked ? 'unlocked' : 'locked'}}" 
+          wx:for="{{achievements}}" 
+          wx:key="id"
+        >
+          <text class="achievement-name">{{item.name}}</text>
+          <text class="achievement-desc">{{item.desc}}</text>
+          <text class="achievement-points">+{{item.points}}爱心值</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="rewards-section">
+    <view class="rewards-header">
+      <text class="rewards-title">爱心兑换</text>
+      <text class="rewards-subtitle">用爱心值兑换实际福利</text>
+    </view>
+    <scroll-view class="rewards-scroll" scroll-x>
+      <view class="rewards-list">
+        <view class="reward-item">
+          <text class="reward-name">打车优惠券</text>
+          <text class="reward-desc">满50减10元</text>
+          <view class="reward-price">
+            <text class="price-num">500</text>
+            <text class="price-label">爱心值</text>
+          </view>
+          <view class="reward-btn" bindtap="redeemReward">兑换</view>
+        </view>
+        <view class="reward-item">
+          <text class="reward-name">超市购物券</text>
+          <text class="reward-desc">满100减20元</text>
+          <view class="reward-price">
+            <text class="price-num">1000</text>
+            <text class="price-label">爱心值</text>
+          </view>
+          <view class="reward-btn" bindtap="redeemReward">兑换</view>
+        </view>
+        <view class="reward-item">
+          <text class="reward-name">电影票</text>
+          <text class="reward-desc">免费观影一次</text>
+          <view class="reward-price">
+            <text class="price-num">800</text>
+            <text class="price-label">爱心值</text>
+          </view>
+          <view class="reward-btn" bindtap="redeemReward">兑换</view>
+        </view>
+        <view class="reward-item">
+          <text class="reward-name">话费充值</text>
+          <text class="reward-desc">10元话费</text>
+          <view class="reward-price">
+            <text class="price-num">300</text>
+            <text class="price-label">爱心值</text>
+          </view>
+          <view class="reward-btn" bindtap="redeemReward">兑换</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="certification-section">
+    <view class="certification-header">
+      <text class="certification-title">志愿者认证</text>
+      <text class="certification-subtitle">累计服务达到一定次数获得官方认证</text>
+    </view>
+    <view class="certification-list">
+      <view class="certification-item {{serviceCount >= 10 ? 'certified' : ''}}">
+        <view class="cert-info">
+          <text class="cert-name">初级志愿者</text>
+          <text class="cert-desc">完成10次服务</text>
+        </view>
+        <view class="cert-status">
+          <text>{{serviceCount >= 10 ? '已认证' : serviceCount + '/10'}}</text>
+        </view>
+      </view>
+      <view class="certification-item {{serviceCount >= 50 ? 'certified' : ''}}">
+        <view class="cert-info">
+          <text class="cert-name">星级志愿者</text>
+          <text class="cert-desc">完成50次服务</text>
+        </view>
+        <view class="cert-status">
+          <text>{{serviceCount >= 50 ? '已认证' : serviceCount + '/50'}}</text>
+        </view>
+      </view>
+      <view class="certification-item {{serviceCount >= 100 ? 'certified' : ''}}">
+        <view class="cert-info">
+          <text class="cert-name">金牌志愿者</text>
+          <text class="cert-desc">完成100次服务</text>
+        </view>
+        <view class="cert-status">
+          <text>{{serviceCount >= 100 ? '已认证' : serviceCount + '/100'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="rank-section">
+    <view class="rank-header">
+      <text class="rank-title">爱心排行榜</text>
+      <text class="rank-subtitle">帮助他人父母，积攒爱心值</text>
+    </view>
+    <view class="rank-list">
+      <view class="rank-item" wx:for="{{loveRank}}" wx:key="name">
+        <view class="rank-num {{index < 3 ? 'top' + (index + 1) : ''}}">
+          {{index + 1}}
+        </view>
+        <view class="rank-avatar">{{item.avatar}}</view>
+        <view class="rank-info">
+          <view class="rank-name-row">
+            <text class="rank-name">{{item.name}}</text>
+            <text class="rank-level">{{item.level}}</text>
+          </view>
+          <text class="rank-count">已服务 {{item.serviceCount}} 次</text>
+        </view>
+        <view class="rank-points">
+          <text class="points-num">{{item.points}}</text>
+          <text class="points-label">爱心值</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="share-section">
+      <view class="share-btn" bindtap="shareToFriend">
+        <text class="share-text">邀请好友一起帮助老人</text>
+        <text class="share-reward">各得50爱心值</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="volunteer-detail" wx:if="{{selectedVolunteer}}" bindtap="closeVolunteerDetail">
+    <view class="detail-card" catchtap="stopPropagation">
+      <view class="detail-header">
+        <view class="detail-avatar">
+          <text>{{selectedVolunteer.avatar}}</text>
+          <view class="online-dot {{selectedVolunteer.isOnline ? 'online' : ''}}"></view>
+        </view>
+        <view class="detail-info">
+          <text class="detail-name">{{selectedVolunteer.name}}</text>
+          <text class="detail-address">{{selectedVolunteer.address}}</text>
+          <text class="detail-distance">{{selectedVolunteer.distance}}km</text>
+        </view>
+        <view class="detail-close" bindtap="closeVolunteerDetail">
+          <text>×</text>
+        </view>
+      </view>
+      
+      <view class="detail-section">
+        <text class="section-title">服务类型</text>
+        <view class="service-tags">
+          <text class="service-tag" wx:for="{{selectedVolunteer.serviceType}}" wx:key="index">{{item}}</text>
+        </view>
+      </view>
+      
+      <view class="detail-section">
+        <text class="section-title">服务评价</text>
+        <view class="rating-row">
+          <text class="rating">{{selectedVolunteer.rating}} 分</text>
+          <text class="completed">已完成 {{selectedVolunteer.completedCount}} 次服务</text>
+        </view>
+      </view>
+      
+      <view class="detail-actions">
+        <view class="action-btn secondary" bindtap="callVolunteer">直接联系</view>
+        <view class="action-btn primary" bindtap="startHelp">发起求助</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="help-modal" wx:if="{{showHelpModal}}">
+    <view class="help-overlay" bindtap="cancelHelp"></view>
+    <view class="help-card" catchtap="stopPropagation">
+      <view class="help-header">
+        <text class="help-title">发起求助</text>
+        <view class="help-close" bindtap="cancelHelp">
+          <text>×</text>
+        </view>
+      </view>
+      
+      <view class="help-section">
+        <text class="help-label">选择服务类型</text>
+        <view class="help-type-grid">
+          <view 
+            class="type-item {{helpType === '接站' ? 'selected' : ''}}" 
+            data-type="接站" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">接站</text>
+            <text class="type-points">+50爱心值</text>
+          </view>
+          <view 
+            class="type-item {{helpType === '送站' ? 'selected' : ''}}" 
+            data-type="送站" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">送站</text>
+            <text class="type-points">+50爱心值</text>
+          </view>
+          <view 
+            class="type-item {{helpType === '陪诊' ? 'selected' : ''}}" 
+            data-type="陪诊" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">陪诊</text>
+            <text class="type-points">+100爱心值</text>
+          </view>
+          <view 
+            class="type-item {{helpType === '陪同购物' ? 'selected' : ''}}" 
+            data-type="陪同购物" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">陪同购物</text>
+            <text class="type-points">+80爱心值</text>
+          </view>
+          <view 
+            class="type-item {{helpType === '日常陪伴' ? 'selected' : ''}}" 
+            data-type="日常陪伴" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">日常陪伴</text>
+            <text class="type-points">+120爱心值</text>
+          </view>
+          <view 
+            class="type-item {{helpType === '接送就医' ? 'selected' : ''}}" 
+            data-type="接送就医" 
+            bindtap="selectHelpType"
+          >
+            <text class="type-name">接送就医</text>
+            <text class="type-points">+150爱心值</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="help-section">
+        <text class="help-label">服务描述（选填）</text>
+        <textarea 
+          class="help-textarea" 
+          placeholder="请描述具体需求，如时间、地点、特殊需求等"
+          value="{{helpDesc}}"
+          bindinput="onHelpDescInput"
+        ></textarea>
+      </view>
+      
+      <view class="help-footer">
+        <view class="action-btn secondary" bindtap="cancelHelp">取消</view>
+        <view class="action-btn primary" bindtap="submitHelp">确认发起</view>
+      </view>
+    </view>
+  </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
+</view>

@@ -1,7 +1,12 @@
 <view class="container">
   <view class="header-gradient">
-    <text class="page-title text-white">出行勋章</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">记录您的每一次出行成就</text>
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-info">
+      <text class="page-title text-white">出行勋章</text>
+      <text class="page-subtitle text-white" style="opacity: 0.9;">记录您的每一次出行成就</text>
+    </view>
   </view>
 
   <view class="stats-card">
@@ -35,8 +40,7 @@
         data-medal="{{item}}"
       >
         <view class="medal-icon-box">
-          <text class="medal-emoji">{{item.emoji}}</text>
-          <view wx:if="{{!item.unlocked}}" class="medal-lock">🔒</view>
+          <view wx:if="{{!item.unlocked}}" class="medal-lock"></view>
         </view>
         <text class="medal-name">{{item.name}}</text>
         <text class="medal-desc">{{item.description}}</text>
@@ -47,7 +51,6 @@
 
   <view class="tips-card">
     <view class="tips-header">
-      <text class="tips-icon">💡</text>
       <text class="tips-title">勋章获取小贴士</text>
     </view>
     <view class="tips-list">

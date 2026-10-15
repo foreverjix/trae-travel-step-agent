@@ -1,84 +1,118 @@
 <view class="container">
-  <!-- 方案概览 -->
-  <view class="header-gradient">
-    <view class="trip-overview">
-      <view class="trip-cities">
+  <view class="trip-header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-info">
+      <view class="trip-title">
         <text class="trip-city">{{from}}</text>
-        <view class="trip-arrow">→</view>
+        <text class="trip-sep">—</text>
         <text class="trip-city">{{to}}</text>
       </view>
-      <text class="trip-date">{{date}} 出发 · {{plan.totalTime}} · 共{{plan.totalPrice}}元</text>
+      <text class="trip-sub">{{date}} 出发 · {{plan.totalTime}} · 共¥{{plan.totalPrice}}</text>
     </view>
   </view>
 
-  <!-- 步骤条 -->
-  <view class="step-bar">
-    <view wx:for="{{steps}}" wx:key="index" class="step-node">
-      <view class="step-circle {{index <= currentStep ? 'active' : ''}}">{{index + 1}}</view>
-      <text class="step-label {{index <= currentStep ? 'active' : ''}}">{{item.title}}</text>
-      <view wx:if="{{index < steps.length - 1}}" class="step-connector {{index < currentStep ? 'active' : ''}}"></view>
+  <view class="stepper">
+    <view wx:for="{{steps}}" wx:key="index" class="step-item">
+      <view class="step-num {{index <= currentStep ? 'active' : ''}}">{{index + 1}}</view>
+      <text class="step-name {{index <= currentStep ? 'active' : ''}}">{{item.title}}</text>
+      <view wx:if="{{index < steps.length - 1}}" class="step-line {{index < currentStep ? 'active' : ''}}"></view>
     </view>
   </view>
 
-  <!-- 当前步骤详情 -->
-  <view class="step-detail-card">
-    <view class="step-detail-header">
-      <view class="step-icon-large">{{currentStepData.icon}}</view>
-      <view class="step-title-group">
-        <text class="step-main-title">{{currentStepData.title}}</text>
-        <text class="step-subtitle">{{currentStepData.subtitle}}</text>
-      </view>
+  <view class="detail-card">
+    <view class="detail-head">
+      <text class="detail-type">{{currentStepData.typeLabel}}</text>
+      <text class="detail-title">{{currentStepData.title}}</text>
     </view>
 
-    <view class="step-content">
+    <view class="info-list">
       <view class="info-row">
-        <text class="info-label">行程</text>
-        <text class="info-value">{{currentStepData.route}}</text>
+        <text class="info-key">行程</text>
+        <text class="info-val">{{currentStepData.route}}</text>
       </view>
       <view class="info-row">
-        <text class="info-label">时间</text>
-        <text class="info-value">{{currentStepData.time}}</text>
+        <text class="info-key">时间</text>
+        <text class="info-val">{{currentStepData.time}}</text>
       </view>
       <view class="info-row">
-        <text class="info-label">费用</text>
-        <text class="info-value price">¥{{currentStepData.price}}</text>
+        <text class="info-key">费用</text>
+        <text class="info-val price">¥{{currentStepData.price}}</text>
       </view>
       <view class="info-row" wx:if="{{currentStepData.seat}}">
-        <text class="info-label">座位</text>
-        <text class="info-value">{{currentStepData.seat}}</text>
+        <text class="info-key">座位</text>
+        <text class="info-val">{{currentStepData.seat}}</text>
       </view>
       <view class="info-row" wx:if="{{currentStepData.driver}}">
-        <text class="info-label">司机</text>
-        <text class="info-value">{{currentStepData.driver}}</text>
+        <text class="info-key">司机</text>
+        <text class="info-val">{{currentStepData.driver}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.plate}}">
+        <text class="info-key">车牌</text>
+        <text class="info-val">{{currentStepData.plate}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.phone}}">
+        <text class="info-key">电话</text>
+        <text class="info-val">{{currentStepData.phone}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.busLine}}">
+        <text class="info-key">线路</text>
+        <text class="info-val">{{currentStepData.busLine}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.subwayLine}}">
+        <text class="info-key">线路</text>
+        <text class="info-val">{{currentStepData.subwayLine}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.stops}}">
+        <text class="info-key">途经</text>
+        <text class="info-val">{{currentStepData.stops}}站</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.duration}}">
+        <text class="info-key">时长</text>
+        <text class="info-val">{{currentStepData.duration}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.distance}}">
+        <text class="info-key">距离</text>
+        <text class="info-val">{{currentStepData.distance}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.taxiCompany}}">
+        <text class="info-key">公司</text>
+        <text class="info-val">{{currentStepData.taxiCompany}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.planeNo}}">
+        <text class="info-key">航班</text>
+        <text class="info-val">{{currentStepData.planeNo}}</text>
+      </view>
+      <view class="info-row" wx:if="{{currentStepData.terminal}}">
+        <text class="info-key">航站楼</text>
+        <text class="info-val">{{currentStepData.terminal}}</text>
       </view>
     </view>
 
-    <view class="confirm-tip">
-      <text class="confirm-tip-icon">✋</text>
-      <text class="confirm-tip-text">请仔细核对以上信息，确认无误后再点击"我确认"</text>
-    </view>
+    <view class="notice">请核对以上信息，确认无误后点击下方按钮</view>
   </view>
 
-  <!-- 已确认步骤 -->
-  <view class="confirmed-section" wx:if="{{confirmedSteps.length > 0}}">
-    <text class="section-title">已确认</text>
+  <view class="confirmed-block" wx:if="{{confirmedSteps.length > 0}}">
+    <text class="confirmed-head">已确认</text>
     <view class="confirmed-list">
-      <view class="confirmed-item" wx:for="{{confirmedSteps}}" wx:key="index">
-        <text class="confirmed-icon">{{item.icon}}</text>
+      <view class="confirmed-row" wx:for="{{confirmedSteps}}" wx:key="index">
+        <text class="confirmed-type">{{item.typeLabel}}</text>
         <view class="confirmed-info">
-          <text class="confirmed-name">{{item.title}}</text>
-          <text class="confirmed-detail">{{item.route}}</text>
+          <text class="confirmed-title">{{item.title}}</text>
+          <text class="confirmed-route">{{item.route}}</text>
         </view>
         <text class="confirmed-price">¥{{item.price}}</text>
       </view>
     </view>
   </view>
 
-  <!-- 操作按钮 -->
-  <view class="footer-actions">
-    <view class="btn-secondary" bindtap="goBack">我再想想</view>
-    <view class="btn-primary" bindtap="confirmStep">
-      {{isLastStep ? '确认并下单' : '我确认，下一步'}}
+  <view class="bottom-bar">
+    <view class="btn-plain" bindtap="goBack">我再想想</view>
+    <view class="btn-main" bindtap="confirmStep">
+      <text>{{isLastStep ? '确认并下单' : '我确认，下一步'}}</text>
     </view>
   </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

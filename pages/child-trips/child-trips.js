@@ -4,19 +4,30 @@ Page({
   data: {
     parentName: '',
     parentPhone: '',
-    trips: []
+    trips: [],
+    aiAssistantEnabled: false
   },
 
   onLoad(options) {
     this.setData({
-      parentName: options.parentName || '',
-      parentPhone: options.parentPhone || ''
+      parentName: options.parentName ? decodeURIComponent(options.parentName) : '',
+      parentPhone: options.parentPhone ? decodeURIComponent(options.parentPhone) : ''
     })
     this.loadTrips()
   },
 
   onShow() {
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    app.globalData.aiPageContext = {
+      page: 'child-trips',
+      title: '长辈行程',
+      summary: '查看长辈实时行程'
+    }
     this.loadTrips()
+  },
+
+  goBack() {
+    wx.navigateBack()
   },
 
   loadTrips() {
@@ -29,9 +40,9 @@ Page({
         desc: '高铁 G1954 · 8:30发车',
         totalPrice: 720,
         steps: [
-          { type: 'taxi', name: '花小猪打车', time: '07:30', status: 'pending' },
-          { type: 'train', name: '高铁G1954', time: '08:30', status: 'pending' },
-          { type: 'taxi', name: '高德打车', time: '13:20', status: 'pending' }
+          { type: 'taxi', typeIcon: '🚕', name: '花小猪打车', time: '07:30', status: 'pending' },
+          { type: 'train', typeIcon: '🚄', name: '高铁G1954', time: '08:30', status: 'pending' },
+          { type: 'taxi', typeIcon: '🚕', name: '高德打车', time: '13:20', status: 'pending' }
         ]
       },
       {
@@ -42,9 +53,9 @@ Page({
         desc: '高铁 G602 · 9:00发车',
         totalPrice: 206,
         steps: [
-          { type: 'taxi', name: '花小猪打车', time: '08:00', status: 'completed' },
-          { type: 'train', name: '高铁G602', time: '09:00', status: 'completed' },
-          { type: 'taxi', name: '高德打车', time: '11:30', status: 'completed' }
+          { type: 'taxi', typeIcon: '🚕', name: '花小猪打车', time: '08:00', status: 'completed' },
+          { type: 'train', typeIcon: '🚄', name: '高铁G602', time: '09:00', status: 'completed' },
+          { type: 'taxi', typeIcon: '🚕', name: '高德打车', time: '11:30', status: 'completed' }
         ]
       },
       {
@@ -55,9 +66,9 @@ Page({
         desc: '火车 K604 · 14:00发车',
         totalPrice: 86,
         steps: [
-          { type: 'bus', name: '公交', time: '13:00', status: 'completed' },
-          { type: 'train', name: '火车K604', time: '14:00', status: 'completed' },
-          { type: 'taxi', name: '花小猪打车', time: '21:00', status: 'completed' }
+          { type: 'bus', typeIcon: '🚌', name: '公交', time: '13:00', status: 'completed' },
+          { type: 'train', typeIcon: '🚄', name: '火车K604', time: '14:00', status: 'completed' },
+          { type: 'taxi', typeIcon: '🚕', name: '花小猪打车', time: '21:00', status: 'completed' }
         ]
       }
     ]
@@ -88,18 +99,7 @@ Page({
   viewDetail(e) {
     const trip = e.currentTarget.dataset.trip
     wx.navigateTo({
-      url: `/pages/order-detail/order-detail?id=${trip.id}`
+      url: '/pages/trip-monitor/trip-monitor'
     })
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
-    }
   }
 })

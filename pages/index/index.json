@@ -1,7 +1,8 @@
 {
-  "navigationBarTitleText": "乐龄出行",
+  "navigationStyle": "custom",
   "usingComponents": {
     "custom-tabbar": "/components/custom-tabbar/custom-tabbar",
-    "float-island": "/components/float-island/float-island"
+    "float-island": "/components/float-island/float-island",
+    "ai-assistant": "/components/ai-assistant/ai-assistant"
   }
 }

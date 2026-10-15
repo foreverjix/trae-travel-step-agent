@@ -1,8 +1,11 @@
 <view class="container">
   <view class="header-gradient">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
     <view class="user-card" wx:if="{{userInfo}}">
       <view class="user-avatar">
-        <text class="avatar-icon">👴</text>
+        <text class="avatar-icon">用户</text>
       </view>
       <view class="user-info">
         <text class="user-name text-white">{{userInfo.name}}</text>
@@ -14,7 +17,7 @@
     </view>
 
     <view class="login-card-simple" wx:else>
-      <view class="login-icon">🔐</view>
+      <text class="login-icon">登录</text>
       <text class="login-text text-white">请先登录</text>
       <view class="btn-white" bindtap="goToLogin">立即登录</view>
     </view>
@@ -26,11 +29,6 @@
       <text class="stat-label">全部订单</text>
     </view>
     <view class="stat-divider"></view>
-    <view class="stat-item" bindtap="goToMedals">
-      <text class="stat-value">{{medalCount}}</text>
-      <text class="stat-label">获得勋章</text>
-    </view>
-    <view class="stat-divider"></view>
     <view class="stat-item" bindtap="goToAssist">
       <text class="stat-value">{{assistCount}}</text>
       <text class="stat-label">协助亲友</text>
@@ -40,39 +38,21 @@
   <view class="menu-section">
     <view class="menu-card">
       <text class="menu-title">常用服务</text>
+      <view class="menu-item" bindtap="goToPassenger">
+        <text class="menu-text">乘车人信息</text>
+        <text class="menu-tag green">购票用</text>
+        <text class="menu-arrow">›</text>
+      </view>
       <view class="menu-item" bindtap="goToAddress">
-        <view class="menu-icon-box address-bg">
-          <text class="menu-icon">📍</text>
-        </view>
         <text class="menu-text">常用地址</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item" bindtap="goToOrders">
-        <view class="menu-icon-box order-bg">
-          <text class="menu-icon">📋</text>
-        </view>
         <text class="menu-text">我的订单</text>
         <text class="menu-arrow">›</text>
       </view>
-      <view class="menu-item" bindtap="goToMedals">
-        <view class="menu-icon-box medal-bg">
-          <text class="menu-icon">🏅</text>
-        </view>
-        <text class="menu-text">我的勋章</text>
-        <text class="menu-arrow">›</text>
-      </view>
       <view class="menu-item" bindtap="goToAssist">
-        <view class="menu-icon-box assist-bg">
-          <text class="menu-icon">👨‍👩‍👧</text>
-        </view>
         <text class="menu-text">亲友协助</text>
-        <text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="goToAgent">
-        <view class="menu-icon-box agent-bg">
-          <text class="menu-icon">🤖</text>
-        </view>
-        <text class="menu-text">智能推荐</text>
         <text class="menu-arrow">›</text>
       </view>
     </view>
@@ -80,24 +60,15 @@
     <view class="menu-card">
       <text class="menu-title">安全与帮助</text>
       <view class="menu-item" bindtap="goToSos">
-        <view class="menu-icon-box sos-bg">
-          <text class="menu-icon">🆘</text>
-        </view>
         <text class="menu-text">紧急求助</text>
         <text class="menu-tag">重要</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item">
-        <view class="menu-icon-box service-bg">
-          <text class="menu-icon">📞</text>
-        </view>
         <text class="menu-text">客服中心</text>
         <text class="menu-arrow">›</text>
       </view>
       <view class="menu-item">
-        <view class="menu-icon-box setting-bg">
-          <text class="menu-icon">⚙️</text>
-        </view>
         <text class="menu-text">设置</text>
         <text class="menu-arrow">›</text>
       </view>
@@ -114,4 +85,5 @@
   </view>
 
   <custom-tabbar current-path="/pages/profile/profile"></custom-tabbar>
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

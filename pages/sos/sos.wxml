@@ -1,99 +1,132 @@
-<view class="container">
-  <view class="sos-header">
-    <text class="sos-title">紧急求助</text>
-    <text class="sos-subtitle">遇到紧急情况，请立即联系</text>
+<view class="sos-page">
+  <!-- 顶部导航栏 -->
+  <view class="nav-bar">
+    <view class="nav-back" bindtap="goBack">
+      <text class="nav-back-icon">‹</text>
+    </view>
+    <text class="nav-title">紧急求助</text>
+    <view class="nav-placeholder"></view>
   </view>
 
-  <view class="emergency-card">
-    <view class="emergency-btn police" bindtap="callEmergency">
-      <view class="emergency-icon-ring">
-        <text class="emergency-icon">☎️</text>
-      </view>
-      <view class="emergency-info">
-        <text class="emergency-label">一键拨打</text>
-        <text class="emergency-number">110 报警电话</text>
-      </view>
-    </view>
-    
-    <view class="emergency-btn ambulance" bindtap="callAmbulance">
-      <view class="emergency-icon-ring">
-        <text class="emergency-icon">🚑</text>
-      </view>
-      <view class="emergency-info">
-        <text class="emergency-label">一键拨打</text>
-        <text class="emergency-number">120 急救电话</text>
-      </view>
-    </view>
-  </view>
+  <scroll-view scroll-y class="sos-scroll" enhanced show-scrollbar="{{false}}">
 
-  <view class="contact-section card">
-    <view class="section-header">
-      <text class="card-title">紧急联系人</text>
-      <text class="section-more" bindtap="goToManage">管理 ›</text>
-    </view>
-    <view class="contact-list">
-      <view wx:for="{{emergencyContacts}}" wx:key="phone" class="contact-item">
-        <view class="contact-avatar">{{item.nameFirstChar}}</view>
-        <view class="contact-info">
-          <text class="contact-name">{{item.name}}</text>
-          <text class="contact-relation">{{item.relation}}</text>
-        </view>
-        <view class="contact-actions">
-          <view class="action-btn call" bindtap="callContact" data-phone="{{item.phone}}">📞</view>
-          <view class="action-btn message" bindtap="sendMessage" data-phone="{{item.phone}}">💬</view>
+    <!-- SOS 大按钮区 -->
+    <view class="sos-hero">
+      <view class="sos-btn-wrap">
+        <view class="sos-pulse-ring"></view>
+        <view class="sos-pulse-ring2"></view>
+        <view class="sos-big-btn {{sosPressed ? 'pressed' : ''}}" bindlongpress="triggerSOS" bindtap="onSOSTap">
+          <text class="sos-big-text">SOS</text>
+          <text class="sos-big-hint">长按发送求助</text>
         </view>
       </view>
+      <view class="sos-status {{sosStatus}}" wx:if="{{sosStatus}}">
+        <text class="sos-status-text">{{sosStatusText}}</text>
+      </view>
     </view>
-    <view wx:if="{{emergencyContacts.length === 0}}" class="empty-mini" bindtap="goToManage">
-      <text class="empty-mini-icon">➕</text>
-      <text class="empty-mini-text">添加紧急联系人</text>
-    </view>
-  </view>
 
-  <view class="location-section card">
-    <view class="section-header">
-      <text class="card-title">当前位置</text>
-      <text class="section-more" bindtap="updateLocation">刷新 ›</text>
+    <!-- 紧急电话 -->
+    <view class="section">
+      <text class="section-label">紧急电话</text>
+      <view class="quick-call-row">
+        <view class="quick-call-item police" bindtap="callEmergency">
+          <view class="quick-call-circle">
+            <text class="quick-call-num">110</text>
+          </view>
+          <text class="quick-call-name">报警</text>
+        </view>
+        <view class="quick-call-item ambulance" bindtap="callAmbulance">
+          <view class="quick-call-circle">
+            <text class="quick-call-num">120</text>
+          </view>
+          <text class="quick-call-name">急救</text>
+        </view>
+      </view>
     </view>
-    <view class="location-box">
-      <text class="location-icon">📍</text>
-      <text class="location-text">{{currentLocation || '正在获取位置...'}}</text>
-    </view>
-    <view class="btn-secondary location-btn" bindtap="shareLocation">分享位置给亲友</view>
-  </view>
 
-  <view class="help-section card">
-    <text class="card-title">快速求助</text>
-    <view class="help-grid">
-      <view class="help-item" bindtap="helpFall">
-        <view class="help-icon fall-bg">🤕</view>
-        <text class="help-text">摔倒求助</text>
+    <!-- 紧急联系人 -->
+    <view class="section">
+      <view class="section-head">
+        <text class="section-label">紧急联系人</text>
+        <text class="section-more" bindtap="goToManage">管理</text>
       </view>
-      <view class="help-item" bindtap="helpLost">
-        <view class="help-icon lost-bg">🔍</view>
-        <text class="help-text">迷路求助</text>
-      </view>
-      <view class="help-item" bindtap="helpTraffic">
-        <view class="help-icon traffic-bg">🚦</view>
-        <text class="help-text">交通事故</text>
-      </view>
-      <view class="help-item" bindtap="helpHealth">
-        <view class="help-icon health-bg">❤️</view>
-        <text class="help-text">突发疾病</text>
+      <block wx:if="{{emergencyContacts.length > 0}}">
+        <view class="contact-list">
+          <view wx:for="{{emergencyContacts}}" wx:key="phone" class="contact-item">
+            <view class="contact-avatar">{{item.nameFirstChar}}</view>
+            <view class="contact-info">
+              <text class="contact-name">{{item.name}}</text>
+              <text class="contact-relation">{{item.relation || '紧急联系人'}}</text>
+            </view>
+            <view class="contact-actions">
+              <view class="contact-btn call-btn" bindtap="callContact" data-phone="{{item.phone}}">
+                <text>电话</text>
+              </view>
+              <view class="contact-btn sms-btn" bindtap="sendMessage" data-phone="{{item.phone}}">
+                <text>短信</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      <view wx:else class="empty-contacts" bindtap="goToManage">
+        <text class="empty-text">还没有紧急联系人</text>
+        <text class="empty-add">+ 添加联系人</text>
       </view>
     </view>
-  </view>
 
-  <view class="tips-card">
-    <view class="tips-header">
-      <text class="tips-icon">⚠️</text>
-      <text class="tips-title">使用提示</text>
+    <!-- 当前位置 -->
+    <view class="section">
+      <view class="section-head">
+        <text class="section-label">当前位置</text>
+        <text class="section-more" bindtap="updateLocation">刷新</text>
+      </view>
+      <view class="location-card">
+        <view class="location-pin">
+          <text class="pin-icon">📍</text>
+        </view>
+        <text class="location-text">{{currentLocation || '正在获取位置...'}}</text>
+      </view>
+      <view class="share-btn" bindtap="shareLocation">
+        <text class="share-text">分享位置给亲友</text>
+      </view>
     </view>
-    <view class="tips-list">
-      <text class="tips-item">• 紧急情况下请优先拨打110或120</text>
-      <text class="tips-item">• 保持电话畅通，以便救援人员联系</text>
-      <text class="tips-item">• 可提前设置紧急联系人，方便快速求助</text>
-      <text class="tips-item">• 分享位置功能可帮助亲友快速定位您的位置</text>
+
+    <!-- 快速求助 -->
+    <view class="section">
+      <text class="section-label">快速求助</text>
+      <view class="quick-help-grid">
+        <view class="quick-help-item" bindtap="helpFall">
+          <view class="help-circle fall-circle">
+            <text class="help-icon-text">摔</text>
+          </view>
+          <text class="help-label">摔倒</text>
+        </view>
+        <view class="quick-help-item" bindtap="helpLost">
+          <view class="help-circle lost-circle">
+            <text class="help-icon-text">迷</text>
+          </view>
+          <text class="help-label">迷路</text>
+        </view>
+        <view class="quick-help-item" bindtap="helpTraffic">
+          <view class="help-circle traffic-circle">
+            <text class="help-icon-text">事</text>
+          </view>
+          <text class="help-label">交通事故</text>
+        </view>
+        <view class="quick-help-item" bindtap="helpHealth">
+          <view class="help-circle health-circle">
+            <text class="help-icon-text">病</text>
+          </view>
+          <text class="help-label">突发疾病</text>
+        </view>
+      </view>
     </view>
-  </view>
+
+    <!-- 底部提示 -->
+    <view class="tips-bar">
+      <text class="tips-text">紧急情况请优先拨打110或120，并保持电话畅通</text>
+    </view>
+
+  </scroll-view>
 </view>

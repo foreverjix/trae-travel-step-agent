@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>乐龄出行 - 功能流程图</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', sans-serif;
+      background: #F5F7FA;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .header h1 {
+      font-size: 32px;
+      color: #1A1A2E;
+      margin-bottom: 8px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .header p {
+      font-size: 15px;
+      color: #666;
+    }
+    .section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      border: 1px solid #E8ECF0;
+    }
+    .section-title {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 28px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: #FF8C42;
+      border-radius: 2px;
+      margin-right: 12px;
+    }
+    .flowchart {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .flow-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .flow-row:last-child {
+      margin-bottom: 0;
+    }
+    .node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .node-card {
+      background: #fff;
+      border: 2px solid #DDE2E8;
+      border-radius: 8px;
+      padding: 18px 24px;
+      min-width: 150px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .node-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .node-card.main {
+      background: #FF8C42;
+      border-color: #FF8C42;
+      color: #fff;
+    }
+    .node-card.main .node-text { color: #fff; }
+    .node-card.success {
+      background: #06D6A0;
+      border-color: #06D6A0;
+      color: #fff;
+    }
+    .node-card.success .node-text { color: #fff; }
+    .node-card.warning {
+      background: #FFE066;
+      border-color: #FFE066;
+      color: #5D4037;
+    }
+    .node-card.danger {
+      background: #EF476F;
+      border-color: #EF476F;
+      color: #fff;
+    }
+    .node-card.danger .node-text { color: #fff; }
+    .node-card.info {
+      background: #118AB2;
+      border-color: #118AB2;
+      color: #fff;
+    }
+    .node-card.info .node-text { color: #fff; }
+    .node-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: none;
+    }
+    .node-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+      line-height: 1.5;
+    }
+    .arrow {
+      width: 3px;
+      height: 24px;
+      background: #DDE2E8;
+      position: relative;
+    }
+    .arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #DDE2E8;
+    }
+    .arrow.right {
+      width: 24px;
+      height: 3px;
+      flex-shrink: 0;
+    }
+    .arrow.right::after {
+      bottom: 50%;
+      left: auto;
+      right: -6px;
+      transform: translateY(50%);
+      border-left: 8px solid #DDE2E8;
+      border-right: none;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+    .arrow.main { background: #FF8C42; }
+    .arrow.main::after { border-top-color: #FF8C42; }
+    .arrow.right.main::after { border-left-color: #FF8C42; }
+    .arrow.success { background: #06D6A0; }
+    .arrow.success::after { border-top-color: #06D6A0; }
+    .arrow.warning { background: #FFE066; }
+    .arrow.warning::after { border-top-color: #FFE066; }
+    .arrow.danger { background: #EF476F; }
+    .arrow.danger::after { border-top-color: #EF476F; }
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #666;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .color-main { background: #FF8C42; }
+    .color-success { background: #06D6A0; }
+    .color-warning { background: #FFE066; }
+    .color-danger { background: #EF476F; }
+    .color-info { background: #118AB2; }
+    .color-default { background: #fff; border-color: #DDE2E8; }
+    .description {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #888;
+      max-width: 600px;
+      line-height: 1.6;
+    }
+    .role-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    .role-elder { background: #FFF0F0; color: #E57373; }
+    .role-child { background: #F0FFF0; color: #66BB6A; }
+    .role-system { background: #F0F5FF; color: #64B5F6; }
+    .status-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+    .status-start { background: #FF8C42; color: #fff; }
+    .status-process { background: #118AB2; color: #fff; }
+    .status-end { background: #06D6A0; color: #fff; }
+    .status-alert { background: #EF476F; color: #fff; }
+    .status-monitor { background: #FFE066; color: #5D4037; }
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .section-title { font-size: 16px; }
+      .flow-row { gap: 12px; }
+      .node-card { padding: 12px 16px; min-width: 100px; }
+      .node-text { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>乐龄出行 - 功能流程图</h1>
+      <p>面向老年人的一站式出行解决方案</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">核心流程：语音一键出行</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card main">
+              <div class="node-text">按住麦克风说话</div>
+            </div>
+            <div class="role-badge role-elder">老人端</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card info">
+              <div class="node-text">语音识别与意图分析</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">智能规划出行方案</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card success">
+              <div class="node-text">生成行程结果卡片</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="description">老人只需按住麦克风说一句话（如"我要去医院"），系统自动识别意图、规划路线并生成行程卡片，无需任何复杂操作</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">三大快捷场景入口</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">回家</div>
+            </div>
+            <div class="role-badge role-elder">老人端</div>
+          </div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">就医</div>
+            </div>
+            <div class="role-badge role-elder">老人端</div>
+          </div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">常用车站</div>
+            </div>
+            <div class="role-badge role-elder">老人端</div>
+          </div>
+        </div>
+        <div class="arrow main"></div>
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card success">
+              <div class="node-text">一键直达目的地</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="description">首页预设三大常用场景大卡片，老人点一下即可直接生成对应行程，无需手动输入地址</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">子女远程协助流程</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card info">
+              <div class="node-text">子女端登录</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">绑定长辈账号</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">查看长辈行程</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card main">
+              <div class="node-text">远程帮订/叫车</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+          <div class="arrow right success"></div>
+          <div class="node">
+            <div class="node-card success">
+              <div class="node-text">行程同步至长辈端</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="description">子女绑定长辈账号后，可远程帮父母规划行程、预订车票、叫车，所有信息实时同步至老人端</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">智能安全监护流程</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card info">
+              <div class="node-text">实时位置追踪</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="arrow main"></div>
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card warning">
+              <div class="node-text">轨迹偏离检测<br>（>500米告警）</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card warning">
+              <div class="node-text">长时间静止检测<br>（>15分钟提醒）</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card warning">
+              <div class="node-text">超时未到检测</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card warning">
+              <div class="node-text">电量低检测<br>（<20%提醒）</div>
+            </div>
+          </div>
+        </div>
+        <div class="arrow main"></div>
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card danger">
+              <div class="node-text">触发异常告警</div>
+            </div>
+          </div>
+          <div class="arrow right danger"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">通知子女端</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+          <div class="arrow right success"></div>
+          <div class="node">
+            <div class="node-card success">
+              <div class="node-text">一键联系父母</div>
+            </div>
+            <div class="role-badge role-child">子女端</div>
+          </div>
+        </div>
+        <div class="description">系统实时监控老人出行状态，智能检测异常情况并及时通知子女，子女可一键联系父母确认安全</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">志愿者协助流程</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card danger">
+              <div class="node-text">老人发起求助</div>
+            </div>
+            <div class="role-badge role-elder">老人端</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">定位附近志愿者</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+          <div class="arrow right main"></div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">发送求助通知</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+          <div class="arrow right success"></div>
+          <div class="node">
+            <div class="node-card success">
+              <div class="node-text">志愿者接单协助</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="description">偏远地区老人叫不到车时，可一键发起求助，系统自动定位附近志愿者并通知协助</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">一站式出行服务聚合</div>
+      <div class="flowchart">
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card main">
+              <div class="node-text">乐龄出行小程序</div>
+            </div>
+            <div class="role-badge role-system">系统</div>
+          </div>
+        </div>
+        <div class="arrow main"></div>
+        <div class="flow-row">
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">火车票预订<br>（对接12306）</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">打车服务<br>（多平台聚合）</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">公交路线规划</div>
+            </div>
+          </div>
+          <div class="node">
+            <div class="node-card">
+              <div class="node-text">SOS紧急求助</div>
+            </div>
+          </div>
+        </div>
+        <div class="description">一个APP搞定所有出行需求，无需切换12306、滴滴、公交等多个软件，老人轻松上手</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color color-main"></div>
+          <span>核心操作/主流程</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color color-success"></div>
+          <span>成功完成</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color color-warning"></div>
+          <span>检测/预警</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color color-danger"></div>
+          <span>紧急/异常</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color color-info"></div>
+          <span>信息/系统</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color color-default"></div>
+          <span>普通节点</span>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="role-badge role-elder">老人端</span>
+          <span>老人操作界面</span>
+        </div>
+        <div class="legend-item">
+          <span class="role-badge role-child">子女端</span>
+          <span>子女操作界面</span>
+        </div>
+        <div class="legend-item">
+          <span class="role-badge role-system">系统</span>
+          <span>后台处理/自动执行</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header" style="margin-top: 40px;">
+      <h1 style="font-size: 24px;">产品完成度：100%</h1>
+      <p style="font-size: 15px; color: #06D6A0; font-weight: 500; margin-top: 8px;">所有核心功能均已实现，老人端+子女端完整闭环</p>
+    </div>
+  </div>
+</body>
+</html>

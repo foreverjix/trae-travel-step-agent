@@ -1,114 +1,116 @@
-<view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">打车服务</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">城区、乡镇、偏远地区都能叫到车</text>
+<!-- 打车服务 - 沉浸式大卡片UI -->
+<view class="page">
+  <!-- 顶部安心栏 -->
+  <view class="top-bar">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="reassure">
+      <text class="reassure-text">点错了也没关系，可随时取消</text>
+    </view>
   </view>
 
-  <view class="address-card">
-    <view class="address-row">
-      <view class="address-dot start"></view>
-      <view class="address-info">
-        <text class="address-label">出发地</text>
-        <input class="address-input" placeholder="请输入出发地点" value="{{from}}" bindinput="onFromInput" />
+  <!-- 温馨提示条 -->
+  <view class="guide-bar">
+    <text class="guide-text">📌 不会操作？点右下角蓝色AI按钮，说话就行</text>
+  </view>
+
+  <!-- 出发/目的卡片 -->
+  <view class="route-card">
+    <!-- 出发地 -->
+    <view class="route-row {{highlightFields['出发地'] ? 'ai-highlight' : ''}}" wx:if="{{role === 'elder'}}">
+      <view class="route-dot from-dot"></view>
+      <view class="route-main">
+        <text class="route-label">当前位置</text>
+        <block wx:if="{{from}}">
+          <text class="route-value">{{from}}</text>
+        </block>
+        <block wx:else>
+          <text class="route-value placeholder">正在定位…</text>
+        </block>
       </view>
-      <view class="location-btn" bindtap="useCurrentLocation">
-        <text>📍</text>
+      <view class="loc-btn" bindtap="useCurrentLocation">
+        <text class="loc-text">刷新</text>
       </view>
     </view>
-    <view class="address-divider"></view>
-    <view class="address-row">
-      <view class="address-dot end"></view>
-      <view class="address-info">
-        <text class="address-label">目的地</text>
-        <input class="address-input" placeholder="请输入目的地" value="{{to}}" bindinput="onToInput" />
+
+    <!-- 子女端出发地 -->
+    <view class="route-row {{highlightFields['出发地'] ? 'ai-highlight' : ''}}" wx:else>
+      <view class="route-dot from-dot"></view>
+      <view class="route-main">
+        <text class="route-label">父母位置</text>
+        <text class="route-value {{from ? '' : 'placeholder'}}">{{from || '点右侧获取父母位置'}}</text>
+      </view>
+      <view class="loc-btn" bindtap="useCurrentLocation">
+        <text class="loc-text">获取位置</text>
       </view>
     </view>
-  </view>
 
-  <view class="area-tabs">
-    <view class="area-tab {{area === 'city' ? 'active' : ''}}" bindtap="switchArea" data-area="city">
-      <text class="area-icon">🏙️</text>
-      <text class="area-text">城区</text>
-    </view>
-    <view class="area-tab {{area === 'town' ? 'active' : ''}}" bindtap="switchArea" data-area="town">
-      <text class="area-icon">🏡</text>
-      <text class="area-text">乡镇</text>
-    </view>
-    <view class="area-tab {{area === 'remote' ? 'active' : ''}}" bindtap="switchArea" data-area="remote">
-      <text class="area-icon">🌄</text>
-      <text class="area-text">偏远地区</text>
-    </view>
-  </view>
+    <view class="route-line"></view>
 
-  <view class="estimate-card">
-    <view class="estimate-item">
-      <text class="estimate-label">距离</text>
-      <text class="estimate-value">{{distance}}公里</text>
-    </view>
-    <view class="estimate-item">
-      <text class="estimate-label">时间</text>
-      <text class="estimate-value">{{duration}}</text>
-    </view>
-    <view class="estimate-item">
-      <text class="estimate-label">费用</text>
-      <text class="estimate-value price">¥{{price}}</text>
-    </view>
-  </view>
-
-  <view class="driver-section card" wx:if="{{area !== 'remote'}}">
-    <text class="card-title">附近司机</text>
-    <view class="driver-list">
-      <view class="driver-item" wx:for="{{drivers}}" wx:key="id">
-        <view class="driver-avatar">👨‍✈️</view>
-        <view class="driver-info">
-          <view class="driver-name-row">
-            <text class="driver-name">{{item.name}}</text>
-            <view class="driver-rating">
-              <text class="star">★</text>
-              <text class="rating-value">{{item.rating}}</text>
-            </view>
-          </view>
-          <text class="driver-trips">已完成{{item.trips}}单</text>
-        </view>
-        <view class="driver-distance">{{item.distance}}公里</view>
+    <!-- 目的地 -->
+    <view class="route-row {{highlightFields['目的地'] ? 'ai-highlight' : ''}}">
+      <view class="route-dot to-dot"></view>
+      <view class="route-main">
+        <text class="route-label">目的地</text>
+        <input class="route-input" placeholder="要去哪里？" placeholder-class="ph-style" value="{{to}}" bindinput="onToInput" />
       </view>
     </view>
   </view>
 
-  <view class="remote-section card" wx:if="{{area === 'remote'}}">
-    <view class="remote-notice">
-      <text class="remote-icon">📞</text>
-      <view class="remote-text">
-        <text class="remote-title">偏远地区用车调度</text>
-        <text class="remote-desc">车辆较少，我们将电话为您联系附近的营运车辆</text>
+  <!-- 预估卡片 -->
+  <view class="estimate-card" wx:if="{{distance > 0}}">
+    <view class="est-main">
+      <view class="est-item">
+        <text class="est-num">{{distance}}</text>
+        <text class="est-unit">公里</text>
+      </view>
+      <view class="est-divider"></view>
+      <view class="est-item">
+        <text class="est-num">{{duration}}</text>
+        <text class="est-unit">到达</text>
+      </view>
+      <view class="est-divider"></view>
+      <view class="est-item price-item">
+        <text class="est-price-sym">¥</text>
+        <text class="est-price-num">{{price}}</text>
+        <text class="est-unit">预估</text>
       </view>
     </view>
-    <view class="remote-form">
-      <view class="form-item">
-        <text class="form-label">联系电话</text>
-        <input class="form-input" placeholder="请输入联系电话" value="{{phone}}" bindinput="onPhoneInput" />
+    <text class="est-hint">价格仅供参考，实际多退少补</text>
+  </view>
+
+  <!-- 叫车按钮 -->
+  <view class="call-btn {{!from || !to ? 'disabled' : ''}}" bindtap="callTaxi">
+    <text class="call-text">叫车</text>
+    <text class="call-sub" wx:if="{{price > 0}}">预估¥{{price}} · 可随时取消</text>
+    <text class="call-sub" wx:else>请先填写地址</text>
+  </view>
+
+  <!-- 快捷建议 -->
+  <view class="quick-section" wx:if="{{!from || !to}}">
+    <text class="quick-title">常用目的地</text>
+    <view class="quick-grid">
+      <view class="quick-item" bindtap="setQuickTo" data-to="省人民医院">
+        <text class="quick-emoji">🏥</text>
+        <text class="quick-label">去医院</text>
       </view>
-      <view class="form-item">
-        <text class="form-label">用车时间</text>
-        <input class="form-input" placeholder="请选择用车时间" value="{{time}}" bindtap="showTimePicker" />
+      <view class="quick-item" bindtap="setQuickTo" data-to="家">
+        <text class="quick-emoji">🏠</text>
+        <text class="quick-label">回家</text>
       </view>
-      <view class="form-item">
-        <text class="form-label">乘客人数</text>
-        <input class="form-input" placeholder="请输入乘客人数" value="{{passengers}}" bindinput="onPassengersInput" />
+      <view class="quick-item" bindtap="setQuickTo" data-to="太原南站">
+        <text class="quick-emoji">🚄</text>
+        <text class="quick-label">去车站</text>
+      </view>
+      <view class="quick-item" bindtap="setQuickTo" data-to="机场">
+        <text class="quick-emoji">✈️</text>
+        <text class="quick-label">去机场</text>
       </view>
     </view>
   </view>
 
-  <view class="safety-tip">
-    <text class="safety-tip-icon">💡</text>
-    <text class="safety-tip-text">上车前请核对车牌号码，系好安全带</text>
-  </view>
-
-  <view class="footer-bar">
-    <view class="btn-primary footer-btn" bindtap="callTaxi">
-      {{area === 'remote' ? '立即预约调度' : '立即呼叫'}}
-    </view>
-  </view>
-
+  <view style="height: 220rpx;"></view>
   <custom-tabbar current-path="/pages/taxi/taxi"></custom-tabbar>
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

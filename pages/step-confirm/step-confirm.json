@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "分步确认",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "ai-assistant": "/components/ai-assistant/ai-assistant"
+  }
 }

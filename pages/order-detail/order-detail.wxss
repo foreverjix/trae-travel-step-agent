@@ -1,540 +1,961 @@
-.status-bar {
-  padding: 48rpx 40rpx;
-  text-align: center;
-  color: #ffffff;
-  border-radius: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 24rpx rgba(255, 140, 66, 0.25);
+/* ===== 行程详情页 - 温暖橙色主题 ===== */
+page {
+  background: linear-gradient(180deg, #F5F8FC 0%, #F8FAFE 40%, #F8FAFE 100%);
+  min-height: 100vh;
 }
 
-.status-icon-ring {
-  width: 120rpx;
-  height: 120rpx;
-  background: rgba(255, 255, 255, 0.25);
+.container {
+  padding: 0 24rpx 180rpx;
+  min-height: 100vh;
+}
+
+/* ===== 自定义顶部导航栏 ===== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top) + 44rpx) 32rpx 48rpx;
+  background: linear-gradient(135deg, #7BA8F0 0%, #5B8DEF 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: -60rpx;
+  right: -50rpx;
+  width: 200rpx;
+  height: 200rpx;
+  background: rgba(255,255,255,0.12);
+  border-radius: 50%;
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -40rpx;
+  left: -30rpx;
+  width: 140rpx;
+  height: 140rpx;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+
+.header-back {
+  width: 60rpx;
+  height: 60rpx;
+  background: rgba(255,255,255,0.22);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  margin-left: 16rpx;
+  z-index: 1;
+  backdrop-filter: blur(10rpx);
 }
 
-.status-icon {
-  font-size: 64rpx;
+.back-icon {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -4rpx;
 }
 
-.status-text {
-  font-size: 40rpx;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 8rpx;
+.header-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  z-index: 1;
+  letter-spacing: 2rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
 }
 
-.status-time {
-  font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.9);
-  display: block;
+.header-placeholder {
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: 16rpx;
+  z-index: 1;
 }
 
-/* 车票大卡片 */
-.ticket-big-card {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 36rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
-  border: 2rpx solid #FFE9D6;
+/* ===== 车票/打车大卡片 ===== */
+.ticket-big-card,
+.taxi-big-card {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFAF6 100%);
+  border-radius: 32rpx;
+  padding: 36rpx 32rpx 40rpx;
+  margin-bottom: 28rpx;
+  box-shadow:
+    0 16rpx 48rpx rgba(91, 141, 239, 0.18),
+    0 4rpx 12rpx rgba(91, 141, 239, 0.08);
+  border: 2rpx solid rgba(91, 141, 239, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
+.card-decor {
+  position: absolute;
+  border-radius: 50%;
+  z-index: 0;
+  opacity: 0.5;
+}
+.decor-1 {
+  top: -40rpx;
+  right: -40rpx;
+  width: 160rpx;
+  height: 160rpx;
+  background: radial-gradient(circle, rgba(255,200,180,0.5) 0%, transparent 70%);
+}
+.decor-2 {
+  bottom: -30rpx;
+  left: -20rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background: radial-gradient(circle, rgba(255,230,210,0.6) 0%, transparent 70%);
+}
+
+/* --- 车票头部 --- */
 .ticket-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 28rpx;
+  justify-content: space-between;
+  margin-bottom: 36rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.ticket-type-wrap {
+  display: flex;
+  align-items: center;
 }
 
 .ticket-type {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  padding: 14rpx 32rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 6rpx 20rpx rgba(91, 141, 239, 0.35);
+}
+
+.ticket-status {
   font-size: 28rpx;
-  color: #FF8C42;
-  font-weight: bold;
-  background: rgba(255, 140, 66, 0.1);
-  padding: 8rpx 20rpx;
+  font-weight: 600;
+  padding: 10rpx 24rpx;
   border-radius: 20rpx;
 }
-
-.ticket-number {
-  font-size: 40rpx;
-  color: #2D3142;
-  font-weight: bold;
+.ticket-status.booked {
+  background: #EEF4FC;
+  color: #3A6BC4;
+  border: 2rpx solid #B5D0EC;
 }
 
-.ticket-stations {
+/* --- 车票主体：站-时间-箭头 --- */
+.ticket-main {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 32rpx;
+  position: relative;
+  z-index: 1;
 }
 
-.ticket-station {
-  text-align: center;
+.station-block {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
-
-.station-name {
-  font-size: 38rpx;
-  font-weight: bold;
-  color: #2D3142;
-  display: block;
-  margin-bottom: 8rpx;
+.station-block.to {
+  align-items: flex-end;
 }
 
 .station-time {
-  font-size: 30rpx;
-  color: #FF8C42;
-  display: block;
-  font-weight: bold;
+  font-size: 52rpx;
+  font-weight: 800;
+  color: #FF5722;
+  line-height: 1.2;
+  letter-spacing: 1rpx;
+  text-shadow: 0 2rpx 4rpx rgba(91, 141, 239, 0.1);
 }
 
-.ticket-arrow {
-  text-align: center;
-  padding: 0 20rpx;
+.station-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2C3E5A;
+  margin-top: 12rpx;
+  line-height: 1.3;
+}
+
+.train-arrow-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24rpx;
   flex-shrink: 0;
 }
 
+.arrow-train-icon {
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
+  animation: trainMove 2.5s ease-in-out infinite;
+}
+@keyframes trainMove {
+  0%, 100% { transform: translateX(-6rpx); }
+  50% { transform: translateX(6rpx); }
+}
+
+.arrow-line-wrap {
+  display: flex;
+  align-items: center;
+  margin: 6rpx 0;
+}
+
+.arrow-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+}
+.arrow-dot.left {
+  box-shadow: -2rpx 0 8rpx rgba(91, 141, 239, 0.4);
+}
+.arrow-dot.right {
+  box-shadow: 2rpx 0 8rpx rgba(91, 141, 239, 0.4);
+}
+
 .arrow-line {
-  font-size: 48rpx;
-  color: #FFB627;
-  display: block;
+  width: 100rpx;
+  height: 4rpx;
+  background: linear-gradient(90deg, #5B8DEF, #A5C3EA, #4A7AD9);
+  border-radius: 4rpx;
+  position: relative;
+  margin: 0 4rpx;
+}
+.arrow-line::after {
+  content: '';
+  position: absolute;
+  right: -2rpx;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10rpx solid #4A7AD9;
+  border-top: 8rpx solid transparent;
+  border-bottom: 8rpx solid transparent;
 }
 
 .arrow-duration {
   font-size: 24rpx;
-  color: #6B7280;
-  display: block;
+  color: #7A8BA0;
+  font-weight: 500;
+  margin-top: 6rpx;
+  background: #EEF4FC;
+  padding: 4rpx 16rpx;
+  border-radius: 16rpx;
 }
 
+/* --- 车次行 --- */
+.ticket-no-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  background: linear-gradient(90deg, #F2F6FC, #F8FAFE);
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid rgba(91, 141, 239, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.ticket-no-label {
+  font-size: 28rpx;
+  color: #7A8BA0;
+  margin-right: 20rpx;
+  font-weight: 500;
+}
+
+.ticket-no-value {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #2C3E5A;
+  letter-spacing: 2rpx;
+}
+
+/* --- 座位/检票口 区 --- */
 .ticket-seat {
   display: flex;
-  justify-content: center;
-  gap: 24rpx;
-  padding-top: 24rpx;
-  border-top: 2rpx dashed #FFE9D6;
-}
-
-.seat-box, .platform-box, .carriage-box {
-  background: #FFF9F2;
-  border-radius: 16rpx;
-  padding: 16rpx 28rpx;
-  text-align: center;
-  min-width: 120rpx;
+  gap: 20rpx;
+  flex-wrap: wrap;
+  margin-bottom: 24rpx;
+  position: relative;
+  z-index: 1;
 }
 
 .seat-box {
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
+  flex: 1;
+  min-width: 180rpx;
+  background: linear-gradient(180deg, #FFFFFF, #F2F6FC);
+  border: 2rpx solid rgba(91, 141, 239, 0.18);
+  border-radius: 20rpx;
+  padding: 24rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(91, 141, 239, 0.08);
 }
 
-.seat-label, .platform-label, .carriage-label {
-  font-size: 22rpx;
-  color: #9A5B2E;
-  display: block;
-  margin-bottom: 4rpx;
+.seat-box.seat-main {
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  border: none;
+  box-shadow: 0 8rpx 28rpx rgba(91, 141, 239, 0.35);
 }
 
-.seat-box .seat-label {
-  color: rgba(255, 255, 255, 0.9);
+.seat-icon {
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
 }
 
-.seat-value, .platform-value, .carriage-value {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #2D3142;
-  display: block;
+.seat-label {
+  font-size: 24rpx;
+  color: #7A8BA0;
+  margin-bottom: 6rpx;
+  font-weight: 500;
+}
+.seat-main .seat-label {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.seat-box .seat-value {
-  color: #ffffff;
+.seat-value {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #2C3E5A;
+  line-height: 1.2;
+}
+.seat-main .seat-value {
+  color: #FFFFFF;
+  text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.1);
 }
 
-/* 网约车大卡片 */
-.taxi-big-card {
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
-  border-radius: 28rpx;
-  padding: 36rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 12rpx 32rpx rgba(255, 140, 66, 0.25);
-  text-align: center;
+/* --- 卡片底部剪切线 --- */
+.ticket-cut-line {
+  display: flex;
+  align-items: center;
+  margin: 8rpx -32rpx -40rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.cut-dot {
+  width: 36rpx;
+  height: 36rpx;
+  background: linear-gradient(180deg, #F8FAFE, #F5F8FC);
+  border-radius: 50%;
+}
+.cut-dot.left {
+  margin-left: -18rpx;
+}
+.cut-dot.right {
+  margin-right: -18rpx;
+}
+
+.cut-dashes {
+  flex: 1;
+  height: 0;
+  border-top: 4rpx dashed #B5D0EC;
+  margin: 0 8rpx;
+}
+
+/* ===== 打车卡片 ===== */
+.taxi-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.taxi-big-icon {
+  font-size: 80rpx;
+  filter: drop-shadow(0 6rpx 16rpx rgba(91, 141, 239, 0.3));
 }
 
 .taxi-status {
-  margin-bottom: 16rpx;
+  padding: 14rpx 28rpx;
+  border-radius: 28rpx;
 }
-
+.taxi-status.booked {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  box-shadow: 0 6rpx 20rpx rgba(76, 175, 80, 0.3);
+}
+.taxi-status.onway {
+  background: linear-gradient(135deg, #42A5F5, #1E88E5);
+  box-shadow: 0 6rpx 20rpx rgba(33, 150, 243, 0.3);
+}
 .taxi-status-text {
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  display: inline-block;
+  font-weight: 700;
+  color: #FFFFFF;
 }
 
-.taxi-plate {
-  margin-bottom: 16rpx;
+.plate-box {
+  background: linear-gradient(135deg, #2196F3, #1565C0);
+  padding: 28rpx 32rpx;
+  border-radius: 20rpx;
+  margin-bottom: 28rpx;
+  text-align: center;
+  box-shadow: 0 10rpx 28rpx rgba(33, 150, 243, 0.25);
+  position: relative;
+  z-index: 1;
 }
 
 .taxi-plate .plate-label {
   font-size: 26rpx;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255,255,255,0.85);
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 10rpx;
+  font-weight: 500;
 }
 
 .taxi-plate .plate-value {
-  font-size: 56rpx;
-  font-weight: bold;
-  color: #ffffff;
-  display: block;
-  letter-spacing: 6rpx;
+  font-size: 64rpx;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 10rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.15);
+}
+
+.taxi-route {
+  background: linear-gradient(180deg, #F2F6FC, #F8FAFE);
+  border: 2rpx solid rgba(91, 141, 239, 0.12);
+  border-radius: 20rpx;
+  padding: 24rpx 28rpx;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.route-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 16rpx;
+  vertical-align: middle;
+}
+.route-dot.start {
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  box-shadow: 0 0 0 6rpx rgba(91, 141, 239, 0.15);
+}
+.route-dot.end {
+  background: linear-gradient(135deg, #7A8BA0, #4A5568);
+  box-shadow: 0 0 0 6rpx rgba(141, 110, 99, 0.15);
+}
+
+.route-arrow-down {
+  font-size: 30rpx;
+  color: #5B8DEF;
+  text-align: center;
+  margin: 12rpx 0 12rpx 36rpx;
+  font-weight: 700;
 }
 
 .taxi-route-text {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #2C3E5A;
+  vertical-align: middle;
+  line-height: 1.6;
 }
 
-.driver-plate {
-  font-size: 30rpx;
-  color: #FF8C42;
-  font-weight: bold;
-  display: block;
-  margin-top: 8rpx;
-}
-
-.order-info-card {
-  background: #ffffff;
+/* ===== 通用信息卡片 ===== */
+.info-card {
+  background: #FFFFFF;
   border-radius: 28rpx;
-  padding: 28rpx;
+  padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  box-shadow:
+    0 8rpx 32rpx rgba(91, 141, 239, 0.10),
+    0 2rpx 8rpx rgba(91, 141, 239, 0.04);
+  border: 2rpx solid rgba(91, 141, 239, 0.08);
 }
 
-.order-id-row {
+.info-card-title {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
+  align-items: center;
+  margin-bottom: 24rpx;
   padding-bottom: 20rpx;
-  border-bottom: 1rpx solid #F9FAFB;
+  border-bottom: 2rpx solid #EEF4FC;
 }
 
-.order-id-label {
-  font-size: 28rpx;
-  color: #6B7280;
-}
-
-.order-id-value {
-  font-size: 28rpx;
-  color: #2D3142;
-  font-family: monospace;
-  font-weight: bold;
-}
-
-.order-type-row {
-  display: flex;
-  align-items: center;
-}
-
-.order-icon-box {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.title-bar {
+  width: 8rpx;
+  height: 36rpx;
+  background: linear-gradient(180deg, #5B8DEF, #4A7AD9);
+  border-radius: 8rpx;
   margin-right: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(91, 141, 239, 0.3);
 }
 
-.order-icon-box.train-bg {
-  background: #FFF2E6;
-}
-
-.order-icon-box.bus-bg {
-  background: #E6FAF4;
-}
-
-.order-icon-box.taxi-bg {
-  background: #FFF4E0;
-}
-
-.order-type-icon {
-  font-size: 40rpx;
-}
-
-.order-type-text {
+.title-text {
   font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
+  font-weight: 800;
+  color: #2C3E5A;
+  letter-spacing: 1rpx;
 }
 
-.route-card {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
-}
-
-.route-header {
-  margin-bottom: 24rpx;
-}
-
-.route-title {
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
-}
-
-.route-content {
-  position: relative;
-  padding-left: 44rpx;
-}
-
-.route-point {
+.info-row {
   display: flex;
-  align-items: flex-start;
-  margin-bottom: 20rpx;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
 }
 
-.route-point:last-child {
-  margin-bottom: 0;
-}
-
-.point-dot {
-  width: 24rpx;
-  height: 24rpx;
-  border-radius: 50%;
-  margin-right: 20rpx;
+.info-label {
+  font-size: 28rpx;
+  color: #7A8BA0;
+  font-weight: 500;
   flex-shrink: 0;
 }
 
-.point-dot.start {
-  background: #FF8C42;
-  box-shadow: 0 0 0 8rpx rgba(255, 140, 66, 0.2);
+.info-label-big {
+  font-size: 30rpx;
+  color: #7A8BA0;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
-.point-dot.end {
-  background: #06D6A0;
-  box-shadow: 0 0 0 8rpx rgba(6, 214, 160, 0.2);
-}
-
-.point-info {
+.info-value {
+  font-size: 30rpx;
+  color: #2C3E5A;
+  font-weight: 600;
+  text-align: right;
   flex: 1;
+  margin-left: 20rpx;
+  line-height: 1.4;
 }
 
-.point-station {
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
-  display: block;
-  margin-bottom: 6rpx;
+.info-value.mono {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1rpx;
 }
 
-.point-time {
-  font-size: 28rpx;
-  color: #6B7280;
+.info-value.phone {
+  color: #1976D2;
+  font-size: 32rpx;
 }
 
-.route-line {
-  position: absolute;
-  left: 34rpx;
-  top: 44rpx;
-  width: 4rpx;
-  height: calc(100% - 88rpx);
-  background: linear-gradient(180deg, #FF8C42 0%, #FFB627 100%);
-}
-
-.route-meta {
-  display: flex;
-  justify-content: center;
-  gap: 32rpx;
-  margin-top: 24rpx;
-  padding-top: 24rpx;
-  border-top: 1rpx solid #F3E5D8;
-}
-
-.route-meta .meta-item {
-  font-size: 28rpx;
-  color: #6B7280;
-  background: #FFF9F2;
-  padding: 12rpx 24rpx;
+.info-value.tag-orange {
+  background: linear-gradient(135deg, #D0E0F5, #B5D0EC);
+  color: #3A6BC4;
+  padding: 8rpx 20rpx;
   border-radius: 20rpx;
+  font-size: 26rpx;
 }
 
-.detail-card {
-  background: #ffffff;
+.info-value.tag-plate {
+  background: linear-gradient(135deg, #2196F3, #1565C0);
+  color: #FFFFFF;
+  padding: 10rpx 24rpx;
+  border-radius: 12rpx;
+  font-weight: 800;
+  letter-spacing: 4rpx;
+  font-size: 30rpx;
+}
+
+.total-row {
+  margin-top: 8rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx dashed #D0E0F5;
+}
+
+.price-big {
+  font-size: 48rpx;
+  font-weight: 900;
+  color: #FF5722;
+  text-shadow: 0 2rpx 4rpx rgba(91, 141, 239, 0.1);
+}
+
+.pay-tag-row {
+  margin-top: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pay-tag {
+  background: linear-gradient(135deg, #FF80AB, #EC407A);
+  color: #FFFFFF;
+  font-size: 26rpx;
+  font-weight: 600;
+  padding: 10rpx 24rpx;
   border-radius: 28rpx;
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  box-shadow: 0 4rpx 16rpx rgba(236, 64, 122, 0.25);
 }
 
-.detail-header {
+/* --- 司机子卡片 --- */
+.driver-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #F2F6FC, #F8FAFE);
+  border: 2rpx solid rgba(91, 141, 239, 0.12);
+  border-radius: 20rpx;
+  padding: 24rpx;
   margin-bottom: 20rpx;
 }
 
-.detail-title {
-  font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
-}
-
-.detail-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 18rpx 0;
-  border-bottom: 1rpx solid #F9FAFB;
-}
-
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-row.total {
-  padding-top: 20rpx;
-  border-top: 2rpx solid #F3E5D8;
-}
-
-.detail-label {
-  font-size: 30rpx;
-  color: #6B7280;
-}
-
-.detail-value {
-  font-size: 30rpx;
-  color: #2D3142;
-  font-weight: bold;
-}
-
-.detail-value.price {
-  color: #FF8C42;
-  font-size: 40rpx;
-}
-
-.driver-info {
-  display: flex;
-  align-items: center;
-}
-
 .driver-avatar {
-  width: 96rpx;
-  height: 96rpx;
-  background: #FFF2E6;
+  width: 100rpx;
+  height: 100rpx;
   border-radius: 50%;
+  background: linear-gradient(135deg, #B5D0EC, #A5C3EA);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4rpx 16rpx rgba(91, 141, 239, 0.2);
+  flex-shrink: 0;
   margin-right: 20rpx;
 }
 
 .avatar-icon {
-  font-size: 52rpx;
+  font-size: 56rpx;
 }
 
-.driver-details {
+.driver-detail {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.driver-name {
+.driver-name-big {
   font-size: 34rpx;
-  font-weight: bold;
-  color: #2D3142;
-  display: block;
+  font-weight: 800;
+  color: #2C3E5A;
   margin-bottom: 6rpx;
 }
 
-.driver-phone {
-  font-size: 28rpx;
-  color: #6B7280;
+.driver-star {
+  font-size: 26rpx;
+  color: #FF8F00;
+  font-weight: 600;
 }
 
-.driver-call {
-  width: 80rpx;
-  height: 80rpx;
-  background: linear-gradient(135deg, #FF8C42 0%, #FFB627 100%);
-  border-radius: 50%;
+.driver-call-btn {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  padding: 16rpx 24rpx;
+  border-radius: 32rpx;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 36rpx;
-  box-shadow: 0 8rpx 20rpx rgba(255, 140, 66, 0.25);
+  flex-shrink: 0;
+  box-shadow: 0 6rpx 20rpx rgba(76, 175, 80, 0.3);
 }
 
-.footer-actions {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  padding: 24rpx;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 24rpx);
-  box-shadow: 0 -8rpx 24rpx rgba(255, 140, 66, 0.1);
+.call-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.call-btn-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* ===== 核心操作区 - 快捷操作 ===== */
+.action-center-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF9F3 100%);
+  border-radius: 32rpx;
+  padding: 36rpx 32rpx;
+  margin-bottom: 28rpx;
+  box-shadow:
+    0 10rpx 40rpx rgba(91, 141, 239, 0.12),
+    inset 0 2rpx 4rpx rgba(255, 255, 255, 0.9);
+  border: 3rpx solid rgba(255, 138, 101, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-center-card::before {
+  content: '';
+  position: absolute;
+  top: -80rpx;
+  right: -80rpx;
+  width: 200rpx;
+  height: 200rpx;
+  background: linear-gradient(135deg, rgba(255, 138, 101, 0.15), rgba(255, 179, 71, 0.1));
+  border-radius: 50%;
+  filter: blur(20rpx);
+}
+
+.action-card-title {
   display: flex;
+  align-items: center;
+  margin-bottom: 28rpx;
+  position: relative;
+  z-index: 1;
+}
+
+.action-card-title .title-bar {
+  width: 8rpx;
+  height: 36rpx;
+  background: linear-gradient(180deg, #5B8DEF, #4A7AD9);
+  border-radius: 4rpx;
+  margin-right: 16rpx;
+}
+
+.action-card-title .title-text {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #2D3142;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 20rpx;
-  z-index: 100;
+  position: relative;
+  z-index: 1;
 }
 
-.footer-actions .btn-secondary,
-.footer-actions .btn-primary {
-  flex: 1;
-}
-
-/* 保存行程卡片 */
-.save-card-section {
-  padding: 0 32rpx 32rpx;
-  margin-bottom: 160rpx;
-}
-
-.save-card-btn {
-  background: linear-gradient(135deg, #06D6A0 0%, #0EAD7A 100%);
-  border-radius: 28rpx;
-  padding: 32rpx;
+.action-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 12rpx 32rpx rgba(6, 214, 160, 0.25);
+  padding: 24rpx 12rpx;
+  background: linear-gradient(180deg, #F5F8FC 0%, #FFFFFF 100%);
+  border-radius: 24rpx;
+  border: 2rpx solid rgba(255, 138, 101, 0.2);
+  transition: all 0.3s ease;
 }
 
-.save-card-btn:active {
+.action-item:active {
+  transform: scale(0.95);
+  background: linear-gradient(180deg, #FFE4D6 0%, #F5F8FC 100%);
+}
+
+.action-item.action-primary {
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(91, 141, 239, 0.35);
+}
+
+.action-item.action-primary .action-label,
+.action-item.action-primary .action-desc {
+  color: #FFFFFF;
+}
+
+.action-item.action-voice {
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+  border: 2rpx solid #66BB6A;
+}
+
+.action-item.action-voice.playing {
+  background: linear-gradient(135deg, #FFEBEE, #E8F0FA);
+  border: 2rpx solid #EF5350;
+}
+
+.action-item.action-call {
+  background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+  border: 2rpx solid #42A5F5;
+}
+
+.action-icon-wrap {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7BA8F0, #5B8DEF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14rpx;
+  box-shadow: 0 6rpx 20rpx rgba(91, 141, 239, 0.3);
+}
+
+.action-item.action-primary .action-icon-wrap {
+  background: linear-gradient(135deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  box-shadow: 0 6rpx 20rpx rgba(255, 255, 255, 0.2);
+}
+
+.action-item.action-voice .action-icon-wrap {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  box-shadow: 0 6rpx 20rpx rgba(76, 175, 80, 0.3);
+}
+
+.action-item.action-voice.playing .action-icon-wrap {
+  background: linear-gradient(135deg, #EF5350, #E53935);
+  box-shadow: 0 6rpx 20rpx rgba(239, 83, 80, 0.3);
+  animation: pulse 1s infinite;
+}
+
+.action-item.action-call .action-icon-wrap {
+  background: linear-gradient(135deg, #42A5F5, #1E88E5);
+  box-shadow: 0 6rpx 20rpx rgba(66, 165, 245, 0.3);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.action-emoji {
+  font-size: 40rpx;
+}
+
+.action-label {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #2D3142;
+  margin-bottom: 6rpx;
+  text-align: center;
+}
+
+.action-desc {
+  font-size: 22rpx;
+  color: #9A5B2E;
+  text-align: center;
+}
+
+/* ===== 检票乘车操作 ===== */
+.action-ticket-row {
+  margin-bottom: 28rpx;
+}
+
+.action-ticket-btn {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #7BA8F0 0%, #5B8DEF 100%);
+  padding: 32rpx 28rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 10rpx 32rpx rgba(91, 141, 239, 0.3);
+  border: 3rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.ticket-btn-emoji {
+  font-size: 56rpx;
+  margin-right: 24rpx;
+}
+
+.ticket-btn-text-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ticket-btn-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 6rpx;
+}
+
+.ticket-btn-desc {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ticket-btn-arrow {
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 300;
+}
+
+/* ===== 实用功能区 ===== */
+.util-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF9F3 100%);
+}
+
+.util-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.util-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 16rpx;
+  background: linear-gradient(180deg, #F5F8FC 0%, #FFFFFF 100%);
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(255, 138, 101, 0.15);
+  transition: all 0.2s ease;
+}
+
+.util-item:active {
+  background: linear-gradient(180deg, #FFE4D6 0%, #F5F8FC 100%);
   transform: scale(0.98);
 }
 
-.save-card-icon {
-  font-size: 48rpx;
-  margin-bottom: 12rpx;
+.util-emoji {
+  font-size: 40rpx;
+  margin-right: 20rpx;
 }
 
-.save-card-text {
-  font-size: 34rpx;
-  color: #ffffff;
-  font-weight: bold;
-  display: block;
-  margin-bottom: 8rpx;
+.util-label {
+  flex: 1;
+  font-size: 30rpx;
+  color: #2D3142;
+  font-weight: 600;
 }
 
-.save-card-hint {
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.85);
-  display: block;
+.util-arrow {
+  font-size: 36rpx;
+  color: #CCCCCC;
+  font-weight: 300;
 }
 
-.trip-card-canvas {
+/* ===== 底部操作按钮 ===== */
+.footer-actions {
   position: fixed;
-  left: -9999px;
-  top: -9999px;
-  width: 750px;
-  height: 1000px;
+  left: 0;
+  right: 0;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  padding: 20rpx 24rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 247, 0) 0%, #F8FAFE 20%, #F8FAFE 100%);
+  display: flex;
+  gap: 20rpx;
+  z-index: 10;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  min-height: 96rpx;
+  border-radius: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  color: #FFFFFF;
+  box-shadow:
+    0 10rpx 32rpx rgba(91, 141, 239, 0.4),
+    inset 0 -4rpx 12rpx rgba(0,0,0,0.08);
+  border: none;
+}
+
+.btn-primary.success {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
+  box-shadow: 0 10rpx 32rpx rgba(76, 175, 80, 0.35);
+}
+
+.btn-secondary {
+  background: #FFFFFF;
+  color: #FF5722;
+  border: 3rpx solid #5B8DEF;
+  box-shadow: 0 6rpx 20rpx rgba(91, 141, 239, 0.12);
+}
+
+.btn-icon {
+  margin-right: 12rpx;
+  font-size: 36rpx;
 }

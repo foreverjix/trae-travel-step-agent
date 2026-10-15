@@ -1,0 +1,98 @@
+<view class="vg-page">
+
+  <!-- 行程信息区（从上游页面传进来） -->
+  <view class="vg-trip-card" wx:if="{{tripContext}}">
+    <view class="vg-trip-title" wx:if="{{tripContext.trainNo || tripContext.flightNo || tripContext.title}}">
+      {{tripContext.trainNo || tripContext.flightNo || tripContext.title}}
+    </view>
+    <view class="vg-trip-line" wx:if="{{tripContext.from || tripContext.to}}">
+      <text class="vg-trip-city">{{tripContext.from || '—'}}</text>
+      <text class="vg-trip-arrow">→</text>
+      <text class="vg-trip-city">{{tripContext.to || '—'}}</text>
+    </view>
+    <view class="vg-trip-meta" wx:if="{{tripContext.departTime || tripContext.time || tripContext.gate}}">
+      <text wx:if="{{tripContext.departTime || tripContext.time}}">{{tripContext.departTime || tripContext.time}}</text>
+      <text wx:if="{{tripContext.departTime && tripContext.gate}}"> · </text>
+      <text wx:if="{{tripContext.gate}}">{{tripContext.gate}}</text>
+    </view>
+  </view>
+
+  <view class="vg-trip-none" wx:else>
+    <text class="vg-trip-none-text">暂未关联行程</text>
+    <text class="vg-trip-none-sub">也可以直接拍照问我</text>
+  </view>
+
+  <!-- 拍照预览 -->
+  <view class="vg-photo-box" wx:if="{{photoPath}}">
+    <image class="vg-photo" src="{{photoPath}}" mode="aspectFill"></image>
+  </view>
+  <view class="vg-photo-empty" wx:else>
+    <text class="vg-photo-empty-icon">📷</text>
+    <text class="vg-photo-empty-text">还没拍照</text>
+    <text class="vg-photo-empty-sub">点下面大按钮，对准前方大牌子</text>
+  </view>
+
+  <!-- 巨无霸拍照按钮 -->
+  <view class="vg-bottom">
+    <view class="vg-btn vg-btn-primary vg-btn-main {{loading ? 'vg-btn-disabled' : ''}}" bindtap="takePhotoAndAsk">
+      <view class="vg-btn-main-inner">
+        <text class="vg-btn-main-icon">📷</text>
+        <view class="vg-btn-main-texts">
+          <text class="vg-btn-main-title">{{loading ? '正在问路，请稍等...' : '拍一下，问问路'}}</text>
+          <text class="vg-btn-main-sub">举起手机对准前面通道 / 大牌子就行</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="vg-tip-row">
+      <text class="vg-tip">💡 提示：不用拍得特别清楚，对准方向就行</text>
+    </view>
+  </view>
+
+  <!-- 大字回答弹窗 -->
+  <view class="vg-mask" wx:if="{{showAnswer}}" catchtap="closeAnswer">
+    <view class="vg-answer-card" catchtap="stopBubble">
+
+      <view class="vg-answer-header" wx:if="{{parsedAnswer && !parsedAnswer.unclear}}">
+        <text class="vg-answer-title">👵 小助给您指路</text>
+      </view>
+      <view class="vg-answer-header" wx:else>
+        <text class="vg-answer-title">🤔 没看清楚</text>
+      </view>
+
+      <view class="vg-retry-row" wx:if="{{parsedAnswer && parsedAnswer.unclear}}">
+        <text class="vg-retry-text">没看清画面，您把手机对准前面的大牌子或通道方向，举高一点再拍一张，好吗？</text>
+      </view>
+
+      <view class="vg-sections" wx:else>
+        <view class="vg-section" wx:for="{{parsedAnswer.sections}}" wx:key="key">
+          <text class="vg-section-title">{{index + 1}}. {{item.title}}</text>
+          <text class="vg-section-content">{{item.content}}</text>
+        </view>
+      </view>
+
+      <view class="vg-answer-footer">
+        <view class="vg-btn vg-btn-sound" bindtap="replayAnswer">
+          <text class="vg-btn-sound-icon">🔊</text>
+          <text class="vg-btn-sound-text">再读一遍</text>
+        </view>
+        <view class="vg-btn vg-btn-primary vg-btn-ok" bindtap="closeAnswer">
+          <text class="vg-btn-ok-text">知道了</text>
+        </view>
+      </view>
+
+      <view class="vg-fallback-row" wx:if="{{parsedAnswer && parsedAnswer.unclear}}">
+        <view class="vg-btn vg-btn-sound" bindtap="openMapFallback">
+          <text class="vg-btn-sound-icon">📍</text>
+          <text class="vg-btn-sound-text">看不清？用地图给我指路</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="vg-toast" wx:if="{{errorText}}">
+    <text class="vg-toast-text">{{errorText}}</text>
+  </view>
+
+</view>

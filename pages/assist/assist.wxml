@@ -1,75 +1,102 @@
 <view class="container">
   <view class="header-gradient">
-    <view class="assist-header">
-      <view class="assist-icon-box">👨‍👩‍👧</view>
-      <view class="assist-title-group">
-        <text class="assist-main-title text-white">亲友协助社区</text>
-        <text class="assist-desc text-white" style="opacity: 0.9;">让子女帮助父母更便捷地出行</text>
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="monitor-header">
+      <view class="monitor-status">
+        <view class="status-dot {{isMonitoring ? 'active' : ''}}"></view>
+        <text class="status-text">{{isMonitoring ? '监护中' : '未开启监护'}}</text>
       </view>
+      <view class="monitor-title-group">
+        <text class="monitor-main-title text-white">智能监护中心</text>
+        <text class="monitor-desc text-white" style="opacity: 0.9;">出行安全，实时守护</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="current-trip-card" wx:if="{{currentTrip}}">
+    <view class="trip-card-header">
+      <text class="trip-card-title">当前行程</text>
+      <text class="trip-card-status">{{currentTrip.statusText}}</text>
+    </view>
+    <view class="trip-card-body">
+      <view class="trip-route">
+        <text class="route-from">{{currentTrip.from}}</text>
+        <text class="route-arrow">→</text>
+        <text class="route-to">{{currentTrip.to}}</text>
+      </view>
+      <view class="trip-info-row">
+        <text class="trip-info-item">车次：{{currentTrip.name}}</text>
+        <text class="trip-info-item">出发：{{currentTrip.departureTime}}</text>
+      </view>
+      <view class="trip-location">
+        <text class="location-label">当前位置：</text>
+        <text class="location-value">{{currentLocation || '定位中...'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="no-trip-card" wx:else>
+    <text class="no-trip-icon-text">暂无行程</text>
+    <text class="no-trip-text">当前没有进行中的行程</text>
+    <text class="no-trip-desc">开始出行后，这里会实时显示位置和状态</text>
+  </view>
+
+  <view class="anomaly-section">
+    <view class="section-header">
+      <text class="card-title">异常提醒</text>
+      <text class="section-more" wx:if="{{unreadCount > 0}}" bindtap="markAllRead">{{unreadCount}}条未读</text>
+      <text class="section-more" wx:else>全部已读</text>
+    </view>
+
+    <view class="anomaly-list" wx:if="{{anomalyEvents && anomalyEvents.length > 0}}">
+      <view class="anomaly-item {{!item.read ? 'unread' : ''}}" wx:for="{{anomalyEvents}}" wx:key="id" bindtap="viewEvent" data-event="{{item}}">
+        <view class="anomaly-icon-box {{item.type}}">
+          <text class="anomaly-label">提醒</text>
+        </view>
+        <view class="anomaly-content">
+          <view class="anomaly-title-row">
+            <text class="anomaly-title">{{item.title}}</text>
+            <text class="anomaly-time">{{item.time}}</text>
+          </view>
+          <text class="anomaly-desc">{{item.desc}}</text>
+          <text class="anomaly-location">位置：{{item.location}}</text>
+        </view>
+        <view class="anomaly-dot" wx:if="{{!item.read}}"></view>
+      </view>
+    </view>
+
+    <view class="empty-anomaly" wx:else>
+      <text class="empty-icon-text">一切正常</text>
+      <text class="empty-text">暂无异常记录</text>
+      <text class="empty-desc">放心出行</text>
     </view>
   </view>
 
   <view class="function-grid">
     <view class="function-card" bindtap="goToBind">
-      <view class="function-icon bind-bg">➕</view>
-      <text class="function-title">绑定子女</text>
-      <text class="function-desc">远程协助预订</text>
+      <view class="function-icon bind-bg">绑定</view>
+      <text class="function-title">绑定亲友</text>
+      <text class="function-desc">远程协助监护</text>
     </view>
 
     <view class="function-card" bindtap="goToManage">
-      <view class="function-icon manage-bg">👥</view>
-      <text class="function-title">协助列表</text>
-      <text class="function-desc">管理已绑亲友</text>
+      <view class="function-icon manage-bg">亲友</view>
+      <text class="function-title">亲友列表</text>
+      <text class="function-desc">管理已绑账号</text>
     </view>
 
-    <view class="function-card" bindtap="shareLocation">
-      <view class="function-icon location-bg">📍</view>
-      <text class="function-title">分享位置</text>
-      <text class="function-desc">实时共享行程</text>
+    <view class="function-card" bindtap="refreshLocation">
+      <view class="function-icon location-bg">定位</view>
+      <text class="function-title">刷新位置</text>
+      <text class="function-desc">查看实时位置</text>
     </view>
 
-    <view class="function-card" bindtap="requestHelp">
-      <view class="function-icon help-bg">🆘</view>
-      <text class="function-title">请求协助</text>
-      <text class="function-desc">一键呼叫子女</text>
-    </view>
-  </view>
-
-  <view class="family-section card" wx:if="{{assistAccounts.length > 0}}">
-    <view class="section-header">
-      <text class="card-title">已绑定的亲友</text>
-      <text class="section-more" bindtap="goToManage">管理 ›</text>
-    </view>
-    <view class="family-list">
-      <view class="family-item" wx:for="{{assistAccounts}}" wx:key="phone">
-        <view class="family-avatar">{{item.nameFirstChar}}</view>
-        <view class="family-info">
-          <text class="family-name">{{item.name}}</text>
-          <text class="family-relation">{{item.relation}}</text>
-        </view>
-        <view class="btn-mini call-btn" bindtap="callFamily" data-phone="{{item.phone}}">📞 通话</view>
-      </view>
-    </view>
-  </view>
-
-  <view class="guide-card">
-    <view class="guide-header">
-      <text class="guide-icon">💡</text>
-      <text class="guide-title">使用指南</text>
-    </view>
-    <view class="guide-list">
-      <view class="guide-item">
-        <view class="guide-num">1</view>
-        <text class="guide-text">绑定子女手机号，子女可远程协助</text>
-      </view>
-      <view class="guide-item">
-        <view class="guide-num">2</view>
-        <text class="guide-text">出行时分享位置，家人可实时查看</text>
-      </view>
-      <view class="guide-item">
-        <view class="guide-num">3</view>
-        <text class="guide-text">遇到问题时，一键呼叫子女协助</text>
-      </view>
+    <view class="function-card" bindtap="callForHelp">
+      <view class="function-icon help-bg">紧急</view>
+      <text class="function-title">紧急联系</text>
+      <text class="function-desc">一键呼叫亲友</text>
     </view>
   </view>
 </view>

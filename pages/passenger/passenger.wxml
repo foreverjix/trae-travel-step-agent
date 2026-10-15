@@ -1,0 +1,38 @@
+<view class="page">
+  <view class="header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-title">乘车人信息</view>
+  </view>
+
+  <view class="content">
+    <view class="tip-card">
+      <text class="tip-icon">💡</text>
+      <text class="tip-text">填一次就行，以后买票自动带出，不用再输</text>
+    </view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">姓名</text>
+        <textarea class="form-input" placeholder="请输入真实姓名" value="{{name}}" bindinput="onNameInput" auto-height maxlength="20" />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">身份证号</text>
+        <textarea class="form-input" placeholder="请输入身份证号码" value="{{idCard}}" bindinput="onIdCardInput" auto-height maxlength="18" />
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">手机号</text>
+        <textarea class="form-input" placeholder="请输入手机号码" value="{{phone}}" bindinput="onPhoneInput" auto-height maxlength="11" type="number" />
+      </view>
+    </view>
+
+    <view class="save-btn {{saved ? 'saved' : ''}}" bindtap="savePassenger">
+      <text>{{saved ? '已保存 ✓ 点击更新' : '保存信息'}}</text>
+    </view>
+  </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
+</view>

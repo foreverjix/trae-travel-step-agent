@@ -1,7 +1,12 @@
 <view class="container">
   <view class="header-gradient">
-    <text class="page-title text-white">{{parentName}}的行程</text>
-    <text class="page-subtitle text-white">查看父母的出行记录</text>
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-info">
+      <text class="page-title text-white">{{parentName}}的行程</text>
+      <text class="page-subtitle text-white">查看父母的出行记录</text>
+    </view>
   </view>
 
   <view class="trips-list" wx:if="{{trips.length > 0}}">
@@ -20,7 +25,7 @@
 
       <view class="trip-steps-preview">
         <view class="step-preview" wx:for="{{item.steps}}" wx:key="name" wx:for-item="step">
-          <text class="step-icon">{{step.type === 'taxi' ? '🚕' : step.type === 'train' ? '🚄' : step.type === 'flight' ? '✈️' : '🚌'}}</text>
+          <text class="step-icon-text">行程</text>
           <text class="step-time">{{step.time}}</text>
         </view>
       </view>
@@ -33,8 +38,10 @@
   </view>
 
   <view class="empty-state" wx:else>
-    <text class="empty-icon">📋</text>
+    <text class="empty-icon-text">暂无</text>
     <text class="empty-title">暂无行程记录</text>
     <text class="empty-desc">{{parentName}}还没有出行记录，您可以帮父母规划行程</text>
   </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

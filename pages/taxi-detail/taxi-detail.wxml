@@ -1,8 +1,5 @@
 <view class="container">
   <view class="status-card">
-    <view class="status-icon-ring">
-      <text class="status-icon">{{statusIcon}}</text>
-    </view>
     <text class="status-text">{{statusText}}</text>
     <text class="status-desc">{{statusDesc}}</text>
   </view>
@@ -23,15 +20,12 @@
     </view>
     <view class="route-info">
       <view class="info-item">
-        <text class="info-icon">📍</text>
         <text class="info-text">{{order.distance}}公里</text>
       </view>
       <view class="info-item">
-        <text class="info-icon">⏱️</text>
         <text class="info-text">{{order.duration}}</text>
       </view>
       <view class="info-item">
-        <text class="info-icon">💰</text>
         <text class="info-text price">¥{{order.price}}</text>
       </view>
     </view>
@@ -39,22 +33,18 @@
 
   <view class="driver-card" wx:if="{{order.driver}}">
     <view class="driver-header">
-      <view class="driver-avatar">
-        <text class="avatar-icon">👨‍✈️</text>
-      </view>
+      <text class="driver-label">司机</text>
       <view class="driver-info">
         <text class="driver-name">{{order.driver.name}}</text>
         <view class="driver-rating">
-          <text class="star">★</text>
           <text class="rating-value">{{order.driver.rating}}</text>
         </view>
       </view>
       <view class="driver-call" bindtap="callDriver">
-        <text class="call-icon">📞</text>
+        <text class="call-text">呼叫</text>
       </view>
     </view>
     <view class="vehicle-info">
-      <text class="vehicle-icon">🚗</text>
       <text class="vehicle-text">车牌号: {{vehiclePlate}}</text>
     </view>
   </view>
@@ -89,11 +79,9 @@
 
   <view class="safety-section">
     <view class="safety-item">
-      <text class="safety-icon">⚠️</text>
       <text class="safety-text">行程已分享给紧急联系人</text>
     </view>
     <view class="safety-item">
-      <text class="safety-icon">🆘</text>
       <text class="safety-text">紧急求助按钮已就绪</text>
     </view>
   </view>

@@ -13,7 +13,9 @@ const trainStations = [
   { id: '12', name: '重庆北站', code: 'CQN' },
   { id: '13', name: '杭州东站', code: 'HZD' },
   { id: '14', name: '南京南站', code: 'NNP' },
-  { id: '15', name: '天津站', code: 'TJ' }
+  { id: '15', name: '天津站', code: 'TJ' },
+  { id: '16', name: '太原南站', code: 'TNV' },
+  { id: '17', name: '太原站', code: 'TYV' }
 ]
 
 const busStations = [
@@ -103,6 +105,100 @@ const trains = [
       { type: '硬座', count: 100, price: 192 },
       { type: '硬卧', count: 80, price: 335 },
       { type: '软卧', count: 30, price: 527 }
+    ]
+  },
+  {
+    id: 'G1954',
+    name: 'G1954',
+    type: '高铁',
+    startStation: '太原南站',
+    endStation: '南京南站',
+    startTime: '08:30',
+    endTime: '13:20',
+    duration: '4小时50分',
+    price: 423,
+    seats: [
+      { type: '二等座', count: 120, price: 423 },
+      { type: '一等座', count: 40, price: 683 },
+      { type: '商务座', count: 10, price: 1280 }
+    ]
+  },
+  {
+    id: 'G696',
+    name: 'G696',
+    type: '高铁',
+    startStation: '太原南站',
+    endStation: '北京西站',
+    startTime: '07:15',
+    endTime: '10:42',
+    duration: '3小时27分',
+    price: 321,
+    seats: [
+      { type: '二等座', count: 100, price: 321 },
+      { type: '一等座', count: 30, price: 519 },
+      { type: '商务座', count: 8, price: 968 }
+    ]
+  },
+  {
+    id: 'D2532',
+    name: 'D2532',
+    type: '动车',
+    startStation: '太原南站',
+    endStation: '西安北站',
+    startTime: '09:00',
+    endTime: '12:18',
+    duration: '3小时18分',
+    price: 289,
+    seats: [
+      { type: '二等座', count: 110, price: 289 },
+      { type: '一等座', count: 35, price: 462 }
+    ]
+  },
+  {
+    id: 'K609',
+    name: 'K609',
+    type: '快速',
+    startStation: '太原站',
+    endStation: '北京西站',
+    startTime: '22:10',
+    endTime: '05:28',
+    duration: '7小时18分',
+    price: 98,
+    seats: [
+      { type: '硬座', count: 200, price: 98 },
+      { type: '硬卧', count: 100, price: 171 },
+      { type: '软卧', count: 25, price: 262 }
+    ]
+  },
+  {
+    id: 'G1958',
+    name: 'G1958',
+    type: '高铁',
+    startStation: '太原南站',
+    endStation: '上海虹桥站',
+    startTime: '10:20',
+    endTime: '16:38',
+    duration: '6小时18分',
+    price: 587,
+    seats: [
+      { type: '二等座', count: 120, price: 587 },
+      { type: '一等座', count: 40, price: 949 },
+      { type: '商务座', count: 10, price: 1761 }
+    ]
+  },
+  {
+    id: 'D2562',
+    name: 'D2562',
+    type: '动车',
+    startStation: '太原南站',
+    endStation: '郑州东站',
+    startTime: '14:30',
+    endTime: '17:45',
+    duration: '3小时15分',
+    price: 224,
+    seats: [
+      { type: '二等座', count: 110, price: 224 },
+      { type: '一等座', count: 35, price: 358 }
     ]
   }
 ]

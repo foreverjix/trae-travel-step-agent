@@ -1,109 +1,290 @@
 <view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">地图智能规划</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">输入目的地，自动安排全程出行</text>
+  <!-- 简洁头部 -->
+  <view class="header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <text class="header-title">行程规划</text>
   </view>
 
   <!-- 地址输入 -->
   <view class="address-card">
-    <view class="address-row">
-      <view class="address-dot start"></view>
-      <input class="address-input" placeholder="您在哪里出发？" value="{{from}}" bindinput="onFromInput" />
+    <view class="input-row">
+      <text class="input-label">{{role === 'family' ? '父' : '起'}}</text>
+      <input class="input-field" placeholder="{{role === 'family' ? '父母在哪里出发？' : '您在哪里出发？'}}" value="{{from}}" bindinput="onFromInput" />
+      <text class="link-btn" bindtap="getCurrentLocation">{{role === 'family' ? '父母定位' : '定位'}}</text>
     </view>
-    <view class="address-divider"></view>
-    <view class="address-row">
-      <view class="address-dot end"></view>
-      <input class="address-input" placeholder="您要去哪里？" value="{{to}}" bindinput="onToInput" />
-    </view>
-    <view class="swap-btn" bindtap="swapAddress">⇅ 调换</view>
-  </view>
-
-  <!-- 日期 -->
-  <view class="date-card">
-    <text class="date-label">出发日期</text>
-    <picker mode="date" value="{{date}}" start="{{today}}" bindchange="onDateChange">
-      <view class="date-value">{{date}}</view>
-    </picker>
-  </view>
-
-  <!-- 真实地图 -->
-  <view class="map-card" wx:if="{{from && to}}">
-    <view class="map-header">
-      <text class="map-title">路线预览</text>
-      <text class="map-distance">全程约 {{distance}} 公里</text>
-    </view>
-    <view class="real-map-container">
-      <map 
-        id="routeMap"
-        longitude="{{centerLng}}"
-        latitude="{{centerLat}}"
-        scale="{{mapScale}}"
-        markers="{{markers}}"
-        polyline="{{polyline}}"
-        bindmarkertap="onMarkerTap"
-        style="width: 100%; height: 100%;"
-      />
+    <view class="divider"></view>
+    <view class="input-row">
+      <text class="input-label">终</text>
+      <input class="input-field" placeholder="{{role === 'family' ? '父母要去哪里？' : '您要去哪里？'}}" value="{{to}}" bindinput="onToInput" />
+      <text class="link-btn" bindtap="swapAddress">调换</text>
     </view>
   </view>
 
-  <!-- 规划方案 -->
-  <view class="plans-section" wx:if="{{plans.length > 0}}">
-    <view class="section-header">
-      <text class="card-title">推荐方案</text>
-      <text class="section-more">{{plans.length}}个方案</text>
+  <!-- 搜索结果 -->
+  <view class="search-results" wx:if="{{showSearchResults && searchResults.length > 0}}">
+    <view class="list-header">
+      <text class="list-title">搜索结果</text>
+      <text class="list-count">{{searchResults.length}}个地点</text>
     </view>
-    <view class="plan-list">
-      <view class="plan-card {{selectedPlan && selectedPlan.id === item.id ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="id" bindtap="selectPlan" data-plan="{{item}}">
-        <view class="plan-badge" wx:if="{{item.recommended}}">推荐</view>
-        <view class="plan-header">
-          <view class="plan-time">
-            <text class="time-icon">⏱</text>
-            <text class="time-text">{{item.totalTime}}</text>
-          </view>
-          <view class="plan-price">
-            <text class="price-unit">¥</text>
-            <text class="price-value">{{item.totalPrice}}</text>
-            <text class="price-text">起</text>
-          </view>
-        </view>
-        <view class="plan-steps">
-          <view class="plan-step" wx:for="{{item.steps}}" wx:key="index" wx:for-item="step" wx:for-index="stepIndex">
-            <view class="step-icon">{{step.icon}}</view>
-            <view class="step-info">
-              <view class="step-name-row">
-                <text class="step-name">{{step.name}}</text>
-                <text class="step-provider">{{getProviderShortName(step.provider)}}</text>
-              </view>
-              <text class="step-detail">{{step.detail}}</text>
-            </view>
-          </view>
-        </view>
-        <view class="plan-action">
-          <view class="plan-providers" wx:if="{{selectedPlan && selectedPlan.id === item.id}}">
-            <view class="provider-label">点击跳转对应小程序下单：</view>
-            <view class="provider-chips">
-              <view class="provider-chip" wx:for="{{item.steps}}" wx:key="index" wx:for-item="pstep" catchtap="goToProvider" data-provider="{{pstep.provider}}" data-plan="{{item}}">
-                <text class="chip-icon">{{pstep.icon}}</text>
-                <text class="chip-text">{{getProviderShortName(pstep.provider)}}</text>
-              </view>
-            </view>
-          </view>
-          <view class="btn-primary plan-btn" wx:if="{{selectedPlan && selectedPlan.id === item.id}}">已选此方案</view>
-          <view class="btn-primary plan-btn" wx:else>选择此方案</view>
-        </view>
+    <view class="list-item" wx:for="{{searchResults}}" wx:key="id" bindtap="selectSearchResult" data-result="{{item}}">
+      <view class="list-item-main">
+        <text class="list-item-title">{{item.name}}</text>
+        <text class="list-item-sub">{{item.address || item.district || item.cityname}}</text>
       </view>
+      <text class="list-item-arrow">›</text>
     </view>
   </view>
 
-  <view class="empty-state" wx:else>
-    <text class="empty-icon">🗺️</text>
-    <text class="empty-text">请输入出发地和目的地</text>
-    <text class="empty-hint">试试：太原 → 南京</text>
+  <!-- 日期选择 -->
+  <view class="date-row" wx:if="{{!scene || scene !== 'home' && scene !== 'hospital' && scene !== 'station'}}">
+    <view class="date-card">
+      <text class="date-label">出发日期</text>
+      <picker mode="date" value="{{date}}" start="{{today}}" bindchange="onDateChange">
+        <text class="date-value">{{date}}</text>
+      </picker>
+    </view>
   </view>
 
-  <!-- 提示 -->
-  <view class="safety-tip">
-    <text class="safety-tip-icon">💡</text>
-    <text class="safety-tip-text">选择方案后，每一步都需要您手动确认才会预订</text>
+  <!-- 查询按钮 -->
+  <view class="search-btn" bindtap="searchAll">查询出行方案</view>
+
+  <!-- 地图 -->
+  <view class="map-section" wx:if="{{hasSearched}}">
+    <view class="map-header">
+      <text class="map-title">行程地图</text>
+      <text class="map-sub" wx:if="{{distance}}">全程 {{distance}} 公里</text>
+    </view>
+    <map
+      id="routeMap"
+      longitude="{{centerLng}}"
+      latitude="{{centerLat}}"
+      scale="{{mapScale}}"
+      markers="{{markers}}"
+      polyline="{{polyline}}"
+      style="width: 100%; height: 360rpx;"
+      show-location="{{true}}"
+      enable-zoom="{{true}}"
+      enable-scroll="{{true}}"
+    />
   </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!hasSearched}}">
+    <text class="empty-text">请输入出发地和目的地</text>
+    <text class="empty-sub">点击上方按钮查询出行方案</text>
+  </view>
+
+  <!-- 方案列表 -->
+  <view class="plans-wrapper" wx:if="{{hasSearched}}">
+
+    <view class="loading-box" wx:if="{{loadingPlans}}">
+      <text class="loading-text">正在规划行程...</text>
+    </view>
+
+    <view wx:elif="{{plans.length > 0}}">
+
+      <text class="result-count">共找到 {{plans.length}} 套出行方案</text>
+
+      <view class="plan-block" wx:for="{{plans}}" wx:key="id" wx:for-item="plan">
+
+        <!-- 推荐标签 -->
+        <view class="plan-tags" wx:if="{{plan.isRecommended || plan.isCheapest}}">
+          <text class="plan-tag" wx:if="{{plan.isRecommended}}">推荐</text>
+          <text class="plan-tag cheap" wx:if="{{plan.isCheapest && !plan.isRecommended}}">最便宜</text>
+        </view>
+
+        <!-- 推荐理由 -->
+        <view class="plan-reason" wx:if="{{plan.reason}}">
+          <text class="reason-text">{{plan.reason}}</text>
+        </view>
+
+        <!-- 时间信息 -->
+        <view class="plan-time-row" wx:if="{{plan.startTime}}">
+          <view class="time-cell">
+            <text class="time-label">出发</text>
+            <text class="time-value">{{plan.startTime}}</text>
+          </view>
+          <view class="time-cell">
+            <text class="time-label">到达</text>
+            <text class="time-value">{{plan.endTime}}</text>
+          </view>
+        </view>
+
+        <!-- 汇总信息（无具体出发时间时） -->
+        <view class="plan-summary" wx:else>
+          <view class="summary-cell">
+            <text class="summary-label">时长</text>
+            <text class="summary-value">{{plan.totalDuration}}</text>
+          </view>
+          <view class="summary-cell">
+            <text class="summary-label">到达</text>
+            <text class="summary-value">{{plan.arrivalTime}}</text>
+          </view>
+          <view class="summary-cell">
+            <text class="summary-label">费用</text>
+            <text class="summary-value">¥{{plan.totalCost}}</text>
+          </view>
+        </view>
+
+        <!-- 分段行程 -->
+        <view class="segments-list">
+
+          <view class="seg-row" wx:for="{{plan.segments}}" wx:key="index" wx:for-item="seg" wx:for-index="segIndex">
+            <view class="seg-label-col">
+              <text class="seg-label {{seg.labelClass}}">{{seg.displayLabel}}</text>
+            </view>
+            <view class="seg-body">
+              <view class="seg-title">{{seg.title}}</view>
+
+              <view wx:if="{{seg.type === 'train'}}">
+                <text class="seg-desc">{{seg.desc}}</text>
+                <text class="seg-loc">{{seg.location}}</text>
+                <view class="info-line" wx:if="{{seg.train && seg.train.minPrice}}">
+                  <text class="info-key">票价</text>
+                  <text class="info-val">¥{{seg.train.minPrice}}起</text>
+                  <text class="info-key" wx:if="{{seg.train && seg.train.prices && seg.train.prices.length > 0}}">座位</text>
+                  <text class="info-val" wx:if="{{seg.train && seg.train.prices && seg.train.prices.length > 0}}">{{seg.train.prices[0].type}}</text>
+                </view>
+              </view>
+
+              <view wx:elif="{{seg.type === 'walk'}}">
+                <text class="seg-desc">{{seg.desc}}</text>
+              </view>
+
+              <view wx:elif="{{seg.type === 'bus'}}">
+                <text class="seg-desc">{{seg.desc}}</text>
+                <text class="seg-loc">{{seg.location}}</text>
+                <view class="info-line">
+                  <text class="info-key">费用</text>
+                  <text class="info-val">¥{{seg.bus.cost}}</text>
+                  <text class="info-key">到达</text>
+                  <text class="info-val">{{seg.bus.arrivalTime}}</text>
+                </view>
+                <view class="lines-row" wx:if="{{seg.bus && seg.bus.lines}}">
+                  <text class="line-tag" wx:for="{{seg.bus.lines}}" wx:key="index" wx:for-item="line">{{line.name}} ({{line.stops}}站)</text>
+                </view>
+              </view>
+
+              <view wx:elif="{{seg.type === 'taxi'}}">
+                <text class="seg-desc">{{seg.desc}}</text>
+                <text class="seg-loc">{{seg.location}}</text>
+                <view class="info-line">
+                  <text class="info-key">费用</text>
+                  <text class="info-val">¥{{seg.taxi.cost}}</text>
+                  <text class="info-key">到达</text>
+                  <text class="info-val">{{seg.taxi.arrivalTime}}</text>
+                </view>
+                <view class="info-line" wx:if="{{seg.segConfirmedType === 'taxi' && seg.taxiOrderInfo}}">
+                  <text class="info-key">车牌</text>
+                  <text class="info-val">{{seg.taxiOrderInfo.plate}}</text>
+                  <text class="info-key">司机</text>
+                  <text class="info-val">{{seg.taxiOrderInfo.driverPhone}}</text>
+                </view>
+              </view>
+
+              <view wx:elif="{{seg.isLocalSegment}}">
+                <view class="toggle-row">
+                  <view class="toggle-btn {{seg.isTaxiActive ? 'on' : ''}}" bindtap="switchTransitMode" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-mode="taxi">
+                    <text class="toggle-text">打车</text>
+                  </view>
+                  <view class="toggle-btn {{seg.isBusActive ? 'on' : ''}}" bindtap="switchTransitMode" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-mode="bus">
+                    <text class="toggle-text">公交</text>
+                  </view>
+                  <view class="toggle-btn {{seg.isSubwayActive ? 'on' : ''}}" wx:if="{{seg.subway}}" bindtap="switchTransitMode" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-mode="subway">
+                    <text class="toggle-text">地铁</text>
+                  </view>
+                </view>
+
+                <view wx:if="{{seg.isTaxiActive}}">
+                  <text class="seg-desc">{{seg.taxi.desc}}</text>
+                </view>
+                <view wx:elif="{{seg.isBusActive}}">
+                  <text class="seg-desc">{{seg.bus.desc}}</text>
+                  <view class="lines-row" wx:if="{{seg.bus.lines}}">
+                    <text class="line-tag" wx:for="{{seg.bus.lines}}" wx:key="index" wx:for-item="line">{{line.name}} ({{line.stops}}站)</text>
+                  </view>
+                </view>
+                <view wx:elif="{{seg.isSubwayActive}}">
+                  <text class="seg-desc">{{seg.subway.desc}}</text>
+                  <view class="lines-row" wx:if="{{seg.subway.lines}}">
+                    <text class="line-tag" wx:for="{{seg.subway.lines}}" wx:key="index" wx:for-item="line">{{line.name}} ({{line.stops}}站)</text>
+                  </view>
+                </view>
+
+                <text class="seg-loc">{{seg.location}}</text>
+
+                <view wx:if="{{seg.segConfirmedType === 'taxi' && seg.taxiOrderInfo}}">
+                  <view class="info-line">
+                    <text class="info-key">费用</text>
+                    <text class="info-val">¥{{seg.taxiOrderInfo.cost}}</text>
+                    <text class="info-key">车牌</text>
+                    <text class="info-val">{{seg.taxiOrderInfo.plate}}</text>
+                  </view>
+                  <view class="info-line">
+                    <text class="info-key">司机</text>
+                    <text class="info-val">{{seg.taxiOrderInfo.driverPhone}}</text>
+                    <text class="info-key">到达</text>
+                    <text class="info-val">约{{seg.taxiOrderInfo.duration}}</text>
+                  </view>
+                </view>
+              </view>
+
+              <view class="seg-btn-row">
+                <view class="seg-btn disabled" wx:if="{{seg.showDoneBtn}}">
+                  <text class="seg-btn-text">已确认</text>
+                </view>
+                <view class="seg-btn" wx:elif="{{seg.showLoadingBtn}}">
+                  <text class="seg-btn-text">处理中...</text>
+                </view>
+                <view class="seg-btn primary" wx:elif="{{seg.showTrainBtn}}" catchtap="confirmSegment" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-seg-type="train" data-plan="{{plan}}">
+                  <text class="seg-btn-text">购买火车票</text>
+                </view>
+                <view class="seg-btn primary" wx:elif="{{seg.showTaxiBtn}}" catchtap="confirmSegment" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-seg-type="taxi" data-plan="{{plan}}">
+                  <text class="seg-btn-text">叫车</text>
+                </view>
+                <view class="seg-btn" wx:elif="{{seg.showBusBtn}}" catchtap="confirmSegment" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-seg-type="bus" data-plan="{{plan}}">
+                  <text class="seg-btn-text">确认公交</text>
+                </view>
+                <view class="seg-btn" wx:elif="{{seg.showSubwayBtn}}" catchtap="confirmSegment" data-plan-id="{{plan.id}}" data-segment-index="{{segIndex}}" data-seg-type="subway" data-plan="{{plan}}">
+                  <text class="seg-btn-text">确认地铁</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+        </view>
+
+        <!-- 底部价格和确认 -->
+        <view class="plan-footer">
+          <view class="price-block">
+            <text class="price-label">全程预估</text>
+            <view class="price-value-row">
+              <text class="price-symbol">¥</text>
+              <text class="price-value-num">{{plan.totalCost}}</text>
+              <text class="price-unit">起</text>
+            </view>
+          </view>
+          <view class="confirm-all" wx:if="{{plan.segments.length > 0}}" catchtap="confirmAllSegments" data-plan="{{plan}}">
+            <text class="confirm-all-text">一键确认全部</text>
+          </view>
+        </view>
+
+      </view>
+
+    </view>
+
+    <view class="empty-plans" wx:else>
+      <text class="empty-text">暂无出行方案</text>
+      <text class="empty-sub">{{plansError || '请尝试更换出发地或目的地'}}</text>
+    </view>
+
+  </view>
+
+  <view class="foot-tip" wx:if="{{hasSearched}}">
+    <text class="foot-tip-text">每段行程可独立确认，点击已确认可取消</text>
+  </view>
+
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

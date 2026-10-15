@@ -1,0 +1,270 @@
+page {
+  background: #000;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.vl-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+}
+
+/* ------- 摄像头 ------- */
+.vl-camera {
+  width: 100%;
+  height: 100vh;
+}
+
+/* ------- 待机画面（用普通view，不在camera上） ------- */
+.vl-idle {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64rpx 48rpx;
+  box-sizing: border-box;
+}
+.vl-idle-top {
+  text-align: center;
+  margin-bottom: 64rpx;
+}
+.vl-idle-title {
+  display: block;
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 16rpx;
+}
+.vl-idle-desc {
+  display: block;
+  font-size: 30rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+.vl-idle-trip {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16rpx;
+  padding: 32rpx 48rpx;
+  text-align: center;
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+}
+.vl-idle-trip-no {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #FF8C42;
+  margin-bottom: 8rpx;
+}
+.vl-idle-trip-line {
+  display: block;
+  font-size: 34rpx;
+  color: #fff;
+}
+.vl-idle-trip-gate {
+  display: block;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 8rpx;
+}
+.vl-idle-btn {
+  margin-top: 80rpx;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 160rpx;
+  background: rgba(255, 140, 66, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 6rpx solid rgba(255, 255, 255, 0.3);
+}
+.vl-idle-btn-icon {
+  font-size: 48rpx;
+  color: #fff;
+  margin-bottom: 8rpx;
+}
+.vl-idle-btn-text {
+  font-size: 32rpx;
+  color: #fff;
+  font-weight: 600;
+}
+.vl-idle-btn-hint {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* ------- 覆盖在 camera 上的 cover-view 样式 ------- */
+
+/* 顶部状态条 */
+.vl-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 88rpx 32rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 5;
+}
+.vl-topbar-left {
+  display: flex;
+  align-items: center;
+}
+.vl-dot {
+  width: 14px;
+  height: 14px;
+  background-color: rgba(255, 255, 255, 0.4);
+  margin-right: 16px;
+  border-radius: 7px;
+}
+.vl-dot.on {
+  background-color: #FF8C42;
+}
+.vl-topbar-text {
+  font-size: 28px;
+  color: #fff;
+}
+.vl-topbar-close {
+  width: 64px;
+  height: 64px;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vl-topbar-close-icon {
+  font-size: 40px;
+  color: #fff;
+}
+
+/* 行程标签 */
+.vl-trip-tag {
+  position: absolute;
+  top: 180rpx;
+  right: 32rpx;
+  background-color: rgba(255, 140, 66, 0.9);
+  padding: 8rpx 20rpx;
+  z-index: 5;
+}
+.vl-trip-tag-text {
+  font-size: 28rpx;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* AI回答浮层 */
+.vl-answer {
+  position: absolute;
+  left: 32rpx;
+  right: 32rpx;
+  bottom: 320rpx;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 28rpx 32rpx;
+  z-index: 5;
+}
+.vl-answer-item {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+.vl-answer-item:last-child {
+  margin-bottom: 0;
+}
+.vl-answer-num {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #FF8C42;
+  margin-right: 16rpx;
+  min-width: 32rpx;
+}
+.vl-answer-text {
+  font-size: 36rpx;
+  color: #fff;
+  line-height: 1.5;
+  flex: 1;
+}
+.vl-answer-unclear {
+  text-align: center;
+}
+.vl-answer-unclear-text {
+  font-size: 34rpx;
+  color: #FFB627;
+}
+
+/* 底部控制 */
+.vl-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 48rpx 48rpx calc(64rpx + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 5;
+}
+.vl-btn-circle {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 80rpx;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 4rpx solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vl-btn-circle.active {
+  background-color: #FF8C42;
+  border-color: #FF8C42;
+}
+.vl-btn-circle-icon {
+  font-size: 56rpx;
+  color: #fff;
+}
+.vl-bottom-hint {
+  margin-top: 20rpx;
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 相册选图按钮 */
+.vl-album-btn {
+  position: absolute;
+  bottom: calc(240rpx + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
+  padding: 20rpx 48rpx;
+  z-index: 10;
+}
+.vl-album-btn-text {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* 错误提示 */
+.vl-error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 2rpx solid rgba(255, 100, 100, 0.5);
+  padding: 32rpx 48rpx;
+  z-index: 7;
+  max-width: 80%;
+}
+.vl-error-text {
+  font-size: 32rpx;
+  color: #ff6b6b;
+  text-align: center;
+  line-height: 1.5;
+}

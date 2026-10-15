@@ -1,23 +1,39 @@
+/* 个人中心样式 - 温暖友好版 */
+.page-container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F8FAFE 0%, #F5F8FC 30%, #F8FAFE 100%);
+  padding-bottom: 60rpx;
+}
+
+.header-gradient {
+  background: linear-gradient(135deg, #7BA8F0 0%, #5B8DEF 100%);
+  padding: calc(env(safe-area-inset-top) + 56rpx) 32rpx 48rpx;
+  position: relative;
+}
+
 .user-card {
   display: flex;
   align-items: center;
-  padding: 16rpx 8rpx;
+  padding: 16rpx;
 }
 
 .user-avatar {
-  width: 132rpx;
-  height: 132rpx;
+  width: 140rpx;
+  height: 140rpx;
   background: rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
+  border-radius: 32rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 28rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
 }
 
 .avatar-icon {
-  font-size: 72rpx;
+  font-size: 56rpx;
+  color: #FFFFFF;
+  font-weight: 700;
 }
 
 .user-info {
@@ -25,63 +41,72 @@
 }
 
 .user-name {
-  font-size: 44rpx;
-  font-weight: bold;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #FFFFFF;
   display: block;
-  margin-bottom: 10rpx;
+  margin-bottom: 12rpx;
 }
 
 .user-phone {
   font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.85);
   display: block;
 }
 
 .edit-btn {
-  padding: 14rpx 28rpx;
+  padding: 16rpx 32rpx;
   background: rgba(255, 255, 255, 0.25);
-  border-radius: 30rpx;
-  font-size: 28rpx;
-  color: #ffffff;
-  font-weight: bold;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
 }
 
 .login-card-simple {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 48rpx 0;
 }
 
 .login-icon {
-  font-size: 100rpx;
-  margin-bottom: 16rpx;
+  font-size: 48rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  margin-bottom: 20rpx;
 }
 
 .login-text {
   font-size: 40rpx;
-  font-weight: bold;
+  font-weight: 600;
+  color: #FFFFFF;
   display: block;
-  margin-bottom: 28rpx;
+  margin-bottom: 36rpx;
 }
 
 .btn-white {
-  background: #ffffff;
-  color: #FF8C42;
-  border-radius: 50rpx;
+  background: #FFFFFF;
+  color: #5B8DEF;
+  border-radius: 32rpx;
   padding: 24rpx 64rpx;
   font-size: 32rpx;
-  font-weight: bold;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
 }
 
 .stats-card {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 32rpx 24rpx;
+  background: #FFFFFF;
+  box-shadow: 0 8rpx 32rpx rgba(91, 141, 239, 0.1);
+  border-radius: 24rpx;
+  padding: 40rpx 32rpx;
   display: flex;
   justify-content: space-around;
-  margin-bottom: 24rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  margin: -24rpx 32rpx 32rpx;
+  position: relative;
+  z-index: 10;
 }
 
 .stat-item {
@@ -90,147 +115,129 @@
 }
 
 .stat-value {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #FF8C42;
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #5B8DEF;
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 10rpx;
 }
 
 .stat-label {
-  font-size: 28rpx;
-  color: #6B7280;
-  font-weight: bold;
+  font-size: 26rpx;
+  color: #7A8BA0;
+  font-weight: 500;
 }
 
 .stat-divider {
-  width: 1rpx;
-  background: #F3E5D8;
+  width: 2rpx;
+  background: #E8ECF2;
+  margin: 0 20rpx;
 }
 
 .menu-section {
   display: flex;
   flex-direction: column;
   gap: 24rpx;
+  padding: 0 32rpx;
 }
 
 .menu-card {
-  background: #ffffff;
-  border-radius: 28rpx;
-  padding: 28rpx;
-  box-shadow: 0 8rpx 32rpx rgba(255, 140, 66, 0.08);
+  background: #FFFFFF;
+  box-shadow: 0 6rpx 24rpx rgba(91, 141, 239, 0.08);
+  border-radius: 24rpx;
+  padding: 20rpx 28rpx;
 }
 
 .menu-title {
-  font-size: 32rpx;
-  color: #9CA3AF;
-  font-weight: bold;
+  font-size: 26rpx;
+  color: #B5C3D4;
+  font-weight: 600;
   display: block;
-  margin-bottom: 16rpx;
-  padding-left: 12rpx;
+  margin-bottom: 12rpx;
+  padding: 16rpx 12rpx 8rpx;
+  text-transform: uppercase;
+  letter-spacing: 2rpx;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 24rpx 12rpx;
-  border-bottom: 1rpx solid #F9FAFB;
+  padding: 28rpx 12rpx;
+  border-bottom: 1rpx solid #F5F0EB;
+  transition: background 0.2s;
+  border-radius: 12rpx;
 }
 
 .menu-item:last-child {
   border-bottom: none;
 }
 
-.menu-icon-box {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 20rpx;
-}
-
-.menu-icon-box.address-bg {
-  background: #E6F4FF;
-}
-
-.menu-icon-box.order-bg {
-  background: #FFF2E6;
-}
-
-.menu-icon-box.medal-bg {
-  background: #FFF4E0;
-}
-
-.menu-icon-box.assist-bg {
-  background: #FFE4EC;
-}
-
-.menu-icon-box.agent-bg {
-  background: #F3E8FF;
-}
-
-.menu-icon-box.sos-bg {
-  background: #FFEBEF;
-}
-
-.menu-icon-box.service-bg {
-  background: #E6F4FF;
-}
-
-.menu-icon-box.setting-bg {
-  background: #F3F4F6;
-}
-
-.menu-icon {
-  font-size: 40rpx;
+.menu-item:active {
+  background: #F2F6FC;
 }
 
 .menu-text {
   flex: 1;
   font-size: 32rpx;
-  color: #2D3142;
-  font-weight: bold;
+  color: #2C3E5A;
+  font-weight: 500;
 }
 
 .menu-tag {
   font-size: 22rpx;
-  color: #ffffff;
-  background: #EF476F;
-  padding: 6rpx 14rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  padding: 8rpx 20rpx;
   border-radius: 20rpx;
-  margin-right: 12rpx;
-  font-weight: bold;
+  margin-right: 16rpx;
+  font-weight: 600;
+}
+
+.menu-tag.blue {
+  background: linear-gradient(135deg, #42A5F5, #1E88E5);
+}
+
+.menu-tag.green {
+  background: linear-gradient(135deg, #66BB6A, #43A047);
 }
 
 .menu-arrow {
-  font-size: 40rpx;
-  color: #D1D5DB;
+  font-size: 36rpx;
+  color: #CDD5E0;
+  font-weight: 300;
 }
 
 .logout-section {
-  margin-top: 32rpx;
-  margin-bottom: 40rpx;
+  margin-top: 40rpx;
+  margin-bottom: 48rpx;
+  padding: 0 32rpx;
 }
 
 .logout-btn {
   width: 100%;
+  background: #FFFFFF;
+  color: #E53935;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 6rpx 24rpx rgba(91, 141, 239, 0.08);
 }
 
 .version-info {
   text-align: center;
-  padding: 40rpx 20rpx;
+  padding: 32rpx 20rpx;
 }
 
 .version-text {
   font-size: 26rpx;
-  color: #9CA3AF;
+  color: #B5C3D4;
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 10rpx;
 }
 
 .copyright {
   font-size: 24rpx;
-  color: #D1D5DB;
+  color: #CDD5E0;
 }

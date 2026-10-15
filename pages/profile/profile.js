@@ -5,7 +5,6 @@ Page({
   data: {
     userInfo: null,
     orderCount: 0,
-    medalCount: 0,
     assistCount: 0,
     currentTrip: null
   },
@@ -18,6 +17,17 @@ Page({
   onShow() {
     this.loadUserData()
     this.checkCurrentTrip()
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    // 设置AI页面上下文
+    app.globalData.aiPageContext = {
+      page: 'profile',
+      title: '我的',
+      summary: '个人中心'
+    }
+  },
+
+  goBack() {
+    wx.navigateBack()
   },
 
   onHide() {
@@ -88,14 +98,13 @@ Page({
       }
     }
     
-    this.setData({ currentTrip })
+    this.setData({ currentTrip: currentTrip || null })
   },
 
   loadUserData() {
     this.setData({
       userInfo: app.globalData.userInfo,
       orderCount: app.globalData.orders.length,
-      medalCount: app.globalData.medals.length,
       assistCount: app.globalData.assistAccounts.length
     })
   },
@@ -112,27 +121,30 @@ Page({
     })
   },
 
-  goToMedals() {
-    wx.navigateTo({
-      url: '/pages/medals/medals'
-    })
-  },
-
   goToAssist() {
     wx.navigateTo({
       url: '/pages/assist/assist'
     })
   },
 
-  goToAgent() {
+  goToSos() {
     wx.navigateTo({
-      url: '/pages/agent/agent'
+      url: '/pages/sos/sos',
+      fail: function(err) {
+        console.error('导航到紧急求助页失败:', err)
+        wx.redirectTo({
+          url: '/pages/sos/sos',
+          fail: function() {
+            wx.showToast({ title: '页面打开失败', icon: 'none' })
+          }
+        })
+      }
     })
   },
 
-  goToSos() {
+  goToPassenger() {
     wx.navigateTo({
-      url: '/pages/sos/sos'
+      url: '/pages/passenger/passenger'
     })
   },
 
@@ -143,7 +155,21 @@ Page({
   },
 
   editProfile() {
-    showToast('编辑资料功能开发中')
+    wx.showModal({
+      title: '编辑资料',
+      editable: true,
+      placeholderText: '请输入姓名',
+      content: this.data.userInfo ? this.data.userInfo.name : '',
+      success: (res) => {
+        if (res.confirm && res.content) {
+          const userInfo = { ...this.data.userInfo, name: res.content }
+          app.globalData.userInfo = userInfo
+          wx.setStorageSync('userInfo', userInfo)
+          this.setData({ userInfo })
+          showToast('修改成功', 'success')
+        }
+      }
+    })
   },
 
   async logout() {
@@ -152,17 +178,6 @@ Page({
       app.logout()
       showToast('已退出登录', 'success')
       this.loadUserData()
-    }
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
     }
   }
 })

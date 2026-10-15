@@ -1,0 +1,200 @@
+<view class="container">
+  <view class="header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-info">
+      <text class="header-title">行程监控</text>
+      <text class="header-sub">实时追踪父母出行状态</text>
+    </view>
+    <view class="monitor-badge {{monitorStatusClass}}">
+      <text>{{monitorStatusText}}</text>
+    </view>
+  </view>
+
+  <view class="body">
+    <view class="location-bar">
+      <text class="location-text">当前位置：{{locationName}}</text>
+      <view class="location-btn" bindtap="refreshLocation">
+        <text>刷新</text>
+      </view>
+    </view>
+
+    <view class="map-card">
+      <map
+        class="trip-map"
+        longitude="{{mapData.longitude}}"
+        latitude="{{mapData.latitude}}"
+        scale="{{mapData.scale}}"
+        markers="{{mapData.markers}}"
+        polyline="{{mapData.polyline}}"
+        show-location
+        enable-zoom
+        enable-scroll
+      ></map>
+      <view class="map-legend">
+        <view class="legend-item">
+          <view class="legend-dot parent"></view>
+          <text>父母位置</text>
+        </view>
+        <view class="legend-item" wx:if="{{mapData.hasDestination}}">
+          <view class="legend-dot dest"></view>
+          <text>目的地</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="trip-card">
+      <view class="card-head">
+        <text class="card-title">当前行程</text>
+        <view class="status-tag {{currentTrip.status}}">
+          {{currentTrip.displayStatusText}}
+        </view>
+      </view>
+
+      <view class="route-row">
+        <view class="route-point">
+          <view class="dot start"></view>
+          <text class="route-name">{{currentTrip.fromShort || currentTrip.from}}</text>
+        </view>
+        <view class="route-line"></view>
+        <view class="route-point">
+          <view class="dot end"></view>
+          <text class="route-name">{{currentTrip.toShort || currentTrip.to}}</text>
+        </view>
+      </view>
+
+      <view class="detail-grid">
+        <view class="detail-cell">
+          <text class="detail-label">车次</text>
+          <text class="detail-value">{{currentTrip.name}}</text>
+        </view>
+        <view class="detail-cell">
+          <text class="detail-label">出发</text>
+          <text class="detail-value">{{currentTrip.departureTime}}</text>
+        </view>
+        <view class="detail-cell">
+          <text class="detail-label">到达</text>
+          <text class="detail-value">{{currentTrip.arrivalTime}}</text>
+        </view>
+        <view class="detail-cell">
+          <text class="detail-label">座位</text>
+          <text class="detail-value">{{currentTrip.seat}}</text>
+        </view>
+      </view>
+
+      <view class="voice-btn" bindtap="speakTripInfo">
+        <text>朗读行程详情</text>
+      </view>
+    </view>
+
+    <view class="driver-card" wx:if="{{currentDriver && currentDriver.phone}}">
+      <view class="card-head">
+        <text class="card-title">司机信息</text>
+        <view class="call-btn" bindtap="callDriver">
+          <text>联系司机</text>
+        </view>
+      </view>
+      <view class="driver-list">
+        <view class="driver-row">
+          <text class="driver-label">司机</text>
+          <text class="driver-value">{{currentDriver.name}}</text>
+        </view>
+        <view class="driver-row">
+          <text class="driver-label">车牌</text>
+          <text class="driver-value">{{currentDriver.plate}}</text>
+        </view>
+        <view class="driver-row">
+          <text class="driver-label">电话</text>
+          <text class="driver-value phone">{{currentDriver.phone}}</text>
+        </view>
+        <view class="driver-row" wx:if="{{currentDriver.arrivalTime}}">
+          <text class="driver-label">到达</text>
+          <text class="driver-value">{{currentDriver.arrivalTime}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="timeline-card" wx:if="{{timelineItems.length > 0}}">
+      <text class="section-title">行程进度</text>
+      <view class="timeline-list">
+        <view class="timeline-item {{item.statusClass}}" wx:for="{{timelineItems}}" wx:key="id">
+          <view class="tl-dot">
+            <text class="tl-label">{{item.icon}}</text>
+          </view>
+          <view class="tl-content">
+            <view class="tl-head">
+              <text class="tl-title">{{item.name}}</text>
+              <text class="tl-status">{{item.statusText}}</text>
+            </view>
+            <text class="tl-desc">{{item.time}} · {{item.desc}}</text>
+            <view class="tl-phone" wx:if="{{item.driverPhone}}">
+              <text class="tl-phone-label">司机：</text>
+              <text class="tl-phone-link" bindtap="callStepDriver" data-phone="{{item.driverPhone}}">{{item.driverPhone}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="alert-card" wx:if="{{alerts.length > 0}}">
+      <text class="section-title">状态提醒</text>
+      <view class="alert-list">
+        <view class="alert-row {{item.type}}" wx:for="{{alerts}}" wx:key="id">
+          <view class="alert-tag {{item.type === 'warning' ? 'warn' : ''}}">
+            <text>{{item.type === 'success' ? '完成' : '提醒'}}</text>
+          </view>
+          <view class="alert-body">
+            <text class="alert-title">{{item.title}}</text>
+            <text class="alert-desc">{{item.desc}}</text>
+          </view>
+          <text class="alert-time">{{item.time}}</text>
+        </view>
+      </view>
+
+      <view class="detection-card" wx:if="{{showSmartDetection}}">
+        <text class="section-title">智能异常检测</text>
+        <view class="detection-list">
+          <view class="detection-row danger" wx:if="{{deviationAlert}}">
+            <view class="detection-dot red"></view>
+            <text class="detection-text">{{deviationAlert.title}}</text>
+            <view class="detection-btn" bindtap="callParent"><text>联系</text></view>
+          </view>
+          <view class="detection-row warn" wx:if="{{stationaryAlert}}">
+            <view class="detection-dot orange"></view>
+            <text class="detection-text">{{stationaryAlert.title}}</text>
+            <view class="detection-btn" bindtap="callParent"><text>联系</text></view>
+          </view>
+          <view class="detection-row danger" wx:if="{{missedStationAlert}}">
+            <view class="detection-dot red"></view>
+            <text class="detection-text">{{missedStationAlert.title}}</text>
+            <view class="detection-btn" bindtap="callParent"><text>联系</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <view class="action-btn outline" bindtap="callParent">
+        <text>联系父母</text>
+      </view>
+      <view class="action-btn outline" bindtap="goToVolunteer">
+        <text>寻找志愿者</text>
+      </view>
+      <view class="action-btn fill" bindtap="shareLocation">
+        <text>分享位置</text>
+      </view>
+    </view>
+
+    <view class="demo-card">
+      <text class="section-title">演示功能</text>
+      <view class="demo-grid">
+        <view class="demo-btn" bindtap="triggerDemoDeviation"><text>触发偏离</text></view>
+        <view class="demo-btn" bindtap="triggerDemoStationary"><text>触发静止</text></view>
+        <view class="demo-btn" bindtap="triggerDemoMissedStation"><text>错过站点</text></view>
+        <view class="demo-btn" bindtap="triggerDemoArrival"><text>到达提醒</text></view>
+      </view>
+    </view>
+  </view>
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
+</view>

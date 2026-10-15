@@ -1,86 +1,158 @@
-<view class="container">
-  <view class="header-gradient">
-    <view class="agent-header">
-      <view class="agent-avatar">🤖</view>
-      <view class="agent-title-group">
-        <text class="agent-name text-white">出行小助手</text>
-        <text class="agent-desc text-white" style="opacity: 0.9;">根据您的需求，为您推荐最优出行方案</text>
+<!-- 出行小助手 - 全新沉浸式对话UI -->
+<view class="page">
+  <!-- 顶部：安心栏 + 返回 -->
+  <view class="top-bar">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <view class="reassure">
+      <text class="reassure-text">放心问，不会操作就说出来</text>
+    </view>
+    <view class="clear-btn" bindtap="clearHistory" wx:if="{{messages.length > 1}}">
+      <text class="clear-text">清空</text>
+    </view>
+  </view>
+
+  <!-- 问候Hero区：一句话建立共鸣 -->
+  <view class="hero" wx:if="{{messages.length <= 1}}">
+    <view class="hero-avatar">
+      <text class="hero-avatar-icon">助</text>
+      <view class="hero-dot"></view>
+    </view>
+    <text class="hero-title">出行小助手</text>
+    <text class="hero-sub">一句话，路线就帮您查好</text>
+    <view class="hero-tips">
+      <view class="hero-tip-row">
+        <text class="hero-tip-dot">·</text>
+        <text class="hero-tip-text">说："明天上午去省人民医院"</text>
+      </view>
+      <view class="hero-tip-row">
+        <text class="hero-tip-dot">·</text>
+        <text class="hero-tip-text">说："帮我订后天去南京的票"</text>
+      </view>
+      <view class="hero-tip-row">
+        <text class="hero-tip-dot">·</text>
+        <text class="hero-tip-text">说："现在打车回家"</text>
       </view>
     </view>
   </view>
 
-  <view class="input-card">
-    <view class="input-item">
-      <text class="input-label">出发地</text>
-      <input class="input-field" placeholder="请输入出发城市" value="{{from}}" bindinput="onFromInput" />
-    </view>
-    <view class="input-item">
-      <text class="input-label">目的地</text>
-      <input class="input-field" placeholder="请输入目的城市" value="{{to}}" bindinput="onToInput" />
-    </view>
-    <view class="input-item">
-      <text class="input-label">出行日期</text>
-      <input class="input-field" placeholder="请选择出行日期" value="{{date}}" bindtap="showDatePicker" />
-    </view>
-    <view class="input-item">
-      <text class="input-label">出行偏好</text>
-      <view class="preference-tags">
-        <view class="preference-tag {{prefFast ? 'active' : ''}}" bindtap="togglePreference" data-pref="fast">
-          <text>⚡ 快捷</text>
+  <!-- 对话流：大卡片式，不再是小气泡 -->
+  <scroll-view class="dialog-scroll" scroll-y scroll-into-view="{{scrollIntoId}}" enhanced show-scrollbar="{{false}}">
+    <view class="dialog-list">
+      <block wx:for="{{messages}}" wx:key="index">
+        <!-- 助手卡片 -->
+        <view class="dialog-card bot" wx:if="{{item.role === 'assistant'}}" id="msg-{{index}}">
+          <view class="card-label">
+            <view class="card-label-dot bot"></view>
+            <text class="card-label-text">助手</text>
+            <text class="card-time">{{item.time}}</text>
+          </view>
+          <view class="card-body bot-body">
+            <text class="card-text bot-text">{{item.content}}</text>
+          </view>
         </view>
-        <view class="preference-tag {{prefCheap ? 'active' : ''}}" bindtap="togglePreference" data-pref="cheap">
-          <text>💰 经济</text>
+        <!-- 用户卡片 -->
+        <view class="dialog-card user" wx:else id="msg-{{index}}">
+          <view class="card-label user-label">
+            <text class="card-time">{{item.time}}</text>
+            <text class="card-label-text">我说</text>
+            <view class="card-label-dot user"></view>
+          </view>
+          <view class="card-body user-body">
+            <text class="card-text user-text">{{item.content}}</text>
+          </view>
         </view>
-        <view class="preference-tag {{prefComfortable ? 'active' : ''}}" bindtap="togglePreference" data-pref="comfortable">
-          <text>🛋️ 舒适</text>
-        </view>
-      </view>
-    </view>
-    <view class="btn-primary recommend-btn" bindtap="getRecommendations">获取推荐方案</view>
-  </view>
+      </block>
 
-  <view class="plans-section" wx:if="{{plans.length > 0}}">
-    <view class="section-header">
-      <text class="card-title">推荐方案</text>
-      <text class="section-more">共{{plans.length}}个</text>
-    </view>
-    <view class="plans-list">
-      <view class="plan-card" wx:for="{{plans}}" wx:key="id" bindtap="selectPlan" data-plan="{{item}}">
-        <view class="plan-header">
-          <text class="plan-name">{{item.name}}</text>
-          <text class="plan-badge" wx:if="{{item.recommend}}">推荐</text>
+      <!-- 思考中 -->
+      <view class="dialog-card thinking" wx:if="{{isThinking}}">
+        <view class="card-label">
+          <view class="card-label-dot bot"></view>
+          <text class="card-label-text">助手思考中…</text>
         </view>
-        <text class="plan-desc">{{item.description}}</text>
-        <view class="plan-segments">
-          <view class="segment-item" wx:for="{{item.segments}}" wx:key="type" wx:for-item="segment">
-            <text class="segment-icon">{{segment.type === 'train' ? '🚄' : '🚕'}}</text>
-            <view class="segment-info">
-              <text class="segment-name">{{segment.name}}</text>
-              <text class="segment-time">{{segment.time}}</text>
+        <view class="card-body bot-body">
+          <view class="think-row">
+            <view class="think-dots">
+              <view class="tdot"></view>
+              <view class="tdot"></view>
+              <view class="tdot"></view>
             </view>
-            <text class="segment-price">¥{{segment.price}}</text>
+            <text class="think-text">正在为您查路线，请稍候</text>
           </view>
         </view>
-        <view class="plan-summary">
-          <view class="summary-item">
-            <text class="summary-label">总耗时</text>
-            <text class="summary-value">{{item.totalTime}}</text>
-          </view>
-          <view class="summary-item">
-            <text class="summary-label">总费用</text>
-            <text class="summary-value price">¥{{item.totalPrice}}</text>
-          </view>
-        </view>
-        <view class="plan-action">
-          <text>立即预订 →</text>
-        </view>
+      </view>
+
+      <view class="dialog-bottom-space"></view>
+    </view>
+  </scroll-view>
+
+  <!-- 快捷建议（只在问候阶段显示大按钮） -->
+  <view class="suggestions" wx:if="{{messages.length <= 2 && !isThinking}}">
+    <text class="suggest-title">试试这样说</text>
+    <view class="suggest-grid">
+      <view class="suggest-card" bindtap="useSuggestion" data-text="明天上午九点去省人民医院">
+        <text class="sug-emoji">🏥</text>
+        <text class="sug-main">去医院</text>
+        <text class="sug-sub">明天上午九点</text>
+      </view>
+      <view class="suggest-card" bindtap="useSuggestion" data-text="我要回家">
+        <text class="sug-emoji">🏠</text>
+        <text class="sug-main">回家</text>
+        <text class="sug-sub">现在出发</text>
+      </view>
+      <view class="suggest-card" bindtap="useSuggestion" data-text="后天下午去太原南站">
+        <text class="sug-emoji">🚄</text>
+        <text class="sug-main">去车站</text>
+        <text class="sug-sub">后天下午</text>
+      </view>
+      <view class="suggest-card" bindtap="useSuggestion" data-text="帮我订一张去南京的高铁票">
+        <text class="sug-emoji">🎫</text>
+        <text class="sug-main">买火车票</text>
+        <text class="sug-sub">去 南京</text>
       </view>
     </view>
   </view>
 
-  <view class="empty-state card" wx:if="{{!plans.length && showEmpty}}">
-    <text class="empty-icon">🤔</text>
-    <text class="empty-text">请输入出行信息</text>
-    <text class="empty-hint">我会为您推荐最适合的出行方案</text>
+  <!-- 输入区：巨型麦克风 + 文字输入兜底 -->
+  <view class="composer">
+    <!-- 麦克风主按钮 -->
+    <view class="mic-zone">
+      <view class="mic-btn {{isListening ? 'on' : ''}}" bindtap="startListening">
+        <view class="mic-ring" wx:if="{{isListening}}"></view>
+        <view class="mic-ring r2" wx:if="{{isListening}}"></view>
+        <text class="mic-icon">{{isListening ? '■' : '🎙'}}</text>
+      </view>
+      <view class="mic-info">
+        <text class="mic-title" wx:if="{{!isListening}}">点这里直接说话</text>
+        <text class="mic-title on" wx:else>正在听您说…（{{recordingDuration}}s）</text>
+        <text class="mic-sub" wx:if="{{!isListening}}">说完自动识别，不用点其他按钮</text>
+        <text class="mic-sub on" wx:else>再点一下立即结束</text>
+      </view>
+    </view>
+
+    <!-- 分割 + 文字输入 -->
+    <view class="divider">
+      <view class="div-line"></view>
+      <text class="div-text">或打字输入</text>
+      <view class="div-line"></view>
+    </view>
+
+    <view class="text-row">
+      <textarea
+        class="text-input"
+        auto-height
+        placeholder="输入您想去哪里、什么时候走…"
+        placeholder-class="text-ph"
+        value="{{inputText}}"
+        bindinput="onInput"
+        confirm-type="send"
+        bindconfirm="sendMessage"
+        maxlength="80"
+      ></textarea>
+      <view class="send-btn {{inputText ? 'ready' : ''}}" bindtap="sendMessage">
+        <text class="send-text">发送</text>
+      </view>
+    </view>
   </view>
 </view>

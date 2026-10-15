@@ -1,6 +1,8 @@
 {
+  "lazyCodeLoading": "requiredComponents",
   "pages": [
     "pages/index/index",
+    "pages/agent/agent",
     "pages/map-trip/map-trip",
     "pages/step-confirm/step-confirm",
     "pages/ticket/ticket",
@@ -9,8 +11,6 @@
     "pages/profile/profile",
     "pages/login/login",
     "pages/assist/assist",
-    "pages/agent/agent",
-    "pages/medals/medals",
     "pages/ticket-detail/ticket-detail",
     "pages/taxi-detail/taxi-detail",
     "pages/sos/sos",
@@ -19,16 +19,27 @@
     "pages/order-detail/order-detail",
     "pages/address/address",
     "pages/child/child",
+    "pages/child-trips/child-trips",
     "pages/child-plan/child-plan",
-    "pages/child-trips/child-trips"
+    "pages/trip-monitor/trip-monitor",
+    "pages/volunteer/volunteer",
+    "pages/passenger/passenger",
+    "pages/vision-guide/vision-guide",
+    "pages/vision-live/vision-live"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FF8C42",
+    "navigationBarBackgroundColor": "#ffffff",
     "navigationBarTitleText": "乐龄出行",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#FFF9F2"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f7f7"
   },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于定位您的当前位置，方便出行导航"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation", "chooseLocation"],
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }

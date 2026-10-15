@@ -1,80 +1,97 @@
-<view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">{{mode === 'child' ? '绑定父母账号' : '绑定子女辅助账号'}}</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">{{mode === 'child' ? '绑定后可以帮父母规划出行' : '让子女帮助您管理出行事务'}}</text>
+<view class="page">
+  <view class="header">
+    <view class="header-back" bindtap="goBack">
+      <text>‹</text>
+    </view>
+    <view class="header-info">
+      <text class="header-title">{{mode === 'child' ? '绑定父母账号' : '绑定子女辅助账号'}}</text>
+      <text class="header-sub">{{mode === 'child' ? '绑定后可帮父母规划出行、查看位置' : '让子女远程帮您处理出行事务'}}</text>
+    </view>
   </view>
 
-  <view class="form-card">
-    <view class="form-item">
-      <text class="form-label">{{mode === 'child' ? '父母姓名' : '子女姓名'}}</text>
-      <input 
-        class="form-input" 
-        placeholder="{{mode === 'child' ? '请输入父母姓名' : '请输入子女姓名'}}" 
-        value="{{formData.name}}"
-        bindinput="onNameInput"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">{{mode === 'child' ? '父母手机号' : '子女手机号'}}</text>
-      <input 
-        class="form-input" 
-        placeholder="{{mode === 'child' ? '请输入父母手机号' : '请输入子女手机号'}}" 
-        type="number"
-        value="{{formData.phone}}"
-        bindinput="onPhoneInput"
-      />
-    </view>
-
-    <view class="form-item">
-      <text class="form-label">关系</text>
-      <picker 
-        mode="selector" 
-        range="{{relations}}" 
-        value="{{relationIndex}}"
-        bindchange="onRelationChange"
-      >
-        <view class="form-select">
-          {{relations[relationIndex] || '请选择关系'}}
+  <view class="body">
+    <view class="form-card">
+      <view class="form-item">
+        <text class="item-label">{{mode === 'child' ? '父母姓名' : '子女姓名'}}</text>
+        <view class="input-box">
+          <textarea
+            class="ta"
+            placeholder="{{mode === 'child' ? '请输入父母姓名' : '请输入子女姓名'}}"
+            value="{{formData.name}}"
+            bindinput="onNameInput"
+            placeholder-class="ph"
+            auto-height
+            maxlength="20"
+            show-confirm-bar="{{false}}"
+          />
         </view>
-      </picker>
-    </view>
+      </view>
 
-    <view class="form-item">
-      <text class="form-label">验证码</text>
-      <view class="code-input-wrap">
-        <input 
-          class="form-input code-input" 
-          placeholder="请输入验证码" 
-          type="number"
-          value="{{formData.code}}"
-          bindinput="onCodeInput"
-        />
-        <view 
-          class="send-code-btn {{canSendCode ? '' : 'disabled'}}" 
-          bindtap="sendCode"
+      <view class="form-item">
+        <text class="item-label">{{mode === 'child' ? '父母手机号' : '子女手机号'}}</text>
+        <view class="input-box">
+          <textarea
+            class="ta"
+            placeholder="{{mode === 'child' ? '请输入父母手机号' : '请输入子女手机号'}}"
+            value="{{formData.phone}}"
+            bindinput="onPhoneInput"
+            placeholder-class="ph"
+            auto-height
+            maxlength="11"
+            show-confirm-bar="{{false}}"
+          />
+        </view>
+      </view>
+
+      <view class="form-item">
+        <text class="item-label">关系</text>
+        <picker
+          mode="selector"
+          range="{{relations}}"
+          value="{{relationIndex}}"
+          bindchange="onRelationChange"
         >
-          {{canSendCode ? '发送验证码' : countdown + '秒后重发'}}
+          <view class="input-box picker-box">
+            <text class="picker-text">{{relations[relationIndex] || '请选择关系'}}</text>
+            <text class="arrow">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="item-label">验证码</text>
+        <view class="code-row">
+          <view class="input-box code-box">
+            <textarea
+              class="ta"
+              placeholder="请输入验证码"
+              value="{{formData.code}}"
+              bindinput="onCodeInput"
+              placeholder-class="ph"
+              auto-height
+              maxlength="6"
+              show-confirm-bar="{{false}}"
+            />
+          </view>
+          <view class="code-btn {{canSendCode ? '' : 'disabled'}}" bindtap="sendCode">
+            {{canSendCode ? '获取验证码' : countdown + 's'}}
+          </view>
         </view>
       </view>
     </view>
 
-    <view class="btn-primary mt-40" bindtap="bindAccount">确认绑定</view>
-  </view>
-
-  <view class="tips-card">
-    <view class="tips-header">
-      <text class="tips-icon">💡</text>
-      <text class="tips-title">绑定说明</text>
+    <view class="main-btn" bindtap="bindAccount">
+      <text>确认绑定</text>
     </view>
-    <view class="tips-list">
-      <text class="tips-item" wx:if="{{mode === 'child'}}">• 绑定后可以帮父母规划行程、预订车票</text>
-      <text class="tips-item" wx:if="{{mode === 'child'}}">• 可以查看父母的出行记录和状态</text>
-      <text class="tips-item" wx:if="{{mode === 'child'}}">• 支持绑定多个父母账号</text>
-      <text class="tips-item" wx:if="{{mode !== 'child'}}">• 绑定后子女可以远程帮您预订车票、叫车</text>
-      <text class="tips-item" wx:if="{{mode !== 'child'}}">• 子女可以接收您的出行状态通知</text>
-      <text class="tips-item" wx:if="{{mode !== 'child'}}">• 紧急情况下子女可以快速定位您的位置</text>
-      <text class="tips-item" wx:if="{{mode !== 'child'}}">• 支持绑定多个子女账号</text>
+
+    <view class="tips">
+      <view class="tips-title">温馨提示</view>
+      <view class="tips-item" wx:if="{{mode === 'child'}}">• 绑定后可以帮父母规划行程、预订车票</view>
+      <view class="tips-item" wx:if="{{mode === 'child'}}">• 可以查看父母的出行记录和实时位置</view>
+      <view class="tips-item" wx:if="{{mode === 'child'}}">• 紧急情况下可一键呼叫志愿者协助</view>
+      <view class="tips-item" wx:if="{{mode !== 'child'}}">• 绑定后子女可以远程帮您预订车票、叫车</view>
+      <view class="tips-item" wx:if="{{mode !== 'child'}}">• 子女可以接收您的出行状态通知</view>
+      <view class="tips-item" wx:if="{{mode !== 'child'}}">• 紧急情况下子女可以快速定位您的位置</view>
     </view>
   </view>
 </view>

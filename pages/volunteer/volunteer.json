@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#F8F9FA",
+  "usingComponents": {
+    "ai-assistant": "/components/ai-assistant/ai-assistant"
+  }
+}

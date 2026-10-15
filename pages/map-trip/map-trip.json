@@ -1,4 +1,6 @@
 {
-  "navigationBarTitleText": "地图智能规划",
-  "usingComponents": {}
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "ai-assistant": "/components/ai-assistant/ai-assistant"
+  }
 }

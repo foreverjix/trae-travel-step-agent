@@ -1,148 +1,243 @@
 <view class="zero-container">
-  <!-- 顶部装饰背景 -->
-  <view class="zero-header-bg"></view>
-
-  <!-- 顶部问候与状态 -->
-  <view class="zero-header" style="padding-top: {{statusBarHeight + 20}}px;">
+  <view class="zero-header">
     <view class="zero-header-left">
       <text class="zero-greeting">{{greeting}}，{{userName}}</text>
       <text class="zero-date">{{weekDay}} · {{today}}</text>
     </view>
-    <view class="header-right">
-      <button class="share-btn" open-type="share">
-        <text class="share-icon">分享</text>
-      </button>
-      <view class="weather-pill">
-        <text class="weather-icon">☀️</text>
-        <text class="weather-temp">28°</text>
+    <view class="role-switch" bindtap="switchMode">
+      <text class="role-text">{{role === 'elder' ? '长辈端' : '子女端'}}</text>
+      <text class="role-arrow">切换</text>
+    </view>
+  </view>
+
+  <float-island trip="{{currentTrip}}" default-collapsed="{{true}}" show-exit-reminder="{{true}}" wx:if="{{role === 'elder'}}"></float-island>
+
+  <view wx:if="{{role === 'elder'}}">
+    <view class="main-screen">
+      <view class="main-cta">
+
+        <text class="main-cta-desc">说一句话，剩下交给它</text>
+      </view>
+
+      <view class="big-mic-btn {{isRecording ? 'recording' : ''}}" bindtap="{{isRecording ? 'stopRecord' : 'startRecord'}}">
+        <text class="big-mic-text">{{isRecording ? '说完点击' : '点击说话'}}</text>
+      </view>
+
+      <view class="main-hint">
+        <text class="main-hint-text">试试说："明天去南京看孙子"</text>
+      </view>
+
+      <view class="manual-entry" bindtap="goManualPlan">
+        <text class="manual-entry-text">不想说话？手动规划 ›</text>
+      </view>
+
+      <view class="location-share-card" bindtap="toggleLocationShare">
+        <view class="share-info">
+          <text class="share-title">{{isLocationSharing ? '位置共享中' : '开启位置共享'}}</text>
+          <text class="share-desc">{{isLocationSharing ? '子女可实时查看您的位置' : '子女可帮您叫车、规划行程'}}</text>
+        </view>
+        <view class="share-switch {{isLocationSharing ? 'on' : 'off'}}">
+          <view class="switch-dot"></view>
+        </view>
+      </view>
+
+      <view class="location-share-card" bindtap="goVisionLive">
+        <view class="share-info">
+          <text class="share-title">实时问路</text>
+          <text class="share-desc">举起手机，AI看着画面给您指路</text>
+        </view>
+        <text class="scene-go">前往</text>
+      </view>
+    </view>
+
+    <!-- AI助手启动/关闭按钮 -->
+    <view class="ai-launch-section" wx:if="{{role === 'elder' && !aiAssistantEnabled}}">
+      <view class="ai-launch-btn" bindtap="enableAI">
+        <text class="ai-launch-text">启用语音助手</text>
+        <text class="ai-launch-desc">说话就能查行程、问路线，不用打字</text>
+      </view>
+    </view>
+    <view class="ai-launch-section" wx:if="{{role === 'elder' && aiAssistantEnabled}}">
+      <view class="ai-disable-btn" bindtap="disableAI">
+        <text class="ai-disable-text">关闭语音助手</text>
+        <text class="ai-disable-desc">已开启，点击关闭</text>
+      </view>
+    </view>
+
+    <view class="processing-mask" wx:if="{{isProcessing}}" catchtouchstart="noop" catchtouchmove="noop">
+      <view class="processing-card">
+        <view class="processing-spinner"></view>
+        <text class="processing-text">正在为您安排出行…</text>
+        <text class="processing-sub">叫车 + 通知子女 + 规划路线</text>
+        <view class="processing-cancel" bindtap="cancelProcessing">取消</view>
+      </view>
+    </view>
+
+    <view class="trip-result-card" wx:if="{{tripResult}}">
+      <view class="result-header">
+        <text class="result-badge">已为您安排好</text>
+        <view class="result-close" bindtap="closeTripResult">
+          <text>关闭</text>
+        </view>
+      </view>
+
+      <view class="result-voice">
+        <text class="result-voice-label">您说了：</text>
+        <text class="result-voice-text">"{{tripResult.voiceText}}"</text>
+      </view>
+
+      <view class="result-route">
+        <view class="result-route-row" wx:for="{{tripResult.steps}}" wx:key="name">
+          <view class="result-step-info">
+            <text class="result-step-name">{{item.name}}</text>
+            <text class="result-step-desc">{{item.desc}}</text>
+          </view>
+          <text class="result-step-time">{{item.time}}</text>
+        </view>
+      </view>
+
+      <view class="result-driver">
+        <view class="result-driver-info">
+          <text class="result-driver-name">{{tripResult.driver}} · {{tripResult.plate}}</text>
+          <text class="result-driver-time">接您时间：{{tripResult.pickupTime}}</text>
+        </view>
+        <view class="result-call-btn" bindtap="callResultDriver">
+          <text>联系司机</text>
+        </view>
+      </view>
+
+      <view class="result-notify">
+        <text class="result-notify-text">已通知子女，费用由子女代付 ¥{{tripResult.fee}}</text>
+      </view>
+    </view>
+
+    <view class="scene-section" wx:if="{{!tripResult}}">
+      <view class="section-header-row">
+        <text class="section-title-bold">常去地点</text>
+        <text class="section-hint">点一下就出发</text>
+      </view>
+      <view class="scene-grid">
+        <view class="scene-card" bindtap="goHome">
+          <view class="scene-info">
+            <text class="scene-label">回家</text>
+            <text class="scene-desc">{{homeName}}</text>
+          </view>
+          <text class="scene-go">查看</text>
+        </view>
+
+        <view class="scene-card" bindtap="goHospital">
+          <view class="scene-info">
+            <text class="scene-label">就医</text>
+            <text class="scene-desc">{{hospitalName}}</text>
+          </view>
+          <text class="scene-go">查看</text>
+        </view>
+
+        <view class="scene-card" bindtap="goStation">
+          <view class="scene-info">
+            <text class="scene-label">车站</text>
+            <text class="scene-desc">{{stationName}}</text>
+          </view>
+          <text class="scene-go">查看</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <!-- 悬浮灵动岛组件 -->
-  <float-island trip="{{currentTrip}}" default-collapsed="{{false}}" show-exit-reminder="{{true}}"></float-island>
+  <view wx:if="{{role === 'family'}}">
+    <view class="family-section">
+      <view class="family-bind-card" wx:if="{{parentAccounts.length === 0}}" bindtap="goToAssist">
+        <view class="bind-info">
+          <text class="bind-title">绑定长辈账号</text>
+          <text class="bind-desc">输入长辈的配对码，即可远程协助</text>
+        </view>
+        <text class="bind-arrow">绑定</text>
+      </view>
 
-  <!-- 语音助手大卡片 -->
-  <view class="voice-section">
-    <view class="voice-card {{isRecording ? 'recording' : ''}}" bindtap="startVoice" bindlongpress="startRecord" bindtouchend="stopRecord">
-      <view class="voice-card-bg"></view>
-      <view class="voice-content">
-        <view class="voice-icon-wrapper">
-          <view class="voice-ring {{isRecording ? 'ring-pulse' : ''}}">
-            <text class="voice-icon-big">{{isRecording ? '🔴' : '🎙️'}}</text>
+      <view class="parent-list" wx:else>
+        <view class="section-header-row">
+          <text class="section-title-bold">已绑定长辈</text>
+        </view>
+        <view class="parent-grid">
+          <view class="parent-card" wx:for="{{parentAccounts}}" wx:key="phone" data-parent="{{item}}" bindtap="goToPlan">
+            <view class="parent-avatar">{{item.avatarChar || '?'}}</view>
+            <view class="parent-info">
+              <text class="parent-name">{{item.name}}</text>
+              <text class="parent-relation">{{item.relation || '长辈'}}</text>
+            </view>
+            <view class="parent-actions">
+              <view class="action-btn primary" data-parent="{{item}}" bindtap="goToPlan">帮订</view>
+            </view>
           </view>
         </view>
-        <view class="voice-text-wrapper">
-          <text class="voice-title">{{isRecording ? '正在听您说…' : '说一句就能出发'}}</text>
-          <text class="voice-subtitle">{{isRecording ? '松开结束说话' : '试试说 我要去县医院'}}</text>
-        </view>
-        <text class="voice-arrow">›</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 三大场景按钮 -->
-  <view class="scene-section">
-    <view class="section-header-row">
-      <text class="section-title-bold">想去哪儿？</text>
-      <text class="section-hint">点一下就好</text>
-    </view>
-    <view class="scene-grid">
-      <view class="scene-card scene-home" bindtap="goHome">
-        <view class="scene-emoji-wrap">
-          <text class="scene-emoji">🏠</text>
-        </view>
-        <view class="scene-info">
-          <text class="scene-label">回家</text>
-          <text class="scene-desc">{{homeName}}</text>
-        </view>
-        <text class="scene-go">›</text>
       </view>
 
-      <view class="scene-card scene-hospital" bindtap="goHospital">
-        <view class="scene-emoji-wrap">
-          <text class="scene-emoji">🏥</text>
+      <view class="family-features">
+        <view class="family-feature-card primary-card" bindtap="goToMonitor">
+          <text class="feature-title">行程监控</text>
+          <text class="feature-desc">实时查看长辈出行状态</text>
         </view>
-        <view class="scene-info">
-          <text class="scene-label">就医</text>
-          <text class="scene-desc">{{hospitalName}}</text>
+        <view class="family-feature-card" bindtap="goToPlan">
+          <text class="feature-title">远程帮订</text>
+          <text class="feature-desc">为长辈规划行程，一键下单</text>
         </view>
-        <text class="scene-go">›</text>
+        <view class="family-feature-card" bindtap="goToHelpTaxi">
+          <text class="feature-title">帮父母打车</text>
+          <text class="feature-desc">用父母位置一键叫车</text>
+        </view>
+        <view class="family-feature-card" bindtap="goToSos">
+          <text class="feature-title">紧急通知</text>
+          <text class="feature-desc">接收长辈SOS求助提醒</text>
+        </view>
       </view>
 
-      <view class="scene-card scene-station" bindtap="goStation">
-        <view class="scene-emoji-wrap">
-          <text class="scene-emoji">🚉</text>
+      <view class="more-section">
+        <view class="more-toggle" bindtap="toggleMore">
+          <text class="more-toggle-text">{{showMoreFeatures ? '收起' : '更多功能'}}</text>
+          <text class="more-toggle-arrow {{showMoreFeatures ? 'up' : ''}}">‹</text>
         </view>
-        <view class="scene-info">
-          <text class="scene-label">车站</text>
-          <text class="scene-desc">{{stationName}}</text>
-        </view>
-        <text class="scene-go">›</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 行程入口大区 -->
-  <view class="trip-section">
-    <view class="section-header-row">
-      <text class="section-title-bold">行程规划</text>
-      <text class="section-hint">想去任何地方</text>
-    </view>
-    <view class="trip-card" bindtap="goToMapTrip">
-      <view class="trip-card-bg"></view>
-      <view class="trip-content">
-        <view class="trip-left">
-          <text class="trip-icon">🗺️</text>
-          <view class="trip-info">
-            <text class="trip-title">地图智能规划</text>
-            <text class="trip-desc">输入目的地，自动安排火车+打车全程</text>
+        <view class="more-list" wx:if="{{showMoreFeatures}}">
+          <view class="more-item" bindtap="goToAddress">
+            <text class="more-item-title">地址管理</text>
+            <text class="more-item-desc">帮长辈设置常用地址</text>
+          </view>
+          <view class="more-item" bindtap="goAgent">
+            <text class="more-item-title">智能助手</text>
+            <text class="more-item-desc">语音对话规划行程</text>
           </view>
         </view>
-        <text class="trip-go-btn">去规划</text>
       </view>
-      <view class="trip-route-demo">
-        <view class="route-dot start"></view>
-        <view class="route-line"></view>
-        <view class="route-dot transfer"></view>
-        <view class="route-line"></view>
-        <view class="route-dot end"></view>
-      </view>
-    </view>
 
-    <view class="trip-grid">
-      <view class="trip-mini-card" bindtap="goToOrders">
-        <text class="mini-icon">📋</text>
-        <text class="mini-title">我的行程</text>
-        <text class="mini-desc">查看已订行程</text>
+      <!-- 子女端AI助手启用/关闭按钮 -->
+      <view class="ai-launch-section" wx:if="{{!aiAssistantEnabled}}">
+        <view class="ai-launch-btn" bindtap="enableAI">
+          <text class="ai-launch-text">启用语音助手</text>
+          <text class="ai-launch-desc">语音查行程、问路线，操作更方便</text>
+        </view>
       </view>
-      <view class="trip-mini-card" bindtap="goToAssist">
-        <text class="mini-icon">👨‍👩‍👧</text>
-        <text class="mini-title">亲友协助</text>
-        <text class="mini-desc">子女远程帮订</text>
+      <view class="ai-launch-section" wx:if="{{aiAssistantEnabled}}">
+        <view class="ai-disable-btn" bindtap="disableAI">
+          <text class="ai-disable-text">关闭语音助手</text>
+          <text class="ai-disable-desc">已开启，点击关闭</text>
+        </view>
       </view>
     </view>
   </view>
 
-  <!-- SOS 紧急按钮 -->
-  <view class="sos-section">
+  <view class="sos-section" wx:if="{{role === 'elder'}}">
     <view class="sos-card" bindtap="goToSos">
-      <view class="sos-content">
-        <text class="sos-icon">🆘</text>
-        <view class="sos-info">
-          <text class="sos-title">紧急求助</text>
-          <text class="sos-desc">一键联系子女和120</text>
-        </view>
+      <view class="sos-info">
+        <text class="sos-title">紧急求助</text>
+        <text class="sos-desc">一键联系子女和120</text>
       </view>
-      <text class="sos-arrow">›</text>
+      <text class="sos-arrow">查看</text>
     </view>
   </view>
 
-  <!-- 语音结果弹窗 -->
   <view class="voice-modal" wx:if="{{showVoiceModal}}">
-    <view class="voice-modal-mask" bindtap="closeVoiceModal"></view>
-    <view class="voice-modal-content">
-      <view class="voice-modal-icon">{{isRecognizing ? '🔮' : '🎙️'}}</view>
+    <view class="voice-modal-mask" catchtouchstart="noop" catchtouchmove="noop" catchtap="closeVoiceModal"></view>
+    <view class="voice-modal-content" catchtap="noop">
+      <view class="voice-modal-label">{{isRecognizing ? '识别中' : '语音输入'}}</view>
       <text class="voice-modal-text">{{voiceText}}</text>
       <view class="voice-modal-loading" wx:if="{{isRecognizing}}">
         <view class="voice-loading-dot"></view>
@@ -153,12 +248,17 @@
         <text class="result-label">识别到您说的是</text>
         <text class="result-text">"{{voiceResult}}"</text>
       </view>
+      <view class="voice-modal-actions" wx:if="{{isRecording}}">
+        <view class="voice-btn-confirm" bindtap="stopRecord">说完了</view>
+      </view>
       <view class="voice-modal-actions" wx:if="{{voiceResult}}">
         <view class="voice-btn-cancel" bindtap="closeVoiceModal">取消</view>
         <view class="voice-btn-confirm" bindtap="confirmVoiceResult">确认去这里</view>
       </view>
+      <view class="voice-modal-close" wx:if="{{!isRecording && !isRecognizing && !voiceResult && voiceText}}" bindtap="closeVoiceModal">关闭</view>
     </view>
   </view>
 
   <custom-tabbar current-path="/pages/index/index"></custom-tabbar>
+  <ai-assistant id="ai-assistant" aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

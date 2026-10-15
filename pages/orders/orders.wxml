@@ -1,112 +1,85 @@
 <view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">我的订单</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">查看和管理您的出行订单</text>
+  <view class="header">
+    <text class="page-title">我的行程</text>
+    <text class="page-subtitle">查看和管理所有出行订单</text>
   </view>
 
-  <view class="order-tabs">
-    <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">
-      <text class="tab-text">全部</text>
-    </view>
-    <view class="tab-item {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
-      <text class="tab-text">进行中</text>
-    </view>
-    <view class="tab-item {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
-      <text class="tab-text">已完成</text>
-    </view>
-    <view class="tab-item {{currentTab === 'cancelled' ? 'active' : ''}}" bindtap="switchTab" data-tab="cancelled">
-      <text class="tab-text">已取消</text>
-    </view>
+  <view class="contact-bar" wx:if="{{role === 'elder'}}" bindtap="quickContactChild">
+    <text class="contact-icon">📞</text>
+    <text class="contact-text">出行有疑问？一键联系子女</text>
+    <text class="contact-arrow">›</text>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{currentTab === 'all' ? 'active' : ''}}" bindtap="switchTab" data-tab="all">全部</view>
+    <view class="tab {{currentTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">出行中</view>
+    <view class="tab {{currentTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">已结束</view>
+    <view class="tab {{currentTab === 'cancelled' ? 'active' : ''}}" bindtap="switchTab" data-tab="cancelled">已取消</view>
   </view>
 
   <view class="order-list" wx:if="{{filteredOrders.length > 0}}">
-    <view class="order-card" wx:for="{{filteredOrders}}" wx:key="orderId" bindtap="goToDetail" data-order="{{item}}">
-      <view class="order-header">
-        <view class="order-type">
-          <view class="order-icon-box {{item.type}}-bg">
-            <text class="order-icon">{{item.orderIcon}}</text>
-          </view>
-          <view class="order-title-group">
-            <text class="order-title-text">{{item.orderTitle}}</text>
-            <text class="order-id">{{item.orderId}}</text>
-          </view>
+    <view class="order-card" wx:for="{{filteredOrders}}" wx:key="orderId">
+      <view class="order-top">
+        <view class="order-info">
+          <text class="order-icon">{{item.type === 'train' ? '🚄' : (item.type === 'bus' ? '🚌' : '🚕')}}</text>
+          <text class="order-title">{{item.orderTitle}}</text>
         </view>
-        <view class="status-pill {{item.status}}-pill">{{item.statusText}}</view>
+        <text class="status-tag status-{{item.status}}">{{item.statusText}}</text>
       </view>
 
-      <view class="order-route-box">
-        <view class="route-point">
-          <text class="route-dot start"></text>
+      <view class="order-route">
+        <view class="route-item">
+          <text class="route-label">出发</text>
           <text class="route-name">{{item.startStation || item.start}}</text>
         </view>
-        <view class="route-line-section">
-          <view class="route-arrow-line"></view>
-          <text class="route-type">{{item.type === 'taxi' ? '打车' : '出行'}}</text>
+        <view class="route-line">
+          <text class="route-arrow">↓</text>
         </view>
-        <view class="route-point">
-          <text class="route-dot end"></text>
+        <view class="route-item">
+          <text class="route-label">到达</text>
           <text class="route-name">{{item.endStation || item.end}}</text>
         </view>
       </view>
 
-      <!-- 关键信息：车次/车牌/座位/时间 -->
-      <view class="order-keyinfo">
-        <view class="keyinfo-item" wx:if="{{item.name}}">
-          <text class="keyinfo-label">车次</text>
-          <text class="keyinfo-value">{{item.name}}</text>
-        </view>
-        <view class="keyinfo-item" wx:if="{{item.departureTime}}">
-          <text class="keyinfo-label">出发</text>
-          <text class="keyinfo-value">{{item.departureTime}}</text>
-        </view>
-        <view class="keyinfo-item" wx:if="{{item.seat}}">
-          <text class="keyinfo-label">座位</text>
-          <text class="keyinfo-value">{{item.seat}}</text>
-        </view>
-        <view class="keyinfo-item" wx:if="{{item.plate}}">
-          <text class="keyinfo-label">车牌</text>
-          <text class="keyinfo-value">{{item.plate}}</text>
-        </view>
-      </view>
-
       <view class="order-meta">
-        <view class="meta-item">
-          <text class="meta-icon">🕐</text>
-          <text class="meta-text">{{item.date}}</text>
+        <view class="meta-item" wx:if="{{item.name}}">
+          <text class="meta-label">车次</text>
+          <text class="meta-value">{{item.name}}</text>
         </view>
-        <view class="meta-item" wx:if="{{item.driver}}">
-          <text class="meta-icon">👨‍✈️</text>
-          <text class="meta-text">{{item.driver.name}} 司机</text>
+        <view class="meta-item" wx:if="{{item.departureTime}}">
+          <text class="meta-label">出发</text>
+          <text class="meta-value">{{item.departureTime}}</text>
+        </view>
+        <view class="meta-item" wx:if="{{item.seat}}">
+          <text class="meta-label">座位</text>
+          <text class="meta-value">{{item.seat}}</text>
+        </view>
+        <view class="meta-item" wx:if="{{item.plate}}">
+          <text class="meta-label">车牌</text>
+          <text class="meta-value">{{item.plate}}</text>
         </view>
       </view>
 
       <view class="order-footer">
-        <view class="order-price">
-          <text class="price-label">实付</text>
-          <text class="price-unit">¥</text>
-          <text class="price-value">{{item.price}}</text>
-        </view>
-        <view class="order-actions">
-          <view class="action-btn outline" wx:if="{{item.status === 'booked'}}" bindtap="handleAction" data-action="change" data-order="{{item}}">
-            <text>改签</text>
-          </view>
-          <view class="action-btn danger" wx:if="{{item.status === 'booked' || item.status === 'waiting' || item.status === 'picking'}}" bindtap="handleAction" data-action="cancel" data-order="{{item}}">
-            <text>取消</text>
-          </view>
-          <view class="action-btn primary" wx:if="{{item.status === 'completed'}}" bindtap="handleAction" data-action="confirm" data-order="{{item}}">
-            <text>确认</text>
-          </view>
-        </view>
+        <text class="order-date">{{item.date}}</text>
+        <text class="order-price">¥{{item.price || 0}}</text>
+      </view>
+
+      <view class="order-actions">
+        <view class="btn btn-outline" wx:if="{{item.status === 'booked'}}" catchtap="handleAction" data-action="change" data-order="{{item}}">换时间</view>
+        <view class="btn btn-outline-red" wx:if="{{item.status === 'booked' || item.status === 'waiting' || item.status === 'picking'}}" catchtap="handleAction" data-action="cancel" data-order="{{item}}">取消订单</view>
+        <view class="btn btn-outline-green" wx:if="{{item.status === 'completed'}}" catchtap="handleAction" data-action="confirm" data-order="{{item}}">确认完成</view>
+        <view class="btn btn-primary" catchtap="goToDetail" data-order="{{item}}">查看详情</view>
       </view>
     </view>
   </view>
 
-  <view class="empty-state card" wx:else>
-    <text class="empty-icon">📦</text>
+  <view class="empty" wx:else>
+    <text class="empty-icon">🚶</text>
     <text class="empty-text">{{emptyText}}</text>
-    <text class="empty-hint">点击下方按钮去预订</text>
-    <view class="btn-primary empty-btn" bindtap="goBook">去预订</view>
+    <view class="btn btn-primary empty-btn" bindtap="goBook">去预订出行</view>
   </view>
 
   <custom-tabbar current-path="/pages/orders/orders"></custom-tabbar>
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

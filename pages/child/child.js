@@ -3,7 +3,8 @@ const app = getApp()
 Page({
   data: {
     parentAccounts: [],
-    userName: ''
+    userName: '',
+    aiAssistantEnabled: false
   },
 
   onLoad() {
@@ -11,7 +12,17 @@ Page({
   },
 
   onShow() {
+    this.setData({ aiAssistantEnabled: app.globalData.aiAssistantEnabled })
+    app.globalData.aiPageContext = {
+      page: 'child',
+      title: '子女端',
+      summary: '子女管理长辈出行'
+    }
     this.loadData()
+  },
+
+  goBack() {
+    wx.navigateBack()
   },
 
   loadData() {
@@ -72,16 +83,5 @@ Page({
         }
       }
     })
-  },
-  onShareAppMessage() {
-    return {
-      title: '乐龄出行 - 专为中老年人打造的出行助手',
-      path: '/pages/index/index'
-    }
-  },
-  onShareTimeline() {
-    return {
-      title: '乐龄出行 - 让长辈出行更简单、更安全'
-    }
   }
 })

@@ -1,5 +1,5 @@
 <view class="float-island-container" wx:if="{{visible}}">
-  <view class="float-island {{expanded ? 'expanded' : ''}} {{isUrgent ? 'urgent' : ''}}" style="top: {{statusBarHeight + 10}}px;">
+  <view class="float-island {{expanded ? 'expanded' : ''}} {{isUrgent ? 'urgent' : ''}} device-{{deviceType}}" style="top: {{statusBarHeight}}px;">
     <view class="island-pulse" wx:if="{{isUrgent && !expanded}}"></view>
     
     <view class="island-content">
@@ -22,17 +22,75 @@
       
       <view class="island-expanded" wx:else>
         <view class="expanded-header">
-          <text class="expanded-title">📋 今日行程</text>
-          <view class="expanded-close" catchtap="closeIsland">✕</view>
+          <text class="expanded-title">今日行程</text>
+          <view class="expanded-close" catchtap="closeIsland">关闭</view>
         </view>
         
         <view class="expanded-main">
-          <view class="expanded-route">
-            <text class="route-start">{{trip.from}}</text>
-            <text class="route-arrow">→</text>
-            <text class="route-end">{{trip.to}}</text>
+          <view class="location-bar">
+            <text class="location-text">当前位置：{{currentLocation || '定位中...'}}</text>
+            <view class="location-btn" bindtap="locateSelf">定位</view>
           </view>
-          
+
+          <view class="first-segment-bar" wx:if="{{!isLocked && processedTrip && processedTrip.steps && processedTrip.steps[0] && processedTrip.steps[0].isFirstSegment}}">
+            <text class="seg-bar-label">去车站方式：</text>
+            <view class="seg-bar-tabs">
+              <view class="seg-tab {{firstSegmentType === 'taxi' ? 'active' : ''}}" data-type="taxi" bindtap="switchFirstSegment">
+                打车
+              </view>
+              <view class="seg-tab {{firstSegmentType === 'bus' ? 'active' : ''}}" data-type="bus" bindtap="switchFirstSegment">
+                公交
+              </view>
+            </view>
+          </view>
+
+          <view class="trip-progress" wx:if="{{processedTrip && processedTrip.steps && processedTrip.steps.length}}">
+            <view class="prog-row">
+              <view class="prog-node {{currentStepIndex >= 0 ? 'current' : ''}}">
+                <view class="prog-circle start">
+                  <text class="prog-icon-text">起</text>
+                </view>
+                <view class="prog-name-wrap">
+                  <text class="prog-name">{{processedTrip.from}}　{{processedTrip.from}}</text>
+                </view>
+                <text class="prog-time">{{processedTrip.steps[0].time}}</text>
+              </view>
+
+              <block wx:for="{{processedTrip.steps}}" wx:key="index" wx:for-index="stepIdx">
+                <view class="prog-segment {{item.status === 'done' ? 'done' : ''}}">
+                  <text class="seg-icon">
+                    <text wx:if="{{item.type === 'taxi'}}">打车</text>
+                    <text wx:elif="{{item.type === 'bus'}}">公交</text>
+                    <text wx:elif="{{item.type === 'train'}}">高铁</text>
+                    <text wx:elif="{{item.type === 'subway'}}">地铁</text>
+                    <text wx:elif="{{item.type === 'walk'}}">步行</text>
+                    <text wx:else>行程</text>
+                  </text>
+                  <text class="seg-label">{{item.typeName}}</text>
+                  <view class="seg-sub-wrap">
+                    <text class="seg-sub">{{item.subText}}　{{item.subText}}</text>
+                  </view>
+                </view>
+
+                <view class="prog-node {{item.status === 'done' ? 'done' : ''}} {{currentStepIndex === stepIdx + 1 ? 'current' : ''}}">
+                  <view class="prog-circle {{stepIdx === processedTrip.steps.length - 1 ? 'end' : 'station'}}">
+                    <text wx:if="{{item.status === 'done'}}" class="prog-check">完成</text>
+                    <text wx:elif="{{stepIdx === processedTrip.steps.length - 1}}" class="prog-icon-text">终</text>
+                    <text wx:else class="prog-icon-text">换</text>
+                  </view>
+                  <view class="prog-name-wrap">
+                    <text class="prog-name">{{item.endLocation}}　{{item.endLocation}}</text>
+                  </view>
+                  <text class="prog-time">{{item.time}}</text>
+                </view>
+              </block>
+            </view>
+          </view>
+
+          <view class="current-step-banner" wx:if="{{currentStepText}}">
+            <text class="current-step-text">{{currentStepText}}</text>
+          </view>
+
           <view class="expanded-info">
             <view class="info-item">
               <text class="info-label">车次</text>
@@ -43,7 +101,7 @@
               <text class="info-value">{{trip.departureTime}}</text>
             </view>
           </view>
-          
+
           <view class="expanded-info">
             <view class="info-item">
               <text class="info-label">座位</text>
@@ -54,21 +112,16 @@
               <text class="info-value">{{trip.plate || (trip.steps && trip.steps[0] && trip.steps[0].plate) || '查看详情'}}</text>
             </view>
           </view>
-          
-          <view class="expanded-steps" wx:if="{{trip.steps && trip.steps.length}}">
-            <text class="steps-title">行程安排</text>
-            <view class="step-item" wx:for="{{trip.steps}}" wx:key="type">
-              <view class="step-dot {{item.type}}"></view>
-              <view class="step-content">
-                <text class="step-name">{{item.name}}</text>
-                <text class="step-detail">{{item.time}}
-                  <text wx:if="{{item.seat}}"> · {{item.seat}}</text>
-                  <text wx:if="{{item.plate}}"> · {{item.plate}}</text>
-                  <text wx:if="{{item.driver}}"> · {{item.driver}}</text>
-                  <text wx:if="{{item.platform}}"> · {{item.platform}}</text>
-                </text>
-              </view>
-            </view>
+        </view>
+        
+        <view class="expanded-actions">
+          <view class="action-btn action-tts {{isTtsPlaying ? 'playing' : ''}}" bindtap="toggleTtsPlay">
+            <text class="tts-btn-icon">{{isTtsPlaying ? '⏸' : '🔊'}}</text>
+            <text>{{isTtsPlaying ? '停止播报' : '语音播报'}}</text>
+          </view>
+          <view class="action-btn action-tts-auto {{isTtsAuto ? 'active' : ''}}" bindtap="toggleTtsAuto">
+            <text class="tts-auto-icon">🚶</text>
+            <text>{{isTtsAuto ? '行进播报中' : '行进播报'}}</text>
           </view>
         </view>
         

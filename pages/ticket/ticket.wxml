@@ -1,113 +1,175 @@
-<view class="container">
-  <view class="header-gradient">
-    <text class="page-title text-white">票务预订</text>
-    <text class="page-subtitle text-white" style="opacity: 0.9;">火车票、汽车票一站式购买</text>
-  </view>
-
-  <view class="ticket-tabs">
-    <view class="tab-item {{currentTab === 'train' ? 'active' : ''}}" bindtap="switchTab" data-tab="train">
-      <text class="tab-icon">🚄</text>
-      <text class="tab-text">火车票</text>
+<!-- 票务预订 - 沉浸式大卡片UI -->
+<view class="page">
+  <!-- 顶部安心栏 -->
+  <view class="top-bar">
+    <view class="back-btn" bindtap="goBack">
+      <text class="back-icon">‹</text>
     </view>
-    <view class="tab-item {{currentTab === 'bus' ? 'active' : ''}}" bindtap="switchTab" data-tab="bus">
-      <text class="tab-icon">🚌</text>
-      <text class="tab-text">汽车票</text>
+    <view class="reassure">
+      <text class="reassure-text">买票不难，点错了可以退</text>
     </view>
   </view>
 
-  <view class="search-card">
-    <view class="route-box">
-      <view class="route-station">
-        <text class="station-label">出发</text>
-        <input class="station-input" placeholder="请选择出发地" value="{{searchForm.from}}" bindfocus="showStationPicker" data-type="from" />
-      </view>
-      <view class="swap-btn" bindtap="swapRoute">
-        <text>⇄</text>
-      </view>
-      <view class="route-station">
-        <text class="station-label">到达</text>
-        <input class="station-input" placeholder="请选择目的地" value="{{searchForm.to}}" bindfocus="showStationPicker" data-type="to" />
-      </view>
+  <!-- 类型选择：Segment风格 -->
+  <view class="type-seg">
+    <view class="seg-item {{currentTab === 'train' ? 'active' : ''}}" bindtap="switchTab" data-tab="train">
+      <text class="seg-text">火车票</text>
     </view>
-    <view class="date-box">
-      <text class="date-label">出发日期</text>
-      <picker mode="date" value="{{searchForm.date}}" start="{{today}}" bindchange="onDateChange">
-        <view class="date-display">{{searchForm.date}}</view>
-      </picker>
-    </view>
-    <view class="search-btn btn-primary" bindtap="searchTickets">
-      搜索{{currentTab === 'train' ? '火车' : '汽车'}}票
+    <view class="seg-item {{currentTab === 'gaotie' ? 'active' : ''}}" bindtap="switchTab" data-tab="gaotie">
+      <text class="seg-text">高铁票</text>
     </view>
   </view>
 
-  <view class="hot-stations card">
-    <text class="card-title">热门车站</text>
-    <view class="station-tags">
-      <view class="station-tag" wx:for="{{hotStations}}" wx:key="id" bindtap="selectStation" data-name="{{item.name}}">
-        <text>{{item.name}}</text>
+  <!-- 温馨提示条 -->
+  <view class="guide-bar">
+    <text class="guide-text">📌 不会操作？点右下角蓝色AI按钮，说话就行</text>
+  </view>
+
+  <!-- 大卡片：出发地/目的地 -->
+  <view class="route-card">
+    <!-- 出发地 -->
+    <view class="route-row {{highlightFields['出发地'] ? 'ai-highlight' : ''}}" bindtap="showStationPicker" data-type="from">
+      <view class="route-dot from-dot"></view>
+      <view class="route-main">
+        <text class="route-label">出发地</text>
+        <block wx:if="{{locateStatus === 'locating'}}">
+          <text class="route-value locating">正在定位…</text>
+        </block>
+        <block wx:elif="{{locateStatus === 'failed'}}">
+          <text class="route-value failed">点我手动输入</text>
+        </block>
+        <block wx:elif="{{searchForm.from}}">
+          <text class="route-value">{{searchForm.from}}</text>
+        </block>
+        <block wx:else>
+          <text class="route-value placeholder">自动定位中…</text>
+        </block>
+      </view>
+      <text class="route-arrow">›</text>
+    </view>
+
+    <!-- 连接线 -->
+    <view class="route-line"></view>
+
+    <!-- 目的地 -->
+    <view class="route-row {{highlightFields['目的地'] ? 'ai-highlight' : ''}}" bindtap="showStationPicker" data-type="to">
+      <view class="route-dot to-dot"></view>
+      <view class="route-main">
+        <text class="route-label">目的地</text>
+        <block wx:if="{{searchForm.to}}">
+          <text class="route-value">{{searchForm.to}}</text>
+        </block>
+        <block wx:else>
+          <text class="route-value placeholder">点我选择城市</text>
+        </block>
+      </view>
+      <text class="route-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 日期大卡片 - 原生picker -->
+  <picker mode="date" value="{{searchForm.date}}" start="{{today}}" bindchange="onDateChange">
+    <view class="date-card {{highlightFields['出发日期'] ? 'ai-highlight' : ''}}">
+      <view class="date-icon">📅</view>
+      <view class="date-info">
+        <text class="date-label">出发日期</text>
+        <text class="date-value">{{searchForm.date || '请选择日期'}}</text>
+      </view>
+      <text class="date-arrow">›</text>
+    </view>
+  </picker>
+
+  <!-- 热门车站快捷 -->
+  <view class="quick-section" wx:if="{{hotStations.length > 0 && !results.length}}">
+    <text class="quick-title">热门车站</text>
+    <view class="quick-scroll">
+      <view class="quick-chip" wx:for="{{hotStations}}" wx:key="id" bindtap="selectStation" data-name="{{item.name}}">
+        <text class="chip-name">{{item.name}}</text>
       </view>
     </view>
   </view>
 
-  <view class="results-section" wx:if="{{results.length > 0}}">
-    <view class="section-header">
-      <text class="card-title">共{{results.length}}个车次</text>
-      <view class="sort-options">
-        <text class="sort-option {{sortBy === 'time' ? 'active' : ''}}" bindtap="setSort" data-sort="time">时间优先</text>
-        <text class="sort-option {{sortBy === 'price' ? 'active' : ''}}" bindtap="setSort" data-sort="price">价格优先</text>
-      </view>
+  <!-- 查询按钮 -->
+  <view class="search-btn-big {{highlightFields['查车票'] ? 'ai-highlight' : ''}}" bindtap="searchTickets">
+    <text class="search-text">查车票</text>
+  </view>
+
+  <!-- 结果列表：大卡片 -->
+  <view class="results" wx:if="{{results.length > 0}}">
+    <view class="results-head">
+      <text class="results-count">找到 {{results.length}} 个车次</text>
     </view>
-    <view class="ticket-list">
-      <view class="ticket-card" wx:for="{{results}}" wx:key="id" bindtap="goToTicketDetail" data-ticket="{{item}}">
-        <view class="ticket-top">
-          <view class="ticket-name-row">
-            <text class="ticket-name">{{item.name || item.id}}</text>
-            <text class="ticket-type">{{item.type || '长途汽车'}}</text>
+
+    <view class="ticket-cards">
+      <view class="tkt-card" wx:for="{{results}}" wx:key="id" bindtap="goToTicketDetail" data-ticket="{{item}}">
+        <!-- 车次头部 -->
+        <view class="tkt-head">
+          <view class="tkt-left">
+            <text class="tkt-no">{{item.name || item.id}}</text>
+            <text class="tkt-tag">{{currentTab === 'train' ? '普通' : '高铁'}}</text>
           </view>
-          <view class="ticket-price">
-            <text class="price-unit">¥</text>
-            <text class="price-value">{{item.price}}</text>
+          <view class="tkt-price">
+            <text class="price-sym">¥</text>
+            <text class="price-num">{{item.price}}</text>
+            <text class="price-unit">起</text>
           </view>
         </view>
-        <view class="ticket-timeline">
-          <view class="timeline-point">
-            <text class="timeline-time">{{item.startTime}}</text>
-            <text class="timeline-station">{{item.startStation}}</text>
+
+        <!-- 路线时间 -->
+        <view class="tkt-route">
+          <view class="tkt-from">
+            <text class="tkt-time">{{item.startTime}}</text>
+            <text class="tkt-st">{{item.startStation}}</text>
           </view>
-          <view class="timeline-bar">
-            <text class="duration-text">{{item.duration}}</text>
-            <view class="timeline-line"></view>
+          <view class="tkt-line">
+            <view class="tkt-line-dot"></view>
+            <text class="tkt-dur">{{item.duration}}</text>
+            <view class="tkt-line-dot"></view>
           </view>
-          <view class="timeline-point">
-            <text class="timeline-time">{{item.endTime}}</text>
-            <text class="timeline-station">{{item.endStation}}</text>
+          <view class="tkt-to">
+            <text class="tkt-time">{{item.endTime}}</text>
+            <text class="tkt-st">{{item.endStation}}</text>
           </view>
         </view>
-        <view class="ticket-action">
-          <view class="buy-btn">立即预订</view>
+
+        <!-- 底部操作 -->
+        <view class="tkt-foot">
+          <view class="tkt-tags">
+            <text class="tkt-tip">随时退改</text>
+          </view>
+          <view class="tkt-buy" catchtap="goToTicketDetail" data-ticket="{{item}}">
+            <text class="tkt-buy-text">买这张</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
-  <view class="station-picker" wx:if="{{showPicker}}" bindtap="hidePicker">
-    <view class="picker-content" catchtap="preventBubble">
-      <view class="picker-header">
-        <text class="picker-title">{{pickerTitle}}</text>
-        <text class="picker-close" bindtap="hidePicker">✕</text>
+  <!-- 车站选择弹窗 -->
+  <view class="sheet" wx:if="{{showPicker}}" bindtap="hidePicker">
+    <view class="sheet-content" catchtap="preventBubble" catchtouchmove="preventBubble">
+      <view class="sheet-head">
+        <text class="sheet-title">{{pickerTitle}}</text>
+        <view class="sheet-close" bindtap="hidePicker">
+          <text class="sheet-close-text">关闭</text>
+        </view>
       </view>
-      <view class="picker-search">
-        <input class="picker-search-input" placeholder="搜索车站" value="{{searchKeyword}}" bindinput="onSearchKeyword" />
+      <view class="sheet-search">
+        <input class="sheet-input" placeholder="输入车站名称" placeholder-class="ph-style" value="{{searchKeyword}}" bindinput="onSearchKeyword" />
       </view>
-      <scroll-view class="picker-list" scroll-y>
-        <view class="picker-item" wx:for="{{filteredStations}}" wx:key="id" bindtap="confirmStation" data-name="{{item.name}}">
-          <text class="item-name">{{item.name}}</text>
-          <text class="item-code" wx:if="{{item.code}}">{{item.code}}</text>
-          <text class="item-address" wx:if="{{item.address}}">{{item.address}}</text>
+      <scroll-view class="sheet-list" scroll-y>
+        <view class="sheet-item" wx:for="{{filteredStations}}" wx:key="id" bindtap="confirmStation" data-name="{{item.name}}">
+          <view class="sheet-item-info">
+            <text class="sheet-item-name">{{item.name}}</text>
+            <text class="sheet-item-addr" wx:if="{{item.address}}">{{item.address}}</text>
+          </view>
+          <text class="sheet-item-arrow">›</text>
         </view>
       </scroll-view>
     </view>
   </view>
 
+  <view style="height: 220rpx;"></view>
   <custom-tabbar current-path="/pages/ticket/ticket"></custom-tabbar>
+  <ai-assistant aiEnabled="{{aiAssistantEnabled}}"></ai-assistant>
 </view>

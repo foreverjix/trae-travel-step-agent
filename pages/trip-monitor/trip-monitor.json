@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "行程监控",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "ai-assistant": "/components/ai-assistant/ai-assistant"
+  }
+}

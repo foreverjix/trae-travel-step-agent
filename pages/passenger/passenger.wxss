@@ -1,0 +1,126 @@
+page {
+  background: linear-gradient(180deg, #F5F8FC 0%, #F8FAFE 40%, #F8FAFE 100%);
+  min-height: 100vh;
+}
+
+.header {
+  background: linear-gradient(135deg, #7BA8F0 0%, #5B8DEF 100%);
+  padding: calc(env(safe-area-inset-top) + 56rpx) 32rpx 36rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.header-back {
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(255,255,255,0.22);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.header-back text {
+  font-size: 40rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.2;
+}
+
+.content {
+  padding: 32rpx;
+}
+
+.tip-card {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #E6EEF9, #D8E6F5);
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+  border: 2rpx solid rgba(91, 141, 239, 0.2);
+}
+
+.tip-icon {
+  font-size: 44rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 28rpx;
+  color: #3A6BC4;
+  line-height: 1.5;
+}
+
+.form-card {
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  padding: 16rpx 32rpx 32rpx;
+  margin-bottom: 32rpx;
+  box-shadow: 0 8rpx 32rpx rgba(91, 141, 239, 0.10), 0 2rpx 8rpx rgba(91, 141, 239, 0.04);
+  border: 2rpx solid rgba(91, 141, 239, 0.08);
+}
+
+.form-item {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F5F0EB;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 28rpx;
+  color: #7A8BA0;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.form-input {
+  font-size: 36rpx;
+  color: #2C3E5A;
+  font-weight: 700;
+  width: 100%;
+  height: auto;
+  min-height: 48rpx;
+  padding: 20rpx 24rpx;
+  background: #F8FAFE;
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(91, 141, 239, 0.1);
+  box-sizing: border-box;
+  word-break: break-all;
+  white-space: normal;
+}
+
+.save-btn {
+  width: 100%;
+  min-height: 104rpx;
+  background: linear-gradient(135deg, #5B8DEF, #4A7AD9);
+  color: #FFFFFF;
+  border-radius: 52rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38rpx;
+  font-weight: 800;
+  box-shadow: 0 12rpx 36rpx rgba(91, 141, 239, 0.42);
+  letter-spacing: 4rpx;
+}
+
+.save-btn.saved {
+  background: linear-gradient(135deg, #81C784, #4CAF50);
+  box-shadow: 0 12rpx 36rpx rgba(76, 175, 80, 0.35);
+}
