@@ -2,6 +2,8 @@
 
 **AI voice-driven one-stop travel guardian for elderly users — a WeChat Mini Program.**
 
+> **Demo notice**: This is a demo project, built end-to-end with [Trae](https://www.trae.cn/) (the AI-native IDE), submitted to the [TRAE AI Creativity Contest](https://www.trae.cn/ai-creativity) — Social Good track. Third-party API calls fall back to mock data without keys, so the demo runs out of the box.
+
 Speak a destination, get a complete trip plan; the whole journey is monitored, narrated aloud, and guarded by AI. No typing, no menus, no learning curve.
 
 ---
@@ -13,6 +15,8 @@ I am an undergraduate student and independent developer. Most of my work is abou
 **LeLing Travel** started from what I kept seeing on long-distance trips: older travelers locked out of digital mobility. I once watched a woman wait 40 minutes for a ride outside a high-speed rail station, while the young man next to her got one in two minutes. Smart mobility is spreading fast, but for many seniors it has quietly built a wall.
 
 So I built this: a **zero-learning-cost, safety-first, voice-powered** travel tool that treats elderly users as first-class citizens — not as an accessibility afterthought.
+
+Everything you see here — architecture, UI, the VAD engine, the ranking algorithm, the safety agents — was designed and implemented end-to-end in Trae, with the AI engineer handling code generation, debugging, and iteration while I drove product decisions.
 
 ## 2. What It Does & Who It Serves
 
